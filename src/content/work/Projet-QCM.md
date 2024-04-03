@@ -13,9 +13,11 @@ tags:
 
 ## À propos du projet
 
-> "L'apprentissage par la pratique est la clé de la maîtrise du développement web."
+"L'apprentissage par la pratique est la clé de la maîtrise du développement web."
 
 Le Projet-QCM est une application web conçue pour tester les connaissances des utilisateurs sur différents langages de programmation à travers un quiz interactif en mode QCM. Ce projet de groupe a mis l'accent sur la collaboration, la gestion de projet et l'ingénierie logicielle.
+
+![Interface du Projet-QCM](/assets/qcm-interface.jpg)
 
 ### Objectifs et Réalisations
 
@@ -25,13 +27,13 @@ Le Projet-QCM est une application web conçue pour tester les connaissances des 
 
 ### Technologies Utilisées
 
-- HTML5, CSS3, JavaScript pour le front-end.
-- PHP pour le back-end.
-- MySQL pour la gestion des données.
+- ![HTML5](/assets/html5-badge.png) HTML5
+- ![CSS3](/assets/css3-badge.png) CSS3
+- ![JavaScript](/assets/javascript-badge.png) JavaScript
+- ![PHP](/assets/php-badge.png) PHP
+- ![MySQL](/assets/mysql-badge.png) MySQL
 
 #### Liens Utiles
 
 - [Voir le projet](http://bytemaster.alwaysdata.net/)
 - [Code source sur GitHub](https://github.com/Srblx/Projet-QCM/)
-
----
