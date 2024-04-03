@@ -27,11 +27,11 @@ Le Projet-QCM est une application web conçue pour tester les connaissances des 
 
 ### Technologies Utilisées
 
-- ![HTML5](/assets/html5-badge.png) HTML5
-- ![CSS3](/assets/css3-badge.png) CSS3
-- ![JavaScript](/assets/javascript-badge.png) JavaScript
-- ![PHP](/assets/php-badge.png) PHP
-- ![MySQL](/assets/mysql-badge.png) MySQL
+- HTML5
+- CSS3
+- JavaScript
+- PHP
+- MySQL
 
 #### Liens Utiles
 
