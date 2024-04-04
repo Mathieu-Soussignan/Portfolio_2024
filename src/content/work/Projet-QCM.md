@@ -17,8 +17,6 @@ tags:
 
 Le Projet-QCM est une application web conçue pour tester les connaissances des utilisateurs sur différents langages de programmation à travers un quiz interactif en mode QCM. Ce projet de groupe a mis l'accent sur la collaboration, la gestion de projet et l'ingénierie logicielle.
 
-![Interface du Projet-QCM](/assets/qcm-interface.jpg)
-
 ### Objectifs et Réalisations
 
 - Conception d'une interface utilisateur intuitive pour une expérience utilisateur engageante.
