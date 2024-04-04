@@ -47,6 +47,6 @@ Le projet a été développé en suivant une méthodologie agile, avec des cycle
 ### Découvrir le projet
 
 - [Démarrer avec Box-Shadow Studio](https://box-shadow-studio.vercel.app/)
-- [Code source sur GitHub](https://github.com/yourusername/box-shadow-studio)
+- [Code source sur GitHub](https://github.com/mathieu-soussignan/box-shadow-studio)
 
 ---
