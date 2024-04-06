@@ -42,9 +42,10 @@ La conception de ce projet a impliqué une analyse détaillée du site Nike orig
 - Composants React pour une architecture front-end solide et évolutive.
 - Finesse dans la création d'interfaces utilisateur avec un focus sur la performance et l'accessibilité.
 
-### Voir le projet
+### Essayer l'application
 
-Pour un aperçu du clone du site Nike, veuillez visiter le [lien du portfolio](https://portfolio-mathieu-soussignan.com/projects/nike-clone).
+- [Voir le site en action](https://website-clone-nike.vercel.app/)
+- [Code source sur GitHub](https://github.com/Mathieu-Soussignan/website-clone-nike)
 
 ---
 
