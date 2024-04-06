@@ -8,7 +8,6 @@ description: |
 tags:
   - React
   - Vite.js
-  - CSS3
   - Box Shadow
 ---
 

@@ -8,7 +8,6 @@ description: |
 tags:
   - Web Development
   - Team Project
-  - Programming Languages
 ---
 
 ## À propos du projet

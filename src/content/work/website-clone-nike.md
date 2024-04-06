@@ -6,9 +6,8 @@ img_alt: "Aperçu du clone du site web Nike"
 description: |
   Un clone du site web Nike qui démontre une utilisation experte de Tailwind CSS et React.js pour créer une expérience utilisateur dynamique et réactive.
 tags:
-  - Tailwind CSS
   - React
-  - Front-End Development
+  - Front-End
   - Web Design
 ---
 

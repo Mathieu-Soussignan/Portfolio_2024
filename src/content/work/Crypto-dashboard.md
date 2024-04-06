@@ -9,7 +9,6 @@ tags:
   - React
   - Vite.js
   - Dashboard
-  - Crypto Monnaie
 ---
 
 ## À propos du projet
