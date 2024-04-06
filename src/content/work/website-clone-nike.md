@@ -27,11 +27,6 @@ Le projet Clone du Site Nike est une réalisation front-end qui imite l'esthéti
 - **Tailwind CSS**: pour le style rapide et personnalisable sans écrire de CSS manuellement.
 - **React.js**: pour une interface utilisateur dynamique et réactive avec des composants réutilisables.
 
-### Aperçu du projet
-
-- **Clone Nike Web**:
-  ![Aperçu du Clone Nike](/assets/nike-clone.jpg)
-
 ### Démarche du projet
 
 La conception de ce projet a impliqué une analyse détaillée du site Nike original, suivie par une reproduction fidèle utilisant les outils modernes de développement web. Chaque choix de conception a été fait avec une attention méticuleuse, veillant à capturer l'essence de la marque.
