@@ -30,7 +30,7 @@ Le projet Clone du Site Nike est une réalisation front-end qui imite l'esthéti
 ### Aperçu du projet
 
 - **Clone Nike Web**:
-  ![Aperçu du Clone Nike](/assets/nike-clone-overview.jpg)
+  ![Aperçu du Clone Nike](/assets/nike-clone.jpg)
 
 ### Démarche du projet
 
