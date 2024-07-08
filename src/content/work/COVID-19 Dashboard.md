@@ -32,11 +32,6 @@ COVID-19 Dashboard est une application de visualisation de données qui offre un
 - **Pandas** : Pour la manipulation et le nettoyage des données.
 - **Matplotlib & Seaborn** : Pour la création de visualisations de données.
 
-### Aperçu du projet
-
-- **Graphique des nouveaux cas quotidiens** :
-  ![Graphique des nouveaux cas quotidiens](/assets/covid-dashboard-new-cases.jpg)
-
 ### Processus de développement
 
 Le projet a été développé en suivant une approche axée sur les données, avec une attention particulière portée à la précision et à l'actualisation des informations.
@@ -49,5 +44,5 @@ Le projet a été développé en suivant une approche axée sur les données, av
 
 ### Découvrir le projet
 
-- [Démarrer avec COVID-19 Dashboard](https://example.com/covid-dashboard)
-- [Code source sur GitHub](https://github.com/mathieu-soussignan/covid-dashboard)
+- [Démarrer avec COVID-19 Dashboard](https://dashboard-covid-nine.vercel.app/)
+- [Code source sur GitHub](https://github.com/Mathieu-Soussignan/Dashboard-covid)
