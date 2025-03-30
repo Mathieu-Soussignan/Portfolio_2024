@@ -1,192 +1,154 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
 import ContactCTA from "../components/ContactCTA.astro";
 import Hero from "../components/Hero.astro";
 ---
 
 <BaseLayout
-  title="A propos | Mathieu Soussignan"
-  description="A propos de Mathieu Soussignan"
+  title="À propos | Mathieu Soussignan"
+  description="Découvrez le parcours et les compétences de Mathieu Soussignan, développeur en alternance spécialisé en IA et data."
 >
   <div class="stack gap-20">
     <main class="wrapper about">
       <Hero
-        title="A propos"
-        tagline="Découvrez mon parcours et mes compétences."
+        title="À propos"
+        tagline="Développeur passionné en alternance dans l'intelligence artificielle"
       >
         <img
           width="1553"
           height="873"
-          src="/assets/at-work.jpg"
+          src="/assets/profil-logo.jpg"
           alt="Mathieu Soussignan au travail"
         />
       </Hero>
 
-      <section>
-        <h2 class="section-title">Background</h2>
-        <div class="content">
-          <p>
-            Titulaire d'une certification en développement web et web mobile
-            obtenue en octobre 2023 à Simplon, ma passion pour ce domaine m'a
-            conduit à une reconversion professionnelle, un choix dicté par mon
-            intérêt de longue date pour le numérique. Animé par un enthousiasme
-            constant pour l'apprentissage et le dépassement de soi, je m'engage
-            dans une démarche d'amélioration continue en tant qu'autodidacte,
-            visant à affiner et élargir mes compétences techniques.
-          </p>
-          <br />
-          <p>
-            Ma formation chez Simplon, reconnue pour son exigence et son
-            approche pratique, m'a doté d'une solide base en développement web,
-            tout en m'incitant à explorer au-delà des programmes éducatifs
-            traditionnels. Cette expérience a renforcé ma détermination à
-            résoudre des problématiques complexes en proposant des solutions
-            innovantes et performantes, toujours à l'affût des dernières
-            avancées technologiques.
-          </p>
-          <br />
-          <p>
-            Mon objectif professionnel est double : apporter une valeur ajoutée
-            tangible à travers mes réalisations en développement web et
-            poursuivre ma quête d'excellence en me tenant continuellement
-            informé des évolutions du secteur. Convaincu que le développement
-            web est à la fois un art et une science, je cherche à concrétiser ma
-            vision créative par des projets qui allient esthétique et
-            fonctionnalité, en m'appuyant sur une approche méthodique et une
-            veille technologique rigoureuse. À la recherche de nouvelles
-            opportunités qui me permettront de mettre à profit ma passion, ma
-            créativité et mon expertise technique, je suis prêt à relever les
-            défis du futur et à contribuer activement à l'évolution du paysage
-            numérique.
-          </p>
-        </div>
+      <section class="background">
+        <h2 class="section-title">Mon parcours</h2>
+        <p>
+          Après une reconversion professionnelle et l’obtention d’une
+          certification en développement web et web mobile à Simplon (2023),
+          j’ai poursuivi mon ambition en me spécialisant dans l’<strong>Intelligence Artificielle</strong>.
+        </p>
+        <p>
+          Actuellement, je suis en alternance chez <strong>Keyrus à Aix-en-Provence</strong> en tant
+          que développeur IA / data, dans le cadre de ma formation diplômante de
+          <strong>développeur en intelligence artificielle</strong> chez Simplon.
+        </p>
+        <p>
+          Je me passionne pour l’apprentissage automatique, l’ingénierie de données et
+          la création d’applications web modernes et performantes. Chaque projet est
+          pour moi l’occasion de mêler rigueur technique, créativité et innovation.
+        </p>
       </section>
 
-      <section>
-        <h2 class="section-title">Diplômes</h2>
-        <div class="content">
-          <p>
-            <strong>[Novembre 2022] - [Juillet 2023]</strong> - Simplon.co (Bac +2,
-            Développeur Web et Web mobile). <br /><br /> Programme intensif de formation
-            couvrant les langages de programmation front-end et back-end, les frameworks
-            modernes et les meilleures pratiques du développement web. <br /> Projet
-            de fin d'études : <strong>"Bytemaster"</strong>, Projet de groupe
-            qui voit le développement d'une application web, Quiz en mode QCM
-            sur le thème des langages de programmation.
-            <br /><br />
-            <strong
-              >Technologies utilisées : HTML5, CSS3, PHP, JavaScript.</strong
-            >
-          </p>
-        </div>
+      <section class="diplomas">
+        <h2 class="section-title">Diplômes & Formations</h2>
+        <ul>
+          <li>
+            <strong>2024 — En cours :</strong> Développeur en Intelligence Artificielle (Simplon / Microsoft / France Travail)
+          </li>
+          <li>
+            <strong>2023 :</strong> Développeur Web et Web Mobile — Simplon.co (Bac +2)
+          </li>
+        </ul>
       </section>
-      <section>
-        <h2 class="section-title">Skills</h2>
-        <div class="content">
-          <h3>Technical Skills</h3>
-          <br />
+
+      <section class="skills">
+        <h2 class="section-title">Compétences</h2>
+        <div class="technical-skills">
+          <h3>Compétences techniques</h3>
           <ul>
-            <li>
-              <strong>Langages de programmation:</strong> HTML5, CSS3, JavaScript,
-              etc.
-            </li>
-            <li>
-              <strong>Front-end Development:</strong> Design Responsive avec React,
-              Vue.js, etc.
-            </li>
-            <li>
-              <strong>Back-end Development:</strong> Server-side logic with PHP,
-              Node.js, etc.
-            </li>
-            <li>
-              <strong>Gestion de base de données:</strong> Data handling with MongoDB,
-              SQL, etc.
-            </li>
-            <li>
-              <strong>Version Control:</strong> Code management with Git, GitHub,
-              etc.
-            </li>
-            <li>
-              <strong>Méthodes Agile:</strong> Gestion de projet avec les cadres
-              Agile et Scrum.
-            </li>
+            <li><strong>Langages :</strong> HTML5, CSS3, JavaScript, Python, SQL</li>
+            <li><strong>Frameworks :</strong> React, Astro, Flask, FastAPI</li>
+            <li><strong>IA / Data :</strong> Pandas, Numpy, Scikit-learn, Pytorch (débutant)</li>
+            <li><strong>Design / UI :</strong> Tailwind CSS, Figma</li>
+            <li><strong>Versioning :</strong> Git & GitHub</li>
+            <li><strong>Méthodo :</strong> Méthodes Agile, Trello</li>
           </ul>
-          <br />
+
           <h3>Soft Skills</h3>
-          <br />
           <ul>
-            <li>Résolution de problèmes et pensée analytique</li>
-            <li>Travail d'équipe et collaboration</li>
-            <li>Gestion du temps et priorisation des tâches</li>
-            <li>
-              Apprentissage rapide et capacité d'adaptation aux nouvelles
-              technologies
-            </li>
-            <li>Communication efficace, à l'écrit comme à l'oral.</li>
+            <li>Autonomie & curiosité</li>
+            <li>Capacité d'adaptation</li>
+            <li>Travail en équipe</li>
+            <li>Pensée analytique & rigueur</li>
           </ul>
         </div>
       </section>
+
+      <section class="projects">
+        <h2 class="section-title">Projets récents</h2>
+        <ul>
+          <li>
+            <strong>Dashboard COVID-19 :</strong> Visualisation interactive des données COVID en France, avec Flask & Python.
+          </li>
+          <li>
+            <strong>Nike Web Clone :</strong> Page vitrine responsive inspirée du site officiel, développée avec React & Tailwind CSS.
+          </li>
+          <li>
+            <strong>Box Shadow Studio :</strong> Générateur d’ombres CSS visuel avec React & Vite.js.
+          </li>
+          <li>
+            <strong>Crypto Dashboard :</strong> Interface de suivi crypto dynamique, entièrement en React.
+          </li>
+        </ul>
+        <p>
+          → <a href="https://github.com/Mathieu-Soussignan?tab=repositories" target="_blank">Voir plus de projets sur GitHub</a>
+        </p>
+      </section>
+
+      <ContactCTA />
     </main>
-
-    <ContactCTA />
   </div>
-</BaseLayout>
 
-<style>
-  .about {
-    display: flex;
-    flex-direction: column;
-    gap: 3.5rem;
-  }
-
-  img {
-    margin-top: 1.5rem;
-    border-radius: 1.5rem;
-    box-shadow: var(--shadow-md);
-  }
-
-  section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    color: var(--gray-200);
-  }
-
-  .section-title {
-    grid-column-start: 1;
-    font-size: var(--text-xl);
-    color: var(--gray-0);
-  }
-
-  .content {
-    grid-column: 2 / 4;
-  }
-
-  .content :global(a) {
-    text-decoration: 1px solid underline transparent;
-    text-underline-offset: 0.25em;
-    transition: text-decoration-color var(--theme-transition);
-  }
-
-  .content :global(a:hover),
-  .content :global(a:focus) {
-    text-decoration-color: currentColor;
-  }
-
-  @media (min-width: 50em) {
+  <style>
     .about {
-      display: grid;
-      grid-template-columns: 1fr 60% 1fr;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5rem;
     }
 
-    .about > :global(:first-child) {
-      grid-column-start: 2;
+    img {
+      margin-top: 1.5rem;
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow-md);
     }
 
     section {
-      display: contents;
-      font-size: var(--text-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      color: var(--gray-200);
     }
-  }
-</style>
+
+    .section-title {
+      font-size: var(--text-xl);
+      color: var(--gray-0);
+    }
+
+    ul {
+      padding-left: 1rem;
+      list-style: disc;
+    }
+
+    .projects ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    @media (min-width: 50em) {
+      .about {
+        display: grid;
+        grid-template-columns: 1fr 60% 1fr;
+      }
+
+      .about > :global(:first-child) {
+        grid-column-start: 2;
+      }
+
+      section {
+        display: contents;
+        font-size: var(--text-lg);
+      }
+    }
+  </style>
+</BaseLayout>
