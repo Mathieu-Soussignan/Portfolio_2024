@@ -42,7 +42,7 @@ Il se structure autour de trois services :
 - Visualisation des résultats avec **Altair**.
 - Journalisation avec **Loguru**.
 
-## Fonctionnalités principales
+### Fonctionnalités principales
 
 -  **Prédictions en temps réel ou par fichier CSV**
 -  **Visualisation des charges médicales prévues**
@@ -51,14 +51,14 @@ Il se structure autour de trois services :
 -  **API documentées et testées**
 -  **Déploiement unifié avec Docker Compose**
 
-## Technologies utilisées
+### Technologies utilisées
 
 - **FastAPI** · **Streamlit** · **SQLite** · **SQLAlchemy**
 - **Scikit-learn** · **MLflow** · **Altair**
 - **Docker / Docker Compose**
 - **Loguru** · **Pytest**
 
-## Aperçu de l’architecture
+### Aperçu de l’architecture
 
 ```
 [Streamlit UI]
@@ -68,7 +68,7 @@ Il se structure autour de trois services :
      |------> [API Prédiction - Projet 2 : port 8002]
 ```
 
-## Lancer le projet
+### Lancer le projet
 
 ```bash
 git clone https://github.com/Mathieu-Soussignan/mini-projet-1
@@ -80,14 +80,14 @@ docker-compose up --build
 - 📡 [http://localhost:8001](http://localhost:8001) : API de gestion
 - 🧠 [http://localhost:8002](http://localhost:8002) : API de prédiction
 
-## Leçons tirées
+### Leçons tirées
 
 - Mise en œuvre concrète du **cycle de vie d’un projet IA**
 - Communication entre **microservices** avec Streamlit + FastAPI
 - Manipulation avancée de Docker pour la production locale
 - Mise en place d’un environnement modulaire et maintenable
 
-## Voir le projet
+### Voir le projet
 
 - [Dépôt GitHub](https://github.com/Mathieu-Soussignan/mini-projet-1)
 
