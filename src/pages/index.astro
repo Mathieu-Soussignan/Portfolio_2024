@@ -101,12 +101,14 @@ const projects = (await getCollection("work"))
   }
 
   .hero img {
-    aspect-ratio: 5 / 4;
-    object-fit: cover;
-    object-position: top;
-    border-radius: 1.5rem;
-    box-shadow: var(--shadow-md);
-  }
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
 
   @media (min-width: 50em) {
     .hero {
@@ -123,11 +125,14 @@ const projects = (await getCollection("work"))
     }
 
     .hero img {
-      aspect-ratio: 3 / 4;
-      border-radius: 4.5rem;
-      object-fit: cover;
-    }
+    aspect-ratio: 3 / 4;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 4.5rem;
   }
+}
 
   /* ====================================================== */
 
