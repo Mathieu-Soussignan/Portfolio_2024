@@ -13,7 +13,7 @@ tags:
 
 ## À propos du projet
 
-> "Ce projet complet, développé dans le cadre de ma formation en intelligence artificielle, combine data engineering, machine learning et déploiement d’applications pour répondre à une problématique métier concrète : la gestion et la prédiction des frais médicaux."
+Ce projet complet, développé dans le cadre de ma formation en intelligence artificielle, combine data engineering, machine learning et déploiement d’applications pour répondre à une problématique métier concrète : la gestion et la prédiction des frais médicaux.
 
 Il se structure autour de trois services :
 
