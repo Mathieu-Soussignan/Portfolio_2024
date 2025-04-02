@@ -24,11 +24,11 @@ Elle s'adresse aussi bien aux utilisateurs occasionnels qu’aux passionnés du 
 
 ### Fonctionnalités principales
 
-- 🔍 **Recherche intelligente** : prédiction du prix selon des critères précis (kilométrage, année, marque, modèle, etc.).
-- ✅ **Évaluation d’offres** : classification automatique en « Bonne affaire » ou « Mauvaise affaire ».
-- 📊 **Visualisations dynamiques** : affichage interactif des tendances via Plotly.
+- **Recherche intelligente** : prédiction du prix selon des critères précis (kilométrage, année, marque, modèle, etc.).
+- **Évaluation d’offres** : classification automatique en « Bonne affaire » ou « Mauvaise affaire ».
+- **Visualisations dynamiques** : affichage interactif des tendances via Plotly.
 - 👤 **Gestion utilisateurs** : inscription, connexion, déconnexion avec sécurisation JWT.
-- ⏳ **Expérience fluide** : animation au logout, barre de progression pour les prédictions.
+- **Expérience fluide** : animation au logout, barre de progression pour les prédictions.
 
 ### Technologies utilisées
 
