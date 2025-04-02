@@ -1,6 +1,6 @@
 ---
 title: EduStream
-publishDate: 2024-04-10 00:00:00
+publishDate: 2025-04-02 00:00:00
 img: /assets/edustream-thumbnail.jpg
 img_alt: Capture d'écran de la plateforme EduStream
 description: |
