@@ -4,18 +4,17 @@ publishDate: 2025-04-02 00:00:00
 img: /assets/predict-car-thumbnail.jpg
 img_alt: Aperçu de l'application Prédict Car
 description: |
-  Application de prédiction des prix des voitures d'occasion combinant React, FastAPI et modèles de machine learning.
-  Une UX soignée avec authentification, visualisations interactives et classification des offres.
+  Application de prédiction des prix des voitures d'occasion combinant React, FastAPI et des modèles de machine learning. Une UX soignée avec authentification, visualisations interactives et classification des offres.
 tags:
   - IA
   - React
+  - FastAPI
   - Machine Learning
 ---
 
 ## À propos du projet
 
-**Prédict Car** est une application conçue pour estimer le prix d'une voiture d'occasion et déterminer si l'offre est une « Bonne affaire » ou non.
-Pensée dans le cadre d'une formation en développement IA, cette solution mêle performance, accessibilité, et modernité, en intégrant :
+**Prédict Car** est une application conçue pour estimer le prix d'une voiture d'occasion et déterminer si l'offre est une « Bonne affaire » ou non. Pensée dans le cadre d'une formation en développement IA, cette solution mêle performance, accessibilité, et modernité, en intégrant :
 
 - un backend FastAPI,  
 - un frontend React moderne avec Material UI,  
