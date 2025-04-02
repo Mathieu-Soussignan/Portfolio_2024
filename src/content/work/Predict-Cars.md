@@ -8,10 +8,8 @@ description: |
 tags:
   - IA
   - React
-  - FastAPI
   - Machine Learning
   - Data Visualisation
-  - Authentification
 ---
 
 ## À propos du projet
