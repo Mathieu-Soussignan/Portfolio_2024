@@ -1,0 +1,104 @@
+---
+const techStack = [
+  { name: "Python", category: "Language & IA", color: "#3776AB" },
+  { name: "PyTorch", category: "Deep Learning", color: "#EE4C2C" },
+  { name: "FastAPI", category: "Backend API", color: "#009688" },
+  { name: "React", category: "Frontend", color: "#61DAFB" },
+  { name: "Data Engineering", category: "Pipelines ETL", color: "#c561f6" },
+  { name: "PostgreSQL / SQL", category: "Database", color: "#4169E1" },
+  { name: "Scikit-Learn", category: "Machine Learning", color: "#F7931E" },
+  { name: "Astro", category: "Fullstack SSG", color: "#FF5D01" },
+  { name: "Docker", category: "DevOps", color: "#2496ED" },
+  { name: "TypeScript", category: "Language", color: "#3178C6" },
+  { name: "Tailwind CSS", category: "UI & Styling", color: "#06B6D4" },
+  { name: "Git & GitHub", category: "Versioning", color: "#F05032" }
+];
+---
+
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-content">
+      {techStack.concat(techStack).map((tech) => (
+        <div class="tech-badge glass-card">
+          <span class="tech-dot" style={`background-color: ${tech.color}; box-shadow: 0 0 10px ${tech.color}`}></span>
+          <span class="tech-name">{tech.name}</span>
+          <span class="tech-cat">{tech.category}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .marquee-section {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 2.5rem 0;
+    margin: 3rem 0;
+    background: rgba(15, 23, 42, 0.4);
+    border-y: 1px solid rgba(255, 255, 255, 0.08);
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+  }
+
+  .marquee-content {
+    display: flex;
+    gap: 1.25rem;
+    animation: scrollMarquee 32s linear infinite;
+  }
+
+  .marquee-track:hover .marquee-content {
+    animation-play-state: paused;
+  }
+
+  .tech-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+    cursor: default;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .tech-badge:hover {
+    background: rgba(197, 97, 246, 0.15);
+    border-color: rgba(197, 97, 246, 0.4);
+    transform: scale(1.05);
+  }
+
+  .tech-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .tech-name {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--gray-0);
+  }
+
+  .tech-cat {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    opacity: 0.8;
+  }
+
+  @keyframes scrollMarquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+</style>

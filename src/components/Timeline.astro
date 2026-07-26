@@ -1,0 +1,189 @@
+---
+
+const milestones = [
+  {
+    period: "Juin 2026 — Présent",
+    title: "Data Engineer & Développeur IA (CDI)",
+    company: "Keyrus — Aix-en-Provence",
+    badge: "Poste Actuel",
+    badgeColor: "#27c93f",
+    description: "Conception et industrialisation d'architectures de données, pipelines ETL, intégration de modèles de Machine Learning & LLM appliqués aux besoins métiers.",
+    tags: ["Data Engineering", "Python", "SQL", "Pipelines ETL", "AI / ML", "Docker"]
+  },
+  {
+    period: "2024 — 2026",
+    title: "Alternance Data & IA + Formation Développeur IA",
+    company: "Keyrus & Simplon / Microsoft",
+    badge: "Parcours Validé",
+    badgeColor: "#c561f6",
+    description: "Montée en puissance sur les algorithmes d'apprentissage automatique, traitement du langage naturel (NLP), modélisation et livraison de projets Data en entreprise.",
+    tags: ["PyTorch", "Scikit-Learn", "FastAPI", "Pandas", "Agile"]
+  },
+  {
+    period: "2023",
+    title: "Formation Développeur Web & Web Mobile",
+    company: "Simplon",
+    badge: "Certifié",
+    badgeColor: "#00f2fe",
+    description: "Formation intensive en pédagogie active. Maîtrise des fondamentaux du développement fullstack, bases de données, architecture logicielle et travail en équipe.",
+    tags: ["React", "JavaScript", "HTML/CSS", "Node.js", "SQL"]
+  },
+  {
+    period: "Avant 2023",
+    title: "Reconversion Professionnelle & Déclic Tech",
+    company: "Parcours Initial",
+    badge: "Origines",
+    badgeColor: "#ffbd2e",
+    description: "Découverte de la programmation et passion immédiate pour la création de solutions utiles, la résolution de problèmes complexes et la modélisation.",
+    tags: ["Autonomie", "Résolution de problèmes", "Reconversion"]
+  }
+];
+---
+
+<div class="timeline-container">
+  {milestones.map((item, index) => (
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <span class="timeline-period">{item.period}</span>
+        <span class="timeline-badge" style={`border-color: ${item.badgeColor}; color: ${item.badgeColor}`}>
+          {item.badge}
+        </span>
+      </div>
+
+      <div class="timeline-center">
+        <div class="timeline-node" style={`box-shadow: 0 0 15px ${item.badgeColor}; background: ${item.badgeColor}`}></div>
+        {index !== milestones.length - 1 && <div class="timeline-line"></div>}
+      </div>
+
+      <div class="timeline-right glass-card">
+        <h3 class="item-title">{item.title}</h3>
+        <h4 class="item-company">{item.company}</h4>
+        <p class="item-desc">{item.description}</p>
+        <div class="item-tags">
+          {item.tags.map(t => (
+            <span class="tag">{t}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    position: relative;
+    padding: 1rem 0;
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 1fr auto 2.5fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .timeline-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 0.4rem;
+  }
+
+  .timeline-period {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--gray-0);
+  }
+
+  .timeline-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .timeline-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    position: relative;
+  }
+
+  .timeline-node {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    z-index: 2;
+    margin-top: 0.4rem;
+  }
+
+  .timeline-line {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(180deg, rgba(197, 97, 246, 0.6), rgba(255, 255, 255, 0.1));
+    margin-top: 0.5rem;
+  }
+
+  .timeline-right {
+    padding: 1.75rem;
+    border-radius: 1.25rem;
+  }
+
+  .item-title {
+    font-size: var(--text-xl);
+    color: var(--gray-0);
+    margin-bottom: 0.25rem;
+  }
+
+  .item-company {
+    font-size: var(--text-md);
+    color: var(--accent-light);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .item-desc {
+    color: var(--gray-300);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--gray-200);
+  }
+
+  @media (max-width: 50em) {
+    .timeline-item {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .timeline-left {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .timeline-center {
+      display: none;
+    }
+  }
+</style>

@@ -2,19 +2,10 @@
 import { type CollectionEntry, getCollection } from 'astro:content';
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
 import ContactCTA from '../../components/ContactCTA.astro';
-import Hero from '../../components/Hero.astro';
 import Icon from '../../components/Icon.astro';
 import Pill from '../../components/Pill.astro';
 
-interface Props {
-	entry: CollectionEntry<'work'>;
-}
-
-// This is a dynamic route that generates a page for every Markdown file in src/content/
-// Read more about dynamic routes and this `getStaticPaths` function in the Astro docs:
-// https://docs.astro.build/en/core-concepts/routing/#dynamic-routes
 export async function getStaticPaths() {
 	const work = await getCollection('work');
 	return work.map((entry) => ({
@@ -23,129 +14,398 @@ export async function getStaticPaths() {
 	}));
 }
 
+interface Props {
+	entry: CollectionEntry<'work'>;
+}
+
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+
+// Fetch all projects to calculate Next & Previous project links
+const allWork = (await getCollection('work')).sort(
+	(a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
+);
+const currentIndex = allWork.findIndex((p) => p.slug === entry.slug);
+const prevProject = currentIndex > 0 ? allWork[currentIndex - 1] : null;
+const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1] : null;
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.description}>
-	<div class="stack gap-20">
-		<div class="stack gap-15">
-			<header>
-				<div class="wrapper stack gap-2">
-					<a class="back-link" href="/work/"><Icon icon="arrow-left" /> Work</a>
-					<Hero title={entry.data.title} align="start">
-						<div class="details">
-							<div class="tags">
-								{entry.data.tags.map((t) => <Pill>{t}</Pill>)}
-							</div>
-							<p class="description">{entry.data.description}</p>
-						</div>
-					</Hero>
+<BaseLayout title={`${entry.data.title} | Mathieu Soussignan`} description={entry.data.description}>
+	<div class="stack gap-15 lg:gap-30">
+		<main class="wrapper project-page-container">
+			
+			<!-- BACK LINK & BREADCRUMB -->
+			<div class="breadcrumb-bar">
+				<a class="back-btn glass-card" href="/work/">
+					<Icon icon="arrow-left" size="1.1em" />
+					<span>Retour à la galerie des projets</span>
+				</a>
+			</div>
+
+			<!-- PROJECT HERO HEADER -->
+			<header class="project-header">
+				<div class="header-tags">
+					{entry.data.tags.map((t) => <Pill>{t}</Pill>)}
 				</div>
-			</header>
-			<main class="wrapper">
-				<div class="stack gap-10 content">
-					{entry.data.img && <img src={entry.data.img} alt={entry.data.img_alt || ''} />}
-					<div class="content">
-						<Content />
+
+				<h1 class="project-title">{entry.data.title}</h1>
+				
+				<div class="project-meta-bar glass-card">
+					<div class="meta-item">
+						<span class="meta-icon">📅</span>
+						<span>Publié le {new Date(entry.data.publishDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })}</span>
+					</div>
+					<div class="meta-item">
+						<span class="meta-icon">👨‍💻</span>
+						<span>Par <strong>Mathieu Soussignan</strong></span>
 					</div>
 				</div>
-			</main>
-		</div>
+
+				<div class="project-lead-box glass-card">
+					<p>{entry.data.description}</p>
+				</div>
+			</header>
+
+			<!-- FEATURED COVER IMAGE SHOWCASE -->
+			{entry.data.img && (
+				<div class="project-cover-showcase">
+					<div class="cover-card glass-card">
+						<img src={entry.data.img} alt={entry.data.img_alt || entry.data.title} />
+						<div class="cover-glow"></div>
+					</div>
+				</div>
+			)}
+
+			<!-- MARKDOWN CONTENT BODY -->
+			<article class="project-body-content glass-card">
+				<Content />
+			</article>
+
+			<!-- NEXT / PREVIOUS NAVIGATION -->
+			<nav class="project-nav-footer">
+				{prevProject ? (
+					<a href={`/work/${prevProject.slug}/`} class="nav-card prev glass-card">
+						<div class="nav-arrow-icon"><Icon icon="arrow-left" size="1.2em" /></div>
+						<div class="nav-text-group">
+							<span class="nav-label">Projet précédent</span>
+							<span class="nav-title">{prevProject.data.title}</span>
+						</div>
+					</a>
+				) : <div />}
+
+				{nextProject ? (
+					<a href={`/work/${nextProject.slug}/`} class="nav-card next glass-card">
+						<div class="nav-text-group">
+							<span class="nav-label">Projet suivant</span>
+							<span class="nav-title">{nextProject.data.title}</span>
+						</div>
+						<div class="nav-arrow-icon"><Icon icon="arrow-right" size="1.2em" /></div>
+					</a>
+				) : <div />}
+			</nav>
+
+		</main>
+
 		<ContactCTA />
 	</div>
 </BaseLayout>
 
 <style>
-	header {
-		padding-bottom: 2.5rem;
-		border-bottom: 1px solid var(--gray-800);
-	}
-
-	.back-link {
-		display: none;
-	}
-
-	.details {
+	.project-page-container {
 		display: flex;
 		flex-direction: column;
-		padding: 0.5rem;
-		gap: 1.5rem;
-		justify-content: space-between;
-		align-items: center;
-	}
-
-	.tags {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	.description {
-		font-size: var(--text-lg);
-		max-width: 54ch;
-	}
-
-	.content {
-		max-width: 65ch;
+		gap: 2.5rem;
+		max-width: 58rem;
 		margin-inline: auto;
 	}
 
-	.content > :global(* + *) {
+	.breadcrumb-bar {
+		display: flex;
+		align-items: center;
+	}
+
+	.back-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.6rem 1.25rem;
+		border-radius: 9999px;
+		color: var(--gray-200);
+		text-decoration: none;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		transition: all 0.25s ease;
+	}
+
+	.back-btn:hover {
+		color: #ffffff;
+		background: rgba(197, 97, 246, 0.2);
+		border-color: rgba(197, 97, 246, 0.5);
+		transform: translateX(-4px);
+	}
+
+	/* PROJECT HEADER */
+	.project-header {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.header-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.project-title {
+		font-size: var(--text-3xl);
+		font-weight: 800;
+		color: var(--gray-0);
+		line-height: 1.15;
+	}
+
+	.project-meta-bar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		padding: 0.75rem 1.25rem;
+		border-radius: 0.75rem;
+		font-size: var(--text-sm);
+		color: var(--gray-300);
+	}
+
+	.meta-item {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.project-lead-box {
+		padding: 1.5rem;
+		border-radius: 1.25rem;
+		font-size: var(--text-lg);
+		line-height: 1.6;
+		color: var(--gray-100);
+		border-left: 4px solid var(--accent-light) !important;
+	}
+
+	/* COVER IMAGE */
+	.project-cover-showcase {
+		width: 100%;
+	}
+
+	.cover-card {
+		position: relative;
+		width: 100%;
+		border-radius: 1.5rem;
+		overflow: hidden;
+		border: 1px solid rgba(197, 97, 246, 0.3) !important;
+		box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.2);
+	}
+
+	.cover-card img {
+		width: 100%;
+		max-height: 520px;
+		object-fit: cover;
+		display: block;
+	}
+
+	/* MARKDOWN BODY STYLING */
+	.project-body-content {
+		padding: 2rem;
+		border-radius: 1.5rem;
+		background: rgba(15, 23, 42, 0.65) !important;
+		font-size: var(--text-md);
+		line-height: 1.7;
+		color: var(--gray-200);
+	}
+
+	.project-body-content :global(h2) {
+		font-size: var(--text-2xl);
+		color: var(--gray-0);
+		margin-top: 2.5rem;
+		margin-bottom: 1rem;
+		padding-left: 0.8rem;
+		border-left: 4px solid var(--accent-light);
+	}
+
+	.project-body-content :global(h3) {
+		font-size: var(--text-xl);
+		color: #00f2fe;
+		margin-top: 2rem;
+		margin-bottom: 0.8rem;
+	}
+
+	.project-body-content :global(p) {
+		margin-bottom: 1.2rem;
+	}
+
+	.project-body-content :global(ul), 
+	.project-body-content :global(ol) {
+		margin-bottom: 1.5rem;
+		padding-left: 1.5rem;
+	}
+
+	.project-body-content :global(li) {
+		margin-bottom: 0.5rem;
+	}
+
+	.project-body-content :global(blockquote) {
+		margin: 1.5rem 0;
+		padding: 1.25rem 1.5rem;
+		border-radius: 1rem;
+		background: rgba(197, 97, 246, 0.08);
+		border-left: 4px solid var(--accent-light);
+		font-style: italic;
+		color: var(--gray-100);
+	}
+
+	.project-body-content :global(pre) {
+		padding: 1.25rem;
+		border-radius: 1rem;
+		background: rgba(10, 14, 23, 0.9) !important;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		margin: 1.5rem 0;
+		overflow-x: auto;
+		font-family: 'Fira Code', Consolas, monospace;
+		font-size: 0.9rem;
+	}
+
+	.project-body-content :global(code) {
+		font-family: 'Fira Code', Consolas, monospace;
+		background: rgba(255, 255, 255, 0.08);
+		padding: 0.2rem 0.4rem;
+		border-radius: 4px;
+		color: #00f2fe;
+		font-size: 0.9em;
+	}
+
+	.project-body-content :global(table) {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		margin: 1.5rem 0;
+		border-radius: 1rem;
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.project-body-content :global(th) {
+		background: rgba(118, 17, 166, 0.3);
+		color: #ffffff;
+		padding: 0.75rem 1rem;
+		text-align: left;
+		font-weight: 700;
+	}
+
+	.project-body-content :global(td) {
+		padding: 0.75rem 1rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+		color: var(--gray-200);
+	}
+
+	.project-body-content :global(a) {
+		color: #00f2fe;
+		text-decoration: underline;
+		font-weight: 600;
+		transition: color 0.2s ease;
+	}
+
+	.project-body-content :global(a:hover) {
+		color: #c561f6;
+	}
+
+	.project-body-content :global(img) {
+		border-radius: 1rem;
+		margin: 1.5rem 0;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+	}
+
+	/* NAV FOOTER */
+	.project-nav-footer {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 1.5rem;
 		margin-top: 1rem;
 	}
 
-	.content :global(h1),
-	.content :global(h2),
-	.content :global(h3),
-	.content :global(h4),
-	.content :global(h5) {
-		margin: 1.5rem 0;
+	.nav-card {
+		padding: 1.25rem 1.5rem;
+		border-radius: 1.25rem;
+		text-decoration: none;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 1rem;
+		background: rgba(15, 23, 42, 0.8) !important;
+		border: 1px solid rgba(197, 97, 246, 0.3) !important;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
-	.content :global(img) {
-		border-radius: 1.5rem;
-		box-shadow: var(--shadow-sm);
-		background: var(--gradient-subtle);
-		border: 1px solid var(--gray-800);
+	.nav-card:hover {
+		border-color: rgba(197, 97, 246, 0.7) !important;
+		background: rgba(118, 17, 166, 0.25) !important;
+		transform: translateY(-4px);
+		box-shadow: 0 15px 35px rgba(118, 17, 166, 0.4);
 	}
 
-	.content :global(blockquote) {
-		font-size: var(--text-lg);
-		font-family: var(--font-brand);
-		font-weight: 600;
-		line-height: 1.1;
-		padding-inline-start: 1.5rem;
-		border-inline-start: 0.25rem solid var(--accent-dark);
-		color: var(--gray-0);
+	.nav-card.next {
+		justify-content: flex-end;
 	}
 
-	.back-link,
-	.content :global(a) {
-		text-decoration: 1px solid underline transparent;
-		text-underline-offset: 0.25em;
-		transition: text-decoration-color var(--theme-transition);
+	.nav-text-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
 	}
 
-	.back-link:hover,
-	.back-link:focus,
-	.content :global(a:hover),
-	.content :global(a:focus) {
-		text-decoration-color: currentColor;
+	.nav-card.next .nav-text-group {
+		text-align: right;
+	}
+
+	.nav-arrow-icon {
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		background: rgba(197, 97, 246, 0.15);
+		border: 1px solid rgba(197, 97, 246, 0.4);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #00f2fe;
+		flex-shrink: 0;
+		transition: transform 0.3s ease;
+	}
+
+	.nav-card:hover .nav-arrow-icon {
+		background: rgba(197, 97, 246, 0.3);
+		color: #ffffff;
+		transform: scale(1.1);
+	}
+
+	.nav-label {
+		font-size: 0.75rem;
+		color: #00f2fe;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.nav-title {
+		font-size: var(--text-md);
+		color: #ffffff;
+		font-weight: 700;
 	}
 
 	@media (min-width: 50em) {
-		.back-link {
-			display: block;
-			align-self: flex-start;
+		.project-title {
+			font-size: var(--text-5xl);
 		}
 
-		.details {
-			flex-direction: row;
-			gap: 2.5rem;
-		}
-
-		.content :global(blockquote) {
-			font-size: var(--text-2xl);
+		.project-body-content {
+			padding: 3rem;
 		}
 	}
 </style>

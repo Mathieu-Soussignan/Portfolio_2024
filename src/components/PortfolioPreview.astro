@@ -8,57 +8,141 @@ interface Props {
 const { data, slug } = Astro.props.project;
 ---
 
-<a class="card" href={`/work/${slug}`}>
-	<span class="title">{data.title}</span>
+<a class="card glass-card project-card" href={`/work/${slug}`} data-tags={data.tags.join(',')} data-title={data.title.toLowerCase()}>
+	<span class="title-badge">{data.title}</span>
+	
+	<div class="hover-overlay">
+		<p class="project-desc-short">{data.description}</p>
+		<span class="explore-cta">Voir le projet ➔</span>
+	</div>
+
+	<div class="tags-preview">
+		{data.tags.slice(0, 3).map(tag => (
+			<span class="mini-tag">{tag}</span>
+		))}
+	</div>
 	<img src={data.img} alt={data.img_alt || ''} loading="lazy" decoding="async" />
 </a>
 
 <style>
 	.card {
-		display: grid;
-		grid-template: auto 1fr / auto 1fr;
-		height: 11rem;
-		background: var(--gradient-subtle);
-		border: 1px solid var(--gray-800);
-		border-radius: 0.75rem;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		height: 14rem;
+		border-radius: 1.25rem;
 		overflow: hidden;
-		box-shadow: var(--shadow-sm);
 		text-decoration: none;
 		font-family: var(--font-brand);
-		font-size: var(--text-lg);
-		font-weight: 500;
-		transition: box-shadow var(--theme-transition);
+		transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.card:hover {
-		box-shadow: var(--shadow-md);
+		transform: translateY(-8px) scale(1.02);
+		border-color: rgba(197, 97, 246, 0.5);
+		box-shadow: 0 20px 40px -10px rgba(118, 17, 166, 0.4);
 	}
 
-	.title {
-		grid-area: 1 / 1 / 2 / 2;
-		z-index: 1;
-		margin: 0.5rem;
-		padding: 0.5rem 1rem;
-		background: var(--gray-999);
-		color: var(--gray-200);
-		border-radius: 0.375rem;
+	.card:hover .hover-overlay {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.hover-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(10, 14, 23, 0.95) 100%);
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		gap: 0.75rem;
+		opacity: 0;
+		transform: translateY(10px);
+		transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+		pointer-events: none;
+	}
+
+	.project-desc-short {
+		color: #e2e8f0;
+		font-size: 0.85rem;
+		line-height: 1.5;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		font-family: var(--font-body);
+	}
+
+	.explore-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: #00f2fe;
+		font-weight: 700;
+		font-size: var(--text-sm);
+	}
+
+	.card:hover img {
+		transform: scale(1.08);
+	}
+
+	.title-badge {
+		z-index: 2;
+		margin: 0.75rem;
+		align-self: flex-start;
+		padding: 0.4rem 1rem;
+		background: rgba(15, 23, 42, 0.85);
+		backdrop-filter: blur(8px);
+		color: #ffffff;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 0.75rem;
+		font-size: var(--text-base);
+		font-weight: 600;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.tags-preview {
+		z-index: 2;
+		margin: 0.75rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.mini-tag {
+		font-size: 0.7rem;
+		padding: 0.2rem 0.6rem;
+		border-radius: 999px;
+		background: rgba(118, 17, 166, 0.75);
+		color: #ffffff;
+		backdrop-filter: blur(4px);
+		font-weight: 500;
 	}
 
 	img {
-		grid-area: 1 / 1 / 3 / 3;
+		position: absolute;
+		inset: 0;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		z-index: 1;
+		transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+		filter: brightness(0.85);
 	}
 
 	@media (min-width: 50em) {
 		.card {
-			height: 22rem;
+			height: 20rem;
 			border-radius: 1.5rem;
 		}
 
-		.title {
-			border-radius: 0.9375rem;
+		.title-badge {
+			font-size: var(--text-lg);
+			padding: 0.5rem 1.25rem;
 		}
 	}
 </style>

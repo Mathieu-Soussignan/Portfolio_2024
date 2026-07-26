@@ -3,44 +3,196 @@ import CallToAction from "./CallToAction.astro";
 import Icon from "./Icon.astro";
 ---
 
-<aside>
-  <h2>Envie de travailler avec moi ?</h2>
-  <CallToAction href="mailto:contact@mathieu-soussignan.com">
-    Ecrivez-moi
-    <Icon icon="paper-plane-tilt" size="1.2em" />
-  </CallToAction>
+<aside class="contact-cta-card glass-card">
+  <div class="cta-content">
+    <div class="cta-badge">
+      <span class="pulse-dot"></span> UN PROJET EN TÊTE ?
+    </div>
+    
+    <h2 class="cta-title">
+      Discutons de votre prochaine <br />
+      <span class="gradient-text">innovation Data & IA</span>
+    </h2>
+
+    <p class="cta-desc">
+      Basé à Marseille / Aix-en-Provence, je suis disponible pour échanger sur vos architectures de données, projets d'IA ou développement FullStack.
+    </p>
+
+    <div class="cta-email-box glass-card" id="copy-email-btn" title="Cliquer pour copier l'e-mail">
+      <Icon icon="paper-plane-tilt" size="1.2em" />
+      <span class="email-text">contact@mathieu-soussignan.com</span>
+      <span class="copy-hint">Copier 📋</span>
+    </div>
+  </div>
+
+  <div class="cta-actions">
+    <div id="contact-action-btn">
+      <CallToAction href="mailto:contact@mathieu-soussignan.com">
+        Écrivez-moi
+        <Icon icon="arrow-right" size="1.2em" />
+      </CallToAction>
+    </div>
+
+    <div class="cta-socials">
+      <a href="https://github.com/Mathieu-Soussignan" target="_blank" rel="noopener noreferrer" class="social-pill glass-card">
+        <Icon icon="github-logo" size="1.2em" /> GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/mathieu-soussignan-007a07158/" target="_blank" rel="noopener noreferrer" class="social-pill glass-card">
+        <Icon icon="linkedin-logo" size="1.2em" /> LinkedIn
+      </a>
+    </div>
+  </div>
 </aside>
 
+<script>
+  const contactBtn = document.getElementById('contact-action-btn');
+  contactBtn?.addEventListener('click', () => {
+    if ((window as any).showToast) {
+      (window as any).showToast("Ouverture de votre client e-mail...");
+    }
+  });
+
+  const copyEmailBtn = document.getElementById('copy-email-btn');
+  copyEmailBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText("contact@mathieu-soussignan.com");
+    if ((window as any).showToast) {
+      (window as any).showToast("E-mail copié dans le presse-papier ! 📋");
+    }
+  });
+</script>
+
 <style>
-  aside {
+  .contact-cta-card {
+    position: relative;
+    width: 100%;
+    max-width: 83rem;
+    margin-inline: auto;
+    padding: 3rem 2rem;
+    border-radius: 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 3rem;
-    border-top: 1px solid var(--gray-800);
-    border-bottom: 1px solid var(--gray-800);
-    padding: 5rem 1.5rem;
-    background-color: var(--gray-999_40);
-    box-shadow: var(--shadow-sm);
+    gap: 2.5rem;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(197, 97, 246, 0.4) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.25);
+    overflow: hidden;
   }
 
-  h2 {
-    font-size: var(--text-xl);
-    text-align: center;
-    max-width: 15ch;
+  .cta-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 60ch;
+  }
+
+  .cta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    background: rgba(197, 97, 246, 0.12);
+    border: 1px solid rgba(197, 97, 246, 0.3);
+    color: #c561f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    width: fit-content;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+    animation: pulseGlow 2s infinite;
+  }
+
+  .cta-title {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--gray-0);
+    line-height: 1.15;
+  }
+
+  .cta-desc {
+    font-size: var(--text-base);
+    color: var(--gray-300);
+    line-height: 1.6;
+  }
+
+  .cta-email-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #00f2fe;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    width: fit-content;
+    transition: all 0.25s ease;
+  }
+
+  .cta-email-box:hover {
+    background: rgba(0, 242, 254, 0.15) !important;
+    border-color: #00f2fe !important;
+    transform: translateY(-2px);
+  }
+
+  .copy-hint {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    margin-left: 0.5rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+
+  .cta-socials {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .social-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    color: var(--gray-100);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: all 0.25s ease;
+  }
+
+  .social-pill:hover {
+    color: #ffffff;
+    background: rgba(197, 97, 246, 0.25) !important;
+    border-color: rgba(197, 97, 246, 0.6) !important;
+    transform: translateY(-2px);
   }
 
   @media (min-width: 50em) {
-    aside {
-      padding: 7.5rem;
+    .contact-cta-card {
       flex-direction: row;
-      flex-wrap: wrap;
       justify-content: space-between;
+      align-items: center;
+      padding: 4rem;
     }
 
-    h2 {
-      font-size: var(--text-3xl);
-      text-align: left;
+    .cta-title {
+      font-size: var(--text-4xl);
     }
   }
 </style>

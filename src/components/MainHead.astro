@@ -7,16 +7,28 @@ interface Props {
 }
 
 const {
-  title = "Mathieu Soussignan: Développeur Web",
-  description = "Portfolio de Mathieu Soussignan, Développeur Web FullStack",
+  title = "Mathieu Soussignan | Développeur IA & FullStack",
+  description = "Portfolio de Mathieu Soussignan, Développeur IA & FullStack basé à Marseille.",
 } = Astro.props;
 ---
 
 <meta charset="UTF-8" />
-<meta name="description" property="og:description" content={description} />
+<meta name="description" content={description} />
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 <title>{title}</title>
+
+<!-- Open Graph / Social Media -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content="/assets/profil-home.jpg" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content="/assets/profil-home.jpg" />
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />

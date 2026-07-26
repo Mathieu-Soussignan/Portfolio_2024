@@ -2,38 +2,460 @@
 import { getCollection } from "astro:content";
 
 import BaseLayout from "../layouts/BaseLayout.astro";
-
 import ContactCTA from "../components/ContactCTA.astro";
 import PortfolioPreview from "../components/PortfolioPreview.astro";
-import Hero from "../components/Hero.astro";
+import Icon from "../components/Icon.astro";
 import Grid from "../components/Grid.astro";
 
-const projects = (await getCollection("work")).sort(
+const allProjects = (await getCollection("work")).sort(
   (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
 );
+
+const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") || allProjects[0];
 ---
 
 <BaseLayout
-  title="Mes projets"
-  description="Découvrez mes projets les plus récents ci-dessous pour avoir une idée de mon travail."
+  title="Mes projets | Mathieu Soussignan"
+  description="Découvrez l'ensemble des réalisations de Mathieu Soussignan en Data Engineering, IA et Web FullStack."
 >
-  <div class="stack gap-20">
-    <main class="wrapper stack gap-8">
-      <Hero
-        title="Mes projets"
-        tagline="Découvrez mes projets les plus récents ci-dessous pour avoir une idée de mon expérience passée."
-        align="start"
-      />
-      <Grid variant="offset">
-        {
-          projects.map((project) => (
-            <li>
-              <PortfolioPreview project={project} />
-            </li>
-          ))
-        }
-      </Grid>
+  <div class="stack gap-15 lg:gap-30">
+    <main class="wrapper stack gap-12 lg:gap-20">
+      
+      <!-- HERO HEADER WORK -->
+      <section class="work-hero-section">
+        <div class="status-tag">
+          <span class="pulse-dot"></span> GALERIE DES RÉALISATIONS
+        </div>
+        <h1 class="work-title">
+          Mes Projets & <br />
+          <span class="gradient-text">Réalisations Tech</span>
+        </h1>
+        <p class="work-lead">
+          De l'intelligence artificielle appliquée à la Data jusqu'aux applications SaaS FullStack modernes. Découvrez ci-dessous mes projets récents.
+        </p>
+      </section>
+
+      <!-- FEATURED FLAGSHIP PROJECT SPOTLIGHT CARD -->
+      {featuredProject && (
+        <section class="featured-section">
+          <div class="featured-card glass-card">
+            <div class="featured-content">
+              <div class="featured-badge">
+                🔥 PROJET PHARE & EN PRODUCTION
+              </div>
+              <h2 class="featured-title">{featuredProject.data.title}</h2>
+              <p class="featured-desc">{featuredProject.data.description}</p>
+              
+              <div class="featured-tags">
+                {featuredProject.data.tags.map(t => (
+                  <span class="featured-tag">{t}</span>
+                ))}
+              </div>
+
+              <div class="featured-actions">
+                <a href="https://creator-comptability-v2-livid.vercel.app/" target="_blank" rel="noopener noreferrer" class="featured-cta">
+                  Tester le SaaS en Prod
+                  <Icon icon="arrow-right" size="1.2em" />
+                </a>
+                <a href={`/work/${featuredProject.slug}/`} class="featured-secondary-cta glass-card">
+                  Détails & Architecture
+                </a>
+              </div>
+            </div>
+
+            <div class="featured-media">
+              <div class="featured-img-wrapper">
+                <img src={featuredProject.data.img} alt={featuredProject.data.img_alt || ''} />
+                <div class="featured-img-glow"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <!-- CATEGORY FILTER & LIVE SEARCH BAR -->
+      <section class="controls-section">
+        <div class="controls-header">
+          <h2>Tous les Projets ({allProjects.length})</h2>
+          
+          <div class="search-box glass-card">
+            <Icon icon="terminal-window" size="1.1em" />
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Rechercher par techno ou nom..."
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <div class="filter-container">
+          <button class="filter-btn active" data-filter="all">Tous ({allProjects.length})</button>
+          <button class="filter-btn" data-filter="IA">🤖 Data & IA</button>
+          <button class="filter-btn" data-filter="SaaS">⚡ SaaS & FullStack</button>
+          <button class="filter-btn" data-filter="Python">🐍 Python / FastAPI</button>
+          <button class="filter-btn" data-filter="React">💻 React</button>
+        </div>
+      </section>
+
+      <!-- PROJECTS GRID -->
+      <section class="projects-grid-section">
+        <Grid variant="offset">
+          {
+            allProjects.map((project) => (
+              <li class="project-item" data-tags={project.data.tags.join(',')} data-title={project.data.title.toLowerCase()}>
+                <PortfolioPreview project={project} />
+              </li>
+            ))
+          }
+        </Grid>
+        
+        <div id="no-results" class="no-results glass-card" style="display: none;">
+          <p>🔍 Aucun projet ne correspond à votre recherche.</p>
+        </div>
+      </section>
+
     </main>
+
     <ContactCTA />
   </div>
 </BaseLayout>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const projectItems = document.querySelectorAll('.project-item');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const noResults = document.getElementById('no-results') as HTMLElement;
+
+  let currentFilter = 'all';
+  let currentSearch = '';
+
+  function applyFilters() {
+    let visibleCount = 0;
+
+    projectItems.forEach(item => {
+      const tags = (item.getAttribute('data-tags') || '').toLowerCase();
+      const title = (item.getAttribute('data-title') || '').toLowerCase();
+      const searchMatch = !currentSearch || tags.includes(currentSearch) || title.includes(currentSearch);
+      const filterMatch = currentFilter === 'all' || tags.includes(currentFilter.toLowerCase());
+
+      if (searchMatch && filterMatch) {
+        (item as HTMLElement).style.display = 'block';
+        (item as HTMLElement).style.opacity = '1';
+        (item as HTMLElement).style.transform = 'scale(1)';
+        visibleCount++;
+      } else {
+        (item as HTMLElement).style.opacity = '0';
+        (item as HTMLElement).style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          if (!searchMatch || !filterMatch) {
+            (item as HTMLElement).style.display = 'none';
+          }
+        }, 150);
+      }
+    });
+
+    if (noResults) {
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  searchInput?.addEventListener('input', (e) => {
+    currentSearch = (e.target as HTMLInputElement).value.trim().toLowerCase();
+    applyFilters();
+  });
+</script>
+
+<style>
+  .work-hero-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 65ch;
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    background: rgba(197, 97, 246, 0.12);
+    border: 1px solid rgba(197, 97, 246, 0.3);
+    color: #c561f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    width: fit-content;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+    animation: pulseGlow 2s infinite;
+  }
+
+  .work-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--gray-0);
+  }
+
+  .work-lead {
+    font-size: var(--text-lg);
+    color: var(--gray-300);
+    line-height: 1.6;
+  }
+
+  /* FEATURED CARD */
+  .featured-section {
+    width: 100%;
+  }
+
+  .featured-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    border-radius: 2rem;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(197, 97, 246, 0.4) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(118, 17, 166, 0.2);
+  }
+
+  .featured-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .featured-badge {
+    display: inline-flex;
+    padding: 0.35rem 0.8rem;
+    border-radius: 9999px;
+    background: rgba(255, 93, 1, 0.15);
+    border: 1px solid rgba(255, 93, 1, 0.4);
+    color: #ff8c00;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    width: fit-content;
+  }
+
+  .featured-title {
+    font-size: var(--text-3xl);
+    color: #ffffff;
+    font-weight: 800;
+  }
+
+  .featured-desc {
+    color: var(--gray-200);
+    font-size: var(--text-md);
+    line-height: 1.6;
+    max-width: 50ch;
+  }
+
+  .featured-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .featured-tag {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(118, 17, 166, 0.4);
+    border: 1px solid rgba(197, 97, 246, 0.4);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .featured-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 9999px;
+    background: var(--accent-regular);
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    width: fit-content;
+    box-shadow: 0 8px 25px rgba(118, 17, 166, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .featured-cta:hover {
+    transform: translateY(-3px);
+    background: #8b18c6;
+    box-shadow: 0 12px 30px rgba(197, 97, 246, 0.6);
+  }
+
+  .featured-secondary-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.8rem 1.4rem;
+    border-radius: 9999px;
+    color: var(--gray-0);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    transition: all 0.3s ease;
+  }
+
+  .featured-secondary-cta:hover {
+    background: rgba(197, 97, 246, 0.2);
+    border-color: rgba(197, 97, 246, 0.6);
+    transform: translateY(-3px);
+  }
+
+  .featured-media {
+    width: 100%;
+  }
+
+  .featured-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .featured-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .featured-card:hover .featured-img-wrapper img {
+    transform: scale(1.05);
+  }
+
+  /* CONTROLS & SEARCH BAR */
+  .controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .controls-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+
+  .controls-header h2 {
+    font-size: var(--text-2xl);
+    color: var(--gray-0);
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.6) !important;
+    color: var(--gray-300);
+    max-width: 380px;
+  }
+
+  .search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    width: 100%;
+  }
+
+  /* FILTERS */
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--gray-300);
+    font-family: var(--font-brand);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .filter-btn:hover {
+    background: rgba(197, 97, 246, 0.15);
+    border-color: rgba(197, 97, 246, 0.4);
+    color: var(--gray-0);
+  }
+
+  .filter-btn.active {
+    background: var(--accent-regular);
+    border-color: var(--accent-light);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(118, 17, 166, 0.5);
+  }
+
+  .project-item {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .no-results {
+    padding: 3rem;
+    text-align: center;
+    color: var(--gray-400);
+    font-size: var(--text-lg);
+    border-radius: 1.5rem;
+  }
+
+  @media (min-width: 50em) {
+    .featured-card {
+      display: grid;
+      grid-template-columns: 5fr 6fr;
+      gap: 3rem;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .controls-header {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .work-title {
+      font-size: var(--text-5xl);
+    }
+  }
+</style>

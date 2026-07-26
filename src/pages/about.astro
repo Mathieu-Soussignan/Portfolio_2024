@@ -1,89 +1,170 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
 import ContactCTA from "../components/ContactCTA.astro";
-import Hero from "../components/Hero.astro";
+import Icon from "../components/Icon.astro";
+import Timeline from "../components/Timeline.astro";
+
+const technicalCategories = [
+  {
+    category: "Data Engineering & IA",
+    icon: "terminal-window",
+    color: "#c561f6",
+    skills: ["Pipelines ETL", "Python (Advanced)", "SQL & PostgreSQL", "PyTorch", "Scikit-Learn", "LLM & NLP", "Pandas & NumPy"]
+  },
+  {
+    category: "Développement Web & Frameworks",
+    icon: "code",
+    color: "#00f2fe",
+    skills: ["React & TypeScript", "FastAPI", "Astro", "Flask", "JavaScript (ES6+)", "HTML5 & CSS3 / Tailwind"]
+  },
+  {
+    category: "DevOps & Outils",
+    icon: "strategy",
+    color: "#27c93f",
+    skills: ["Docker", "Git & GitHub", "CI/CD Actions", "Méthodes Agile (Scrum)", "Architecture SaaS", "Figma"]
+  }
+];
+
+const softSkills = [
+  { title: "Autonomie & Curiosité", desc: "Capacité à monter en compétence rapidement sur des technos émergentes." },
+  { title: "Pensée Analytique", desc: "Rigueur d'ingénierie pour décomposer des problèmes Data complexes." },
+  { title: "Travail d'Équipe", desc: "Communication fluide, pair-programming et sens du collectif." },
+  { title: "Sens Produit & UX", desc: "Focus permanent sur la valeur délivrée à l'utilisateur final." }
+];
 ---
 
 <BaseLayout
-  title="A propos | Mathieu Soussignan"
-  description="A propos de Mathieu Soussignan"
+  title="À propos | Mathieu Soussignan"
+  description="À propos de Mathieu Soussignan - Data Engineer & Développeur IA chez Keyrus à Aix-en-Provence."
 >
-  <div class="stack gap-20">
-    <main class="wrapper about">
-      <Hero
-        title="A propos"
-        tagline="Développeur passionné en alternance dans l'intelligence artificielle"
-      >
-        <img
-        class="about-img"
-        width="480"
-        height="620"
-        src="/assets/profil-logo.jpg"
-        alt="Mathieu Soussignan au travail"
-      />
-      </Hero>
-
-      <section>
-        <h2 class="section-title">Mon Parcours</h2>
-        <div class="content">
-          <p>
-            Rien ne me prédestinait à travailler dans la tech. Et pourtant, après plusieurs années dans un tout autre domaine, j’ai ressenti ce besoin de me réinventer. C’est en découvrant le développement web que j’ai eu le déclic : créer des choses concrètes, résoudre des problèmes, construire des projets utiles… ça m’a tout de suite parlé.
-          </p>
-          <br />
-          <p>
-            En 2023, j’ai entamé une reconversion professionnelle et obtenu ma certification de développeur web et web mobile chez <strong>Simplon</strong>. Cette formation intense, en pédagogie active, m’a permis de poser des bases solides : HTML, CSS, JavaScript, React, bases de données, back-end... Mais au-delà des compétences techniques, j’y ai appris à travailler en équipe, à chercher par moi-même, et à ne jamais lâcher.
-          </p>
-          <br />
-          <p>
-            Aujourd’hui, je poursuis mon apprentissage dans un nouveau défi : l’<strong>intelligence artificielle</strong>. Je suis en alternance chez <strong>Keyrus à Aix-en-Provence</strong>, où je travaille sur des projets mêlant data analyse et IA. En parallèle, je suis la formation diplômante de <strong>développeur en intelligence artificielle</strong> chez Simplon. C’est un environnement stimulant, où je progresse chaque jour en mêlant code, analyse de données, modélisation et industrialisation.
-          </p>
-          <br />
-          <p>
-            Ce que j’aime dans mon métier, c’est cette capacité à relier les points : du front-end au back-end, du traitement des données à leur valorisation, je m’épanouis dans une approche fullstack, orientée solution. Mon objectif est simple : mettre la tech au service de projets concrets, accessibles, et utiles — que ce soit pour les entreprises ou pour les utilisateurs.
-          </p>
-          <br />
-          <p>
-            Je suis en constante évolution, curieux, rigoureux, et toujours partant pour apprendre de nouvelles technos ou relever de nouveaux défis. Chaque ligne de code est une opportunité d’apprendre, d’optimiser, et de créer un impact.
-          </p>
-        </div>
-      </section>
+  <div class="stack gap-15 lg:gap-30">
+    <main class="wrapper stack gap-15 lg:gap-20">
       
+      <!-- HERO SHOWCASE ABOUT -->
+      <section class="about-hero-grid">
+        <div class="about-intro-content">
+          <div class="status-tag">
+            <span class="pulse-dot"></span> PORTRAIT & VISION
+          </div>
 
-      <section>
-        <h2 class="section-title">Diplômes</h2>
-        <div class="content">
-          <p>
-            <strong>2024 — En cours :</strong> Développeur en Intelligence Artificielle (Simplon / Microsoft / France Travail)
-            <br /><br />
+          <h1 class="about-title">
+            De la reconversion passionnée à l'ingénierie <br />
+            <span class="gradient-text">Data & IA chez Keyrus</span>
+          </h1>
+
+          <p class="about-lead">
+            Rien ne me prédestinait initialement à la tech. Et pourtant, créer des choses concrètes, résoudre des problèmes complexes et construire des applications utiles est vite devenu une évidence.
           </p>
+
+          <!-- STATS GRID -->
+          <div class="stats-grid">
+            <div class="stat-card glass-card">
+              <span class="stat-number gradient-text">3+</span>
+              <span class="stat-label">Ans d'Expérience Tech</span>
+            </div>
+            <div class="stat-card glass-card">
+              <span class="stat-number gradient-text">Keyrus</span>
+              <span class="stat-label">Data Engineer & IA (CDI)</span>
+            </div>
+            <div class="stat-card glass-card">
+              <span class="stat-number gradient-text">12+</span>
+              <span class="stat-label">Projets & Applications</span>
+            </div>
+            <div class="stat-card glass-card">
+              <span class="stat-number gradient-text">100%</span>
+              <span class="stat-label">Engagement & Rigueur</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE PHOTO CARD -->
+        <div class="about-photo-showcase">
+          <div class="profile-card glass-card">
+            <div class="photo-wrapper">
+              <img
+                src="/assets/profil-logo.jpg"
+                alt="Mathieu Soussignan au travail"
+                class="profile-img"
+              />
+              <div class="photo-overlay"></div>
+            </div>
+            <div class="photo-badge badge-1 glass-card">
+              <span>📍</span> Marseille / Aix
+            </div>
+            <div class="photo-badge badge-2 glass-card">
+              <span>💡</span> FullStack & Data
+            </div>
+            <div class="photo-footer">
+              <span class="dot-active"></span>
+              <span><strong>Keyrus</strong> • Data Engineer & IA</span>
+            </div>
+          </div>
         </div>
       </section>
-      <section>
-        <h2 class="section-title">Skills</h2>
-        <div class="content">
-          <h3>Technical Skills</h3>
-          <br />
-          <ul>
-            <li><strong>Langages :</strong> HTML5, CSS3, JavaScript, Python, SQL</li>
-            <li><strong>Frameworks :</strong> React, Astro, Flask, FastAPI</li>
-            <li><strong>IA / Data :</strong> Pandas, Numpy, Scikit-learn, Pytorch (débutant)</li>
-            <li><strong>Design / UI :</strong> Tailwind CSS, Figma</li>
-            <li><strong>Versioning :</strong> Git & GitHub</li>
-            <li><strong>Méthodo :</strong> Méthodes Agile, Trello</li>
-          </ul>
-          <br />
-          <h3>Soft Skills</h3>
-          <br />
-          <ul>
-            <li>Autonomie & curiosité</li>
-            <li>Capacité d'adaptation</li>
-            <li>Travail en équipe</li>
-            <li>Pensée analytique & rigueur</li>
-            <li>Communication & écoute</li>
-          </ul>
+
+      <!-- PHILOSOPHIE & APPROCHE -->
+      <section class="philosophy-section">
+        <h2 class="section-heading">Mon Approche & Philosophie</h2>
+        <div class="philosophy-grid">
+          <div class="philosophy-card glass-card">
+            <div class="card-icon"><Icon icon="rocket-launch" size="2rem" /></div>
+            <h3>Le Déclic & L'Apprentissage Intensif</h3>
+            <p>
+              Formé chez <strong>Simplon</strong> d'abord en Développement Web puis en <strong>Intelligence Artificielle (Simplon / Microsoft)</strong>, j'ai développé une méthode de travail axée sur la pratique, la recherche autonome et la rigueur.
+            </p>
+          </div>
+          <div class="philosophy-card glass-card">
+            <div class="card-icon"><Icon icon="terminal-window" size="2rem" /></div>
+            <h3>La Vision 360° Data ➔ UI</h3>
+            <p>
+              Ce qui me passionne, c'est de relier l'ensemble de la chaîne : de la collecte et la préparation des données (ETL, SQL, ML) jusqu'à la création d'interfaces fluides et performantes (React, FastAPI, Astro).
+            </p>
+          </div>
         </div>
       </section>
+
+      <!-- TIMELINE CARRIERE -->
+      <section class="timeline-section">
+        <h2 class="section-heading">Timeline de Carrière</h2>
+        <Timeline />
+      </section>
+
+      <!-- TECH SKILLS GRID SHOWCASE -->
+      <section class="skills-showcase-section">
+        <h2 class="section-heading">Compétences & Écosystème Technique</h2>
+        
+        <div class="tech-categories-grid">
+          {technicalCategories.map(cat => (
+            <div class="category-card glass-card">
+              <div class="category-header">
+                <div class="cat-icon-wrapper" style={`border-color: ${cat.color}; color: ${cat.color}`}>
+                  <Icon icon={cat.icon as any} size="1.5rem" />
+                </div>
+                <h3>{cat.category}</h3>
+              </div>
+              <div class="skill-pills-list">
+                {cat.skills.map(s => (
+                  <span class="skill-pill-item">{s}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- SOFT SKILLS GRID -->
+        <div class="soft-skills-wrapper">
+          <h3 class="sub-heading">Qualités & Posture Professionnelle</h3>
+          <div class="soft-skills-grid">
+            {softSkills.map(soft => (
+              <div class="soft-card glass-card">
+                <h4>{soft.title}</h4>
+                <p>{soft.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <ContactCTA />
@@ -91,70 +172,328 @@ import Hero from "../components/Hero.astro";
 </BaseLayout>
 
 <style>
-  .about {
+  .about-hero-grid {
     display: flex;
     flex-direction: column;
-    gap: 3.5rem;
+    gap: 3rem;
+    align-items: center;
   }
 
-  img {
-    margin-top: 1.5rem;
-    border-radius: 1.5rem;
-    box-shadow: var(--shadow-md);
-  }
-
-  .about-img {
-  width: 100%;
-  height: auto;
-  max-width: 400px;
-  object-fit: cover;
-  object-position: center top;
-  margin-inline: auto;
-  border-radius: 1.5rem;
-  box-shadow: var(--shadow-md);
-}
-
-  section {
+  .about-intro-content {
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
-    color: var(--gray-200);
+    padding: 0.4rem 1rem;
+    border-radius: 9999px;
+    background: rgba(197, 97, 246, 0.12);
+    border: 1px solid rgba(197, 97, 246, 0.3);
+    color: #c561f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    width: fit-content;
   }
 
-  .section-title {
-    grid-column-start: 1;
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f2fe;
+    box-shadow: 0 0 10px #00f2fe;
+    animation: pulseGlow 2s infinite;
+  }
+
+  .about-title {
+    font-size: var(--text-3xl);
+    line-height: 1.15;
+    color: var(--gray-0);
+    font-weight: 800;
+  }
+
+  .about-lead {
+    font-size: var(--text-lg);
+    color: var(--gray-300);
+    line-height: 1.6;
+    max-width: 58ch;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: rgba(15, 23, 42, 0.6) !important;
+  }
+
+  .stat-number {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    font-family: var(--font-brand);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    font-weight: 500;
+  }
+
+  /* Photo Showcase Card */
+  .about-photo-showcase {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .profile-card {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border: 1px solid rgba(197, 97, 246, 0.3) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.25);
+  }
+
+  .photo-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 1.5rem;
+    overflow: hidden;
+  }
+
+  .profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 0.5s ease;
+  }
+
+  .profile-card:hover .profile-img {
+    transform: scale(1.05);
+  }
+
+  .photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(9, 11, 17, 0.8) 100%);
+  }
+
+  .photo-badge {
+    position: absolute;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(197, 97, 246, 0.4) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    z-index: 3;
+  }
+
+  .badge-1 {
+    top: -10px;
+    left: -10px;
+  }
+
+  .badge-2 {
+    bottom: 50px;
+    right: -10px;
+  }
+
+  .photo-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--gray-200);
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 0.75rem;
+  }
+
+  .dot-active {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #27c93f;
+    box-shadow: 0 0 10px #27c93f;
+    animation: pulseGlow 2s infinite;
+  }
+
+  /* Headings */
+  .section-heading {
+    font-size: var(--text-2xl);
+    color: var(--gray-0);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 4px solid var(--accent-light);
+  }
+
+  /* Philosophy Grid */
+  .philosophy-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .philosophy-card {
+    padding: 2rem;
+    border-radius: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .card-icon {
+    color: var(--accent-light);
+    margin-bottom: 0.25rem;
+  }
+
+  .philosophy-card h3 {
     font-size: var(--text-xl);
     color: var(--gray-0);
   }
 
-  .content {
-    grid-column: 2 / 4;
+  .philosophy-card p {
+    color: var(--gray-300);
+    line-height: 1.6;
+    font-size: var(--text-base);
   }
 
-  .content :global(a) {
-    text-decoration: 1px solid underline transparent;
-    text-underline-offset: 0.25em;
-    transition: text-decoration-color var(--theme-transition);
+  /* Skills Showcase */
+  .tech-categories-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
-  .content :global(a:hover),
-  .content :global(a:focus) {
-    text-decoration-color: currentColor;
+  .category-card {
+    padding: 1.75rem;
+    border-radius: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .cat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .category-header h3 {
+    font-size: var(--text-xl);
+    color: var(--gray-0);
+  }
+
+  .skill-pills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .skill-pill-item {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--gray-100);
+    transition: all 0.2s ease;
+  }
+
+  .skill-pill-item:hover {
+    background: rgba(197, 97, 246, 0.2);
+    border-color: rgba(197, 97, 246, 0.5);
+    color: #ffffff;
+  }
+
+  /* Soft Skills */
+  .soft-skills-wrapper {
+    margin-top: 3rem;
+  }
+
+  .sub-heading {
+    font-size: var(--text-xl);
+    color: var(--gray-0);
+    margin-bottom: 1.25rem;
+  }
+
+  .soft-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .soft-card {
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .soft-card h4 {
+    font-size: var(--text-md);
+    color: var(--accent-light);
+  }
+
+  .soft-card p {
+    font-size: 0.875rem;
+    color: var(--gray-300);
+    line-height: 1.5;
   }
 
   @media (min-width: 50em) {
-    .about {
+    .about-hero-grid {
       display: grid;
-      grid-template-columns: 1fr 60% 1fr;
+      grid-template-columns: 6fr 5fr;
+      gap: 4rem;
+      align-items: center;
     }
 
-    .about > :global(:first-child) {
-      grid-column-start: 2;
+    .about-title {
+      font-size: var(--text-5xl);
     }
 
-    section {
-      display: contents;
-      font-size: var(--text-lg);
+    .philosophy-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .tech-categories-grid {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>

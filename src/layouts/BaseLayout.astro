@@ -15,20 +15,120 @@ interface Props {
 const { title, description } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="fr">
 	<head>
 		<MainHead title={title} description={description} />
 	</head>
 	<body>
+		<div class="glow-orb glow-orb-1"></div>
+		<div class="glow-orb glow-orb-2"></div>
 		<div class="stack backgrounds">
 			<Nav />
 			<slot />
 			<Footer />
 		</div>
+		<div id="toast-container"></div>
 
 		<script>
 			// Add “loaded” class once the document has completely loaded.
 			addEventListener('load', () => document.documentElement.classList.add('loaded'));
+
+			// Global Toast notification helper
+			(window as any).showToast = (message: string) => {
+				const container = document.getElementById('toast-container');
+				if (!container) return;
+				const toast = document.createElement('div');
+				toast.className = 'toast-notification';
+				toast.innerHTML = `<span>✨</span> <span>${message}</span>`;
+				container.appendChild(toast);
+				setTimeout(() => {
+					toast.style.opacity = '0';
+					toast.style.transform = 'translateY(10px)';
+					toast.style.transition = 'all 0.3s ease';
+					setTimeout(() => toast.remove(), 300);
+				}, 2800);
+			};
+
+			// Spotlight effect tracking
+			document.addEventListener('mousemove', (e) => {
+				const cards = document.querySelectorAll('.glass-card, .spotlight-card');
+				cards.forEach((card) => {
+					const rect = (card as HTMLElement).getBoundingClientRect();
+					const x = e.clientX - rect.left;
+					const y = e.clientY - rect.top;
+					(card as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+					(card as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+				});
+			});
+
+			// Track Scroll Direction (Up / Down) globally
+			let lastScrollY = window.scrollY;
+			window.addEventListener('scroll', () => {
+				const currentScrollY = window.scrollY;
+				if (currentScrollY < lastScrollY - 4) {
+					document.body.classList.add('scrolling-up');
+					document.body.classList.remove('scrolling-down');
+				} else if (currentScrollY > lastScrollY + 4) {
+					document.body.classList.add('scrolling-down');
+					document.body.classList.remove('scrolling-up');
+				}
+				lastScrollY = currentScrollY;
+			}, { passive: true });
+
+			// Apple-Style Bidirectional Scroll Reveal Observer
+			const initAppleScrollReveal = () => {
+				const selectors = [
+					'section',
+					'.glass-card',
+					'.project-item',
+					'.timeline-item',
+					'.metric-card',
+					'.tech-category-card',
+					'.featured-card',
+					'.project-body-content',
+					'.contact-cta-card',
+					'main > header'
+				];
+
+				const elements = document.querySelectorAll(selectors.join(', '));
+
+				elements.forEach((el) => {
+					// Don't hide elements inside the hero header on initial paint
+					if (el.closest('.god-hero') && (el.classList.contains('hero-content') || el.classList.contains('status-badge'))) {
+						return;
+					}
+					if (!el.classList.contains('apple-scroll-reveal')) {
+						el.classList.add('apple-scroll-reveal');
+					}
+				});
+
+				const observer = new IntersectionObserver(
+					(entries) => {
+						entries.forEach((entry) => {
+							if (entry.isIntersecting) {
+								entry.target.classList.add('apple-in-view');
+							} else {
+								// When element exits viewport, remove class so scrolling BACK UP re-animates smoothly!
+								entry.target.classList.remove('apple-in-view');
+							}
+						});
+					},
+					{
+						threshold: 0.08,
+						rootMargin: '10px 0px -40px 0px'
+					}
+				);
+
+				document.querySelectorAll('.apple-scroll-reveal').forEach((el) => {
+					observer.observe(el);
+				});
+			};
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initAppleScrollReveal);
+			} else {
+				initAppleScrollReveal();
+			}
 		</script>
 
 		<style>
@@ -112,6 +212,33 @@ const { title, description } = Astro.props;
 					background-blend-mode: none;
 					--bg-gradient-size: none;
 				}
+			}
+
+			.glow-orb {
+				position: fixed;
+				border-radius: 50%;
+				filter: blur(120px);
+				pointer-events: none;
+				z-index: 0;
+				opacity: 0.35;
+				animation: pulseGlow 12s infinite alternate ease-in-out;
+			}
+
+			.glow-orb-1 {
+				top: -10%;
+				left: -10%;
+				width: 50vw;
+				height: 50vw;
+				background: radial-gradient(circle, #7611a6 0%, rgba(197, 97, 246, 0.4) 60%, transparent 100%);
+			}
+
+			.glow-orb-2 {
+				bottom: 10%;
+				right: -10%;
+				width: 45vw;
+				height: 45vw;
+				background: radial-gradient(circle, #00f2fe 0%, rgba(118, 17, 166, 0.3) 60%, transparent 100%);
+				animation-delay: -6s;
 			}
 		</style>
 	</body>
