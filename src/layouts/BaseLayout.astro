@@ -1109,8 +1109,98 @@ const { title, description } = Astro.props;
 					resetHallidayKeys();
 				}
 
+				// Interactive Quest Briefing Modal when clicking the Key HUD
+				function openQuestBriefingModal() {
+					if (document.getElementById('halliday-briefing-modal')) return;
+
+					// Chime audio
+					try {
+						const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+						const o = ctx.createOscillator();
+						const g = ctx.createGain();
+						o.type = 'triangle';
+						o.frequency.setValueAtTime(659.25, ctx.currentTime);
+						o.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+						g.gain.setValueAtTime(0.1, ctx.currentTime);
+						g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+						o.connect(g); g.connect(ctx.destination);
+						o.start(); o.stop(ctx.currentTime + 0.4);
+					} catch(_e) {}
+
+					const copper = isKeyCollected('copper');
+					const jade = isKeyCollected('jade');
+					const crystal = isKeyCollected('crystal');
+
+					const modal = document.createElement('div');
+					modal.id = 'halliday-briefing-modal';
+					modal.innerHTML = `
+						<div class="hbm-backdrop"></div>
+						<div class="hbm-card">
+							<div class="hbm-badge">🕵️ QUIZ & CHASSE DES GUNTERS</div>
+							<h2 class="hbm-title">🔑 LA CHASSE AUX 3 CLÉS DE HALLIDAY</h2>
+							<p class="hbm-desc">
+								3 Clés légendaires sont cachées à travers le portfolio. Découvre-les toutes pour ouvrir la Porte de Cristal vers l'Œuf d'Or Ultime !
+							</p>
+
+							<div class="hbm-keys-list">
+								<div class="hbm-key-item ${copper ? 'hbm-unlocked' : ''}">
+									<div class="hbm-key-icon">🥉</div>
+									<div class="hbm-key-info">
+										<div class="hbm-key-name">CLÉ DE CUIVRE</div>
+										<div class="hbm-key-hint">💡 Indice : Inspecte le badge 'PORTRAIT & VISION' sur la page <strong>À Propos</strong>.</div>
+									</div>
+									<div class="hbm-key-status">${copper ? '✅ DÉBLOQUÉE' : '🔒 CACHÉE'}</div>
+								</div>
+
+								<div class="hbm-key-item ${jade ? 'hbm-unlocked' : ''}">
+									<div class="hbm-key-icon">🥈</div>
+									<div class="hbm-key-info">
+										<div class="hbm-key-name">CLÉ DE JADE</div>
+										<div class="hbm-key-hint">💡 Indice : Clique sur la carte du SaaS d'élite <strong>CreatorComptability</strong> dans <strong>Projets</strong>.</div>
+									</div>
+									<div class="hbm-key-status">${jade ? '✅ DÉBLOQUÉE' : '🔒 CACHÉE'}</div>
+								</div>
+
+								<div class="hbm-key-item ${crystal ? 'hbm-unlocked' : ''}">
+									<div class="hbm-key-icon">🥇</div>
+									<div class="hbm-key-info">
+										<div class="hbm-key-name">CLÉ DE CRISTAL</div>
+										<div class="hbm-key-hint">💡 Indice : Triomphe du Gardien dans le donjon <strong>OASIS</strong>.</div>
+									</div>
+									<div class="hbm-key-status">${crystal ? '✅ DÉBLOQUÉE' : '🔒 CACHÉE'}</div>
+								</div>
+							</div>
+
+							<div class="hbm-actions">
+								${(copper && jade && crystal)
+									? `<a href="/easter-egg/halliday/" class="hbm-btn-gold">🏆 Entrer dans le Sanctuaire de Halliday</a>`
+									: `<button id="hbm-close-btn" class="hbm-btn-explore">🔍 Partir à la chasse aux indices !</button>`
+								}
+							</div>
+						</div>
+					`;
+
+					document.body.appendChild(modal);
+					requestAnimationFrame(() => modal.classList.add('hbm-active'));
+
+					document.getElementById('hbm-close-btn')?.addEventListener('click', () => {
+						modal.classList.remove('hbm-active');
+						setTimeout(() => modal.remove(), 400);
+					});
+
+					modal.querySelector('.hbm-backdrop')?.addEventListener('click', () => {
+						modal.classList.remove('hbm-active');
+						setTimeout(() => modal.remove(), 400);
+					});
+				}
+
 				document.addEventListener('DOMContentLoaded', () => {
 					updateKeyHUD();
+					const hud = document.getElementById('halliday-key-hud');
+					if (hud) {
+						hud.style.cursor = 'pointer';
+						hud.addEventListener('click', openQuestBriefingModal);
+					}
 				});
 				updateKeyHUD();
 			})();
@@ -2128,6 +2218,70 @@ const { title, description } = Astro.props;
 				50% { opacity: 1; }
 				100% { transform: translateY(100vh); opacity: 0; }
 			}
+
+			/* ========================================
+			   🕵️ Halliday Quest Briefing Modal
+			   ======================================== */
+			:global(#halliday-briefing-modal) {
+				position: fixed; inset: 0; z-index: 99999999;
+				display: flex; align-items: center; justify-content: center;
+				opacity: 0; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+				pointer-events: all; font-family: 'Fira Code', monospace;
+			}
+			:global(#halliday-briefing-modal.hbm-active) { opacity: 1; }
+			:global(.hbm-backdrop) { position: absolute; inset: 0; background: rgba(5, 7, 12, 0.85); backdrop-filter: blur(15px); }
+			:global(.hbm-card) {
+				position: relative; z-index: 10;
+				display: flex; flex-direction: column; align-items: center; gap: 1.2rem;
+				padding: 2.5rem 2rem; width: 90%; max-width: 600px;
+				background: linear-gradient(145deg, #130f28 0%, #0a0d18 100%);
+				border: 2px solid #ffd700; border-radius: 20px;
+				box-shadow: 0 0 50px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(197, 97, 246, 0.15);
+				text-align: center;
+			}
+			:global(.hbm-badge) {
+				font-size: 0.7rem; font-weight: 800; color: #ffd700; letter-spacing: 0.15em;
+				padding: 0.3rem 1rem; border-radius: 999px; background: rgba(255, 215, 0, 0.12);
+				border: 1px solid rgba(255, 215, 0, 0.4);
+			}
+			:global(.hbm-title) { font-size: 1.35rem; font-weight: 900; color: #fff; text-shadow: 0 0 15px rgba(255,215,0,0.5); }
+			:global(.hbm-desc) { font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); line-height: 1.6; }
+
+			:global(.hbm-keys-list) { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; text-align: left; }
+			:global(.hbm-key-item) {
+				display: flex; align-items: center; gap: 0.8rem;
+				padding: 0.8rem 1rem; border-radius: 12px;
+				background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+				transition: all 0.3s ease;
+			}
+			:global(.hbm-key-item.hbm-unlocked) {
+				background: rgba(0, 255, 102, 0.08); border-color: #00ff66;
+				box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+			}
+			:global(.hbm-key-icon) { font-size: 1.8rem; }
+			:global(.hbm-key-info) { flex: 1; display: flex; flex-direction: column; gap: 0.2rem; }
+			:global(.hbm-key-name) { font-size: 0.85rem; font-weight: 800; color: #ffd700; }
+			:global(.hbm-key-hint) { font-size: 0.75rem; color: rgba(255, 255, 255, 0.7); }
+			:global(.hbm-key-hint strong) { color: #00f2fe; }
+			:global(.hbm-key-status) { font-size: 0.75rem; font-weight: 800; color: rgba(255, 255, 255, 0.4); }
+			:global(.hbm-unlocked .hbm-key-status) { color: #00ff66; text-shadow: 0 0 10px #00ff66; }
+
+			:global(.hbm-actions) { width: 100%; margin-top: 0.5rem; }
+			:global(.hbm-btn-explore) {
+				width: 100%; padding: 0.8rem; border-radius: 12px; border: none;
+				background: linear-gradient(135deg, #00f2fe, #c561f6); color: #000;
+				font-family: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer;
+				box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4); transition: transform 0.2s ease;
+			}
+			:global(.hbm-btn-explore:hover) { transform: scale(1.02); }
+			:global(.hbm-btn-gold) {
+				display: block; text-decoration: none;
+				width: 100%; padding: 0.8rem; border-radius: 12px;
+				background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000;
+				font-family: inherit; font-size: 0.85rem; font-weight: 800; text-align: center;
+				box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); transition: transform 0.2s ease;
+			}
+			:global(.hbm-btn-gold:hover) { transform: scale(1.02); }
 		</style>
 	</body>
 </html>
