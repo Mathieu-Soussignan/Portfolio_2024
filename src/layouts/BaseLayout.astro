@@ -1007,39 +1007,6 @@ const { title, description } = Astro.props;
 				}
 
 				function updateKeyHUD() {
-					let hud = document.getElementById('halliday-key-hud');
-					let trigger = document.getElementById('halliday-hud-trigger');
-
-					if (!trigger) {
-						trigger = document.createElement('div');
-						trigger.id = 'halliday-hud-trigger';
-						document.body.appendChild(trigger);
-
-						trigger.addEventListener('mouseenter', () => {
-							document.getElementById('halliday-key-hud')?.classList.add('hk-visible');
-						});
-						trigger.addEventListener('mouseleave', () => {
-							document.getElementById('halliday-key-hud')?.classList.remove('hk-visible');
-						});
-					}
-
-					if (!hud) {
-						hud = document.createElement('div');
-						hud.id = 'halliday-key-hud';
-						hud.innerHTML = `
-							<span class="hud-label">🔑 CLÉS DE HALLIDAY</span>
-							<div class="hud-keys">
-								<span class="hud-key" id="hk-copper" title="Clé de Cuivre (Page À Propos)">🥉</span>
-								<span class="hud-key" id="hk-jade" title="Clé de Jade (Page Projets SaaS)">🥈</span>
-								<span class="hud-key" id="hk-crystal" title="Clé de Cristal (Quête OASIS)">🥇</span>
-							</div>
-						`;
-						document.body.appendChild(hud);
-
-						hud.addEventListener('mouseenter', () => hud?.classList.add('hk-visible'));
-						hud.addEventListener('mouseleave', () => hud?.classList.remove('hk-visible'));
-					}
-
 					['copper', 'jade', 'crystal'].forEach(k => {
 						const el = document.getElementById(`hk-${k}`);
 						if (el) {
@@ -1875,47 +1842,31 @@ const { title, description } = Astro.props;
 			}
 
 			/* Invisible Hover Trigger Area in Top Right */
-			:global(#halliday-hud-trigger) {
-				position: fixed;
-				top: 0;
-				right: 0;
-				width: 320px;
-				height: 90px;
-				z-index: 99997;
-				pointer-events: auto;
-			}
-
 			/* ========================================
 			   🔑 Halliday 3-Keys HUD & Banners
 			   ======================================== */
-			:global(#halliday-key-hud) {
-				position: fixed;
-				top: 1.2rem;
-				right: 1.5rem;
-				z-index: 99998;
+			:global(.halliday-key-hud) {
 				display: flex;
 				align-items: center;
-				gap: 0.6rem;
-				padding: 0.4rem 0.9rem;
-				background: rgba(10, 14, 23, 0.85);
+				gap: 0.5rem;
+				padding: 0.35rem 0.8rem;
+				background: rgba(10, 14, 23, 0.8);
 				border: 1px solid rgba(255, 215, 0, 0.3);
 				border-radius: 9999px;
-				backdrop-filter: blur(15px);
-				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.15);
+				backdrop-filter: blur(10px);
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 215, 0, 0.15);
 				font-family: 'Fira Code', monospace;
 				font-size: 0.7rem;
-				color: rgba(255, 255, 255, 0.8);
-				opacity: 0;
-				transform: translateY(-15px);
-				pointer-events: none;
-				transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+				color: rgba(255, 255, 255, 0.95);
+				transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+				cursor: default;
+				user-select: none;
 			}
 
-			:global(#halliday-key-hud.hk-visible),
-			:global(#halliday-key-hud:hover) {
-				opacity: 1;
-				transform: translateY(0);
-				pointer-events: auto;
+			:global(.halliday-key-hud:hover) {
+				border-color: #ffd700;
+				box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.3);
+				transform: translateY(-1px);
 			}
 
 			:global(.hud-label) {
