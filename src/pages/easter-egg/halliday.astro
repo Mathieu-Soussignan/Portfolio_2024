@@ -1,0 +1,584 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="L'ŒUF D'OR DE HALLIDAY | Mathieu Soussignan" description="Vous avez découvert l'Easter Egg Ultime.">
+  <div class="sanctuary-container">
+    <div class="stars-bg"></div>
+    
+    <header class="sanctuary-header">
+      <a href="/" class="back-link">← RETOURNER AU MONDE RÉEL</a>
+      <h1 class="glowing-title">🥚 L'ŒUF D'OR DE HALLIDAY</h1>
+      <p class="subtitle">Félicitations, Gunter ! Tu as réuni les 3 Clés de l'OASIS et découvert l'Easter Egg Ultime.</p>
+      <div class="status-badge">🏆 RANG : HÉRITIER UNIQUE DE L'OASIS | COMPLÉTION : 100%</div>
+    </header>
+
+    <main>
+      <div class="egg-container" id="eggContainer">
+        <canvas id="eggCanvas" width="600" height="400"></canvas>
+        <div class="click-hint">CLIQUEZ SUR L'ŒUF</div>
+      </div>
+
+      <div class="revelation-flash" id="revelationFlash"></div>
+
+      <div class="certificate-container hidden" id="certificateContainer">
+        <div class="hologram-effect"></div>
+        <div class="certificate-content">
+          <h2>HÉREDITÉ DE L'OASIS — CERTIFICAT OFFICIEL</h2>
+          <p class="quote">"Merci d'avoir joué à mon jeu. Tu as prouvé ta passion, ta curiosité et ton talent de dev."</p>
+          <p class="signature">— James Halliday & Mathieu Soussignan</p>
+          
+          <div class="vip-actions">
+            <a href="mailto:contact@mathieu-soussignan.com?subject=VIP%20OASIS%20Coffee%20Chat" class="vip-btn gold">
+              <span class="icon">☕</span> Réserver un café VIP avec Mathieu
+            </a>
+            <button class="vip-btn cyan" onclick="alert('Badge Légendaire S++ débloqué ! (Imaginaire)')">
+              <span class="icon">📜</span> Télécharger le Badge Légendaire S++
+            </button>
+            <a href="/easter-egg/arcade/" class="vip-btn purple">
+              <span class="icon">🕹️</span> Rejouer aux Easter Eggs
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <section class="atari-tribute">
+        <div class="terminal-box">
+          <h3>TRIBUTE : ADVENTURE (1979)</h3>
+          <p>
+            En 1979, Warren Robinett a créé le premier "Easter Egg" dans le jeu vidéo Adventure sur Atari 2600.
+            Mécontent que les créateurs de jeux ne soient pas crédités, il a caché une salle secrète contenant
+            le texte "Created by Warren Robinett". C'est cette rébellion créative qui a inspiré l'OASIS et 
+            cette quête.
+          </p>
+          <div class="atari-pixel"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  :root {
+    --gold: #ffd700;
+    --cyan: #00f2fe;
+    --purple: #c561f6;
+    --dark-bg: #0a0e17;
+  }
+
+  .sanctuary-container {
+    min-height: 100vh;
+    background-color: var(--dark-bg);
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+    overflow-x: hidden;
+    padding: 2rem;
+  }
+
+  .stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    animation: drift 100s linear infinite;
+  }
+
+  @keyframes drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-200px); }
+  }
+
+  .sanctuary-header, main {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--cyan);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px var(--cyan);
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: #fff;
+    text-shadow: 0 0 20px var(--cyan), 0 0 30px var(--cyan);
+  }
+
+  .glowing-title {
+    font-size: 3rem;
+    color: var(--gold);
+    text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold), 0 0 40px #ff8c00;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(197, 97, 246, 0.2);
+    border: 1px solid var(--purple);
+    border-radius: 4px;
+    color: var(--purple);
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(197, 97, 246, 0.5);
+    margin-bottom: 3rem;
+  }
+
+  .egg-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 3rem auto;
+    cursor: pointer;
+  }
+
+  canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .egg-container:hover canvas {
+    box-shadow: 0 0 80px rgba(255, 215, 0, 0.3);
+  }
+
+  .click-hint {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .revelation-flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+
+  .revelation-flash.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .certificate-container {
+    position: relative;
+    background: rgba(255, 215, 0, 0.05);
+    border: 2px solid var(--gold);
+    padding: 3rem 2rem;
+    border-radius: 10px;
+    margin-bottom: 4rem;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(255, 215, 0, 0.1);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+
+  .certificate-container.hidden {
+    display: none;
+  }
+
+  .hologram-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 242, 254, 0) 0%,
+      rgba(0, 242, 254, 0.1) 50%,
+      rgba(0, 242, 254, 0) 100%
+    );
+    background-size: 100% 200%;
+    animation: scanline 4s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scanline {
+    0% { background-position: 0 -100%; }
+    100% { background-position: 0 200%; }
+  }
+
+  .certificate-content h2 {
+    color: var(--gold);
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px var(--gold);
+  }
+
+  .quote {
+    font-size: 1.4rem;
+    font-style: italic;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .signature {
+    text-align: right;
+    color: var(--cyan);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+  }
+
+  .vip-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  @media (min-width: 600px) {
+    .vip-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  .vip-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+  }
+
+  .vip-btn.gold {
+    border: 1px solid var(--gold);
+    color: var(--gold);
+  }
+  .vip-btn.gold:hover {
+    background: var(--gold);
+    color: var(--dark-bg);
+    box-shadow: 0 0 15px var(--gold);
+  }
+
+  .vip-btn.cyan {
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+  }
+  .vip-btn.cyan:hover {
+    background: var(--cyan);
+    color: var(--dark-bg);
+    box-shadow: 0 0 15px var(--cyan);
+  }
+
+  .vip-btn.purple {
+    border: 1px solid var(--purple);
+    color: var(--purple);
+  }
+  .vip-btn.purple:hover {
+    background: var(--purple);
+    color: white;
+    box-shadow: 0 0 15px var(--purple);
+  }
+
+  .atari-tribute {
+    margin-top: 4rem;
+    text-align: left;
+  }
+
+  .terminal-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-left: 4px solid var(--purple);
+    padding: 1.5rem;
+    border-radius: 4px;
+  }
+
+  .terminal-box h3 {
+    color: var(--purple);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .terminal-box p {
+    color: #ccc;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .atari-pixel {
+    width: 20px;
+    height: 20px;
+    background: #555;
+    animation: blink 2s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { background: #555; }
+    50% { background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+  }
+
+</style>
+
+<script>
+  const canvas = document.getElementById('eggCanvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('eggContainer');
+  const flash = document.getElementById('revelationFlash');
+  const certificate = document.getElementById('certificateContainer');
+
+  let width = canvas.width;
+  let height = canvas.height;
+  let time = 0;
+  let isHovered = false;
+  let isOpened = false;
+  let openTime = 0;
+
+  let audioCtx: AudioContext | null = null;
+  function playFanfare() {
+    try {
+      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+      osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.2); // C#5
+      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.4); // E5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.6); // A5
+      
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 2);
+    } catch (e) {
+      console.log('Audio disabled or not supported.');
+    }
+  }
+
+  class Particle {
+    x: number;
+    y: number;
+    radius: number;
+    angle: number;
+    speed: number;
+    orbitY: number;
+
+    constructor() {
+      this.angle = Math.random() * Math.PI * 2;
+      this.radius = 80 + Math.random() * 40;
+      this.speed = 0.02 + Math.random() * 0.02;
+      this.orbitY = -50 + Math.random() * 100;
+      this.x = 0;
+      this.y = 0;
+    }
+
+    update(hover: boolean) {
+      this.angle += hover ? this.speed * 3 : this.speed;
+      this.x = width / 2 + Math.cos(this.angle) * this.radius;
+      this.y = height / 2 + this.orbitY + Math.sin(this.angle) * 20;
+    }
+
+    draw(ctx: CanvasRenderingContext2D, hover: boolean) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, hover ? 3 : 2, 0, Math.PI * 2);
+      ctx.fillStyle = hover ? '#00f2fe' : '#ffd700';
+      ctx.shadowBlur = hover ? 15 : 10;
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  const particles = Array.from({ length: 40 }, () => new Particle());
+
+  function drawEgg(ctx: CanvasRenderingContext2D, time: number, hover: boolean, openTime: number) {
+    if (!ctx) return;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw particles behind
+    particles.forEach(p => {
+      if (Math.cos(p.angle) < 0) p.draw(ctx, hover);
+    });
+
+    const cx = width / 2;
+    const cy = height / 2;
+    
+    let yOffset = Math.sin(time * 0.05) * 10;
+    let rotation = hover ? time * 0.1 : 0;
+    
+    let leftHalfX = cx;
+    let rightHalfX = cx;
+    
+    if (isOpened) {
+      const progress = Math.min((Date.now() - openTime) / 1000, 1);
+      leftHalfX = cx - (progress * 150);
+      rightHalfX = cx + (progress * 150);
+      rotation = 0;
+    }
+
+    ctx.save();
+    
+    const drawHalf = (xPos: number, isLeft: boolean) => {
+      ctx.beginPath();
+      ctx.moveTo(xPos, cy - 60 + yOffset);
+      ctx.bezierCurveTo(
+        xPos + (isLeft ? -70 : 70), cy - 60 + yOffset, 
+        xPos + (isLeft ? -80 : 80), cy + 70 + yOffset, 
+        xPos, cy + 80 + yOffset
+      );
+      if (isLeft) {
+         ctx.lineTo(xPos, cy - 60 + yOffset);
+      } else {
+         ctx.lineTo(xPos, cy - 60 + yOffset);
+      }
+      ctx.closePath();
+    };
+
+    // Draw Right Half
+    ctx.save();
+    ctx.translate(rightHalfX - cx, 0);
+    if (!isOpened) {
+        ctx.translate(cx, cy + yOffset);
+        ctx.rotate(Math.sin(rotation) * 0.1);
+        ctx.translate(-cx, -(cy + yOffset));
+    }
+    drawHalf(cx, false);
+    const rightGrad = ctx.createLinearGradient(cx, cy - 60 + yOffset, cx + 80, cy + 80 + yOffset);
+    rightGrad.addColorStop(0, hover ? '#ffe55c' : '#ffdf00');
+    rightGrad.addColorStop(1, '#b8860b');
+    ctx.fillStyle = rightGrad;
+    ctx.shadowBlur = hover ? 30 : 15;
+    ctx.shadowColor = '#ffd700';
+    ctx.fill();
+    ctx.restore();
+
+    // Draw Left Half
+    ctx.save();
+    ctx.translate(leftHalfX - cx, 0);
+    if (!isOpened) {
+        ctx.translate(cx, cy + yOffset);
+        ctx.rotate(Math.sin(rotation) * 0.1);
+        ctx.translate(-cx, -(cy + yOffset));
+    }
+    drawHalf(cx, true);
+    const leftGrad = ctx.createLinearGradient(cx - 80, cy - 60 + yOffset, cx, cy + 80 + yOffset);
+    leftGrad.addColorStop(0, '#daa520');
+    leftGrad.addColorStop(1, hover ? '#ffe55c' : '#ffdf00');
+    ctx.fillStyle = leftGrad;
+    ctx.shadowBlur = hover ? 30 : 15;
+    ctx.shadowColor = '#ffd700';
+    ctx.fill();
+    ctx.restore();
+
+    // Inside glowing orb
+    if (isOpened) {
+      const progress = Math.min((Date.now() - openTime) / 1000, 1);
+      ctx.beginPath();
+      ctx.arc(cx, cy + yOffset, 40 * progress, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 50 * progress;
+      ctx.shadowColor = '#00f2fe';
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    // Draw particles in front
+    particles.forEach(p => {
+      p.update(hover);
+      if (Math.cos(p.angle) >= 0) p.draw(ctx, hover);
+    });
+  }
+
+  function animate() {
+    time++;
+    drawEgg(ctx!, time, isHovered, openTime);
+    requestAnimationFrame(animate);
+  }
+
+  container?.addEventListener('mouseenter', () => isHovered = true);
+  container?.addEventListener('mouseleave', () => isHovered = false);
+  
+  container?.addEventListener('click', () => {
+    if (isOpened) return;
+    isOpened = true;
+    openTime = Date.now();
+    playFanfare();
+    
+    if (flash) {
+      flash.classList.add('active');
+      setTimeout(() => {
+        flash.style.opacity = '0';
+        setTimeout(() => flash.classList.remove('active'), 1000);
+      }, 100);
+    }
+
+    setTimeout(() => {
+      if (container) container.style.display = 'none';
+      if (certificate) {
+        certificate.classList.remove('hidden');
+        certificate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 1500);
+  });
+
+  document.querySelector('.back-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    (window as any).resetHallidayKeys?.();
+    window.location.href = '/';
+  });
+
+  animate();
+</script>

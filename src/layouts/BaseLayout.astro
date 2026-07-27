@@ -991,6 +991,162 @@ const { title, description } = Astro.props;
 					}
 				});
 			})();
+
+			// =============================================
+			// 🔑 LA CHASSE DE HALLIDAY — 3 Keys Quest Engine
+			// =============================================
+			(() => {
+				const KEYS = {
+					copper: { name: 'Clé de Cuivre', icon: '🥉', color: '#b87333', desc: 'Découverte sur la page À Propos' },
+					jade: { name: 'Clé de Jade', icon: '🥈', color: '#00ff66', desc: 'Découverte dans la vitrine SaaS Projets' },
+					crystal: { name: 'Clé de Cristal', icon: '🥇', color: '#00f2fe', desc: 'Découverte dans la Quête OASIS' }
+				};
+
+				function isKeyCollected(key: string): boolean {
+					return localStorage.getItem(`halliday_key_${key}`) === 'true';
+				}
+
+				function updateKeyHUD() {
+					let hud = document.getElementById('halliday-key-hud');
+					let trigger = document.getElementById('halliday-hud-trigger');
+
+					if (!trigger) {
+						trigger = document.createElement('div');
+						trigger.id = 'halliday-hud-trigger';
+						document.body.appendChild(trigger);
+
+						trigger.addEventListener('mouseenter', () => {
+							document.getElementById('halliday-key-hud')?.classList.add('hk-visible');
+						});
+						trigger.addEventListener('mouseleave', () => {
+							document.getElementById('halliday-key-hud')?.classList.remove('hk-visible');
+						});
+					}
+
+					if (!hud) {
+						hud = document.createElement('div');
+						hud.id = 'halliday-key-hud';
+						hud.innerHTML = `
+							<span class="hud-label">🔑 CLÉS DE HALLIDAY</span>
+							<div class="hud-keys">
+								<span class="hud-key" id="hk-copper" title="Clé de Cuivre (Page À Propos)">🥉</span>
+								<span class="hud-key" id="hk-jade" title="Clé de Jade (Page Projets SaaS)">🥈</span>
+								<span class="hud-key" id="hk-crystal" title="Clé de Cristal (Quête OASIS)">🥇</span>
+							</div>
+						`;
+						document.body.appendChild(hud);
+
+						hud.addEventListener('mouseenter', () => hud?.classList.add('hk-visible'));
+						hud.addEventListener('mouseleave', () => hud?.classList.remove('hk-visible'));
+					}
+
+					['copper', 'jade', 'crystal'].forEach(k => {
+						const el = document.getElementById(`hk-${k}`);
+						if (el) {
+							if (isKeyCollected(k)) {
+								el.classList.add('hk-active');
+							} else {
+								el.classList.remove('hk-active');
+							}
+						}
+					});
+				}
+
+				function triggerKeyBanner(key: 'copper' | 'jade' | 'crystal') {
+					const info = KEYS[key];
+
+					// Show HUD temporarily when a key is found
+					const hud = document.getElementById('halliday-key-hud');
+					if (hud) {
+						hud.classList.add('hk-visible');
+						setTimeout(() => hud.classList.remove('hk-visible'), 4000);
+					}
+
+					// Fanfare audio
+					try {
+						const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+						const o = ctx.createOscillator();
+						const g = ctx.createGain();
+						o.type = 'triangle';
+						o.frequency.setValueAtTime(523.25, ctx.currentTime);
+						o.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
+						o.frequency.setValueAtTime(783.99, ctx.currentTime + 0.30);
+						o.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.45);
+						g.gain.setValueAtTime(0.15, ctx.currentTime);
+						g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+						o.connect(g); g.connect(ctx.destination);
+						o.start(); o.stop(ctx.currentTime + 0.8);
+					} catch(_e) {}
+
+					// Banner overlay
+					const banner = document.createElement('div');
+					banner.className = 'key-discovery-banner';
+					banner.innerHTML = `
+						<div class="kdb-icon">${info.icon}</div>
+						<div class="kdb-content">
+							<div class="kdb-title">🔑 ${info.name.toUpperCase()} OBTENUE !</div>
+							<div class="kdb-desc">${info.desc}</div>
+						</div>
+					`;
+					document.body.appendChild(banner);
+					requestAnimationFrame(() => banner.classList.add('kdb-active'));
+
+					setTimeout(() => {
+						banner.classList.remove('kdb-active');
+						setTimeout(() => banner.remove(), 500);
+					}, 3500);
+				}
+
+				function checkAllKeysUnlocked() {
+					const count = ['copper', 'jade', 'crystal'].filter(isKeyCollected).length;
+					if (count === 3 && !sessionStorage.getItem('halliday_portal_opened')) {
+						sessionStorage.setItem('halliday_portal_opened', 'true');
+						setTimeout(() => {
+							const gate = document.createElement('div');
+							gate.id = 'crystal-gate-overlay';
+							gate.innerHTML = `
+								<div class="cg-ring"></div>
+								<div class="cg-title">🏆 LES 3 CLÉS SONT RÉUNIES !</div>
+								<div class="cg-sub">Ouverture de la Porte de Cristal vers l'Œuf d'Or de Halliday...</div>
+							`;
+							document.body.appendChild(gate);
+							requestAnimationFrame(() => gate.classList.add('cg-active'));
+							setTimeout(() => {
+								window.location.href = '/easter-egg/halliday/';
+							}, 2500);
+						}, 1000);
+					}
+				}
+
+				function resetHallidayKeys() {
+					localStorage.removeItem('halliday_key_copper');
+					localStorage.removeItem('halliday_key_jade');
+					localStorage.removeItem('halliday_key_crystal');
+					sessionStorage.removeItem('halliday_portal_opened');
+					updateKeyHUD();
+				}
+
+				(window as any).resetHallidayKeys = resetHallidayKeys;
+
+				(window as any).collectHallidayKey = function(key: 'copper' | 'jade' | 'crystal') {
+					if (!isKeyCollected(key)) {
+						localStorage.setItem(`halliday_key_${key}`, 'true');
+						updateKeyHUD();
+						triggerKeyBanner(key);
+						checkAllKeysUnlocked();
+					}
+				};
+
+				// Auto-reset when returning to home or after portal was opened
+				if (sessionStorage.getItem('halliday_portal_opened') && window.location.pathname !== '/easter-egg/halliday/') {
+					resetHallidayKeys();
+				}
+
+				document.addEventListener('DOMContentLoaded', () => {
+					updateKeyHUD();
+				});
+				updateKeyHUD();
+			})();
 		</script>
 
 		<style>
@@ -1717,6 +1873,128 @@ const { title, description } = Astro.props;
 				50% { opacity: 1; }
 				100% { transform: scale(1.5) translateY(120px) rotate(360deg); opacity: 0; }
 			}
+
+			/* Invisible Hover Trigger Area in Top Right */
+			:global(#halliday-hud-trigger) {
+				position: fixed;
+				top: 0;
+				right: 0;
+				width: 320px;
+				height: 90px;
+				z-index: 99997;
+				pointer-events: auto;
+			}
+
+			/* ========================================
+			   🔑 Halliday 3-Keys HUD & Banners
+			   ======================================== */
+			:global(#halliday-key-hud) {
+				position: fixed;
+				top: 1.2rem;
+				right: 1.5rem;
+				z-index: 99998;
+				display: flex;
+				align-items: center;
+				gap: 0.6rem;
+				padding: 0.4rem 0.9rem;
+				background: rgba(10, 14, 23, 0.85);
+				border: 1px solid rgba(255, 215, 0, 0.3);
+				border-radius: 9999px;
+				backdrop-filter: blur(15px);
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.15);
+				font-family: 'Fira Code', monospace;
+				font-size: 0.7rem;
+				color: rgba(255, 255, 255, 0.8);
+				opacity: 0;
+				transform: translateY(-15px);
+				pointer-events: none;
+				transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+
+			:global(#halliday-key-hud.hk-visible),
+			:global(#halliday-key-hud:hover) {
+				opacity: 1;
+				transform: translateY(0);
+				pointer-events: auto;
+			}
+
+			:global(.hud-label) {
+				font-weight: 700;
+				font-size: 0.65rem;
+				color: #ffd700;
+				letter-spacing: 0.05em;
+			}
+
+			:global(.hud-keys) {
+				display: flex;
+				gap: 0.4rem;
+			}
+
+			:global(.hud-key) {
+				font-size: 1rem;
+				filter: grayscale(100%) opacity(0.3);
+				transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+
+			:global(.hud-key.hk-active) {
+				filter: grayscale(0%) opacity(1);
+				transform: scale(1.25);
+				animation: hkGlow 1.5s ease infinite alternate;
+			}
+
+			@keyframes hkGlow {
+				from { transform: scale(1.25); }
+				to { transform: scale(1.4); }
+			}
+
+			/* Key Discovery Banner */
+			:global(.key-discovery-banner) {
+				position: fixed;
+				top: 5rem;
+				left: 50%;
+				transform: translateX(-50%) translateY(-50px);
+				z-index: 999999;
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				padding: 0.8rem 1.6rem;
+				background: linear-gradient(135deg, rgba(18, 14, 36, 0.95), rgba(10, 13, 24, 0.95));
+				border: 2px solid #ffd700;
+				border-radius: 14px;
+				backdrop-filter: blur(20px);
+				box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4), 0 0 30px rgba(0, 0, 0, 0.8);
+				font-family: 'Fira Code', monospace;
+				opacity: 0;
+				transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+				pointer-events: none;
+			}
+
+			:global(.key-discovery-banner.kdb-active) {
+				opacity: 1;
+				transform: translateX(-50%) translateY(0);
+			}
+
+			:global(.kdb-icon) { font-size: 2rem; }
+			:global(.kdb-title) { font-size: 0.95rem; font-weight: 800; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.6); }
+			:global(.kdb-desc) { font-size: 0.75rem; color: rgba(255, 255, 255, 0.7); }
+
+			/* Crystal Gate Overlay */
+			:global(#crystal-gate-overlay) {
+				position: fixed; inset: 0; z-index: 99999999;
+				background: radial-gradient(circle at center, rgba(0, 242, 254, 0.2), #05070c 80%);
+				display: flex; flex-direction: column; align-items: center; justify-content: center;
+				gap: 1rem; text-align: center;
+				opacity: 0; transition: opacity 0.6s ease;
+			}
+			:global(#crystal-gate-overlay.cg-active) { opacity: 1; }
+			:global(.cg-ring) {
+				width: 150px; height: 150px; border-radius: 50%;
+				border: 3px solid #ffd700; box-shadow: 0 0 40px #ffd700, inset 0 0 40px #00f2fe;
+				animation: cgRotate 2s linear infinite;
+			}
+			@keyframes cgRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1); } }
+			:global(.cg-title) { font-size: 1.6rem; font-weight: 800; color: #ffd700; text-shadow: 0 0 20px #ffd700; font-family: 'Fira Code', monospace; }
+			:global(.cg-sub) { font-size: 0.9rem; color: #00f2fe; font-family: 'Fira Code', monospace; }
 		</style>
 	</body>
 </html>

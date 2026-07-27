@@ -459,3 +459,10 @@ const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") 
     }
   }
 </style>
+
+<script>
+  // 🔑 Halliday Jade Key Trigger
+  document.querySelector('.featured-card')?.addEventListener('click', () => {
+    (window as any).collectHallidayKey?.('jade');
+  });
+</script>

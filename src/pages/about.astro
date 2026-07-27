@@ -497,3 +497,10 @@ const softSkills = [
     }
   }
 </style>
+
+<script>
+  // 🔑 Halliday Copper Key Trigger
+  document.querySelector('.status-tag')?.addEventListener('click', () => {
+    (window as any).collectHallidayKey?.('copper');
+  });
+</script>

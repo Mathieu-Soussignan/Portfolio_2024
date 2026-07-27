@@ -437,6 +437,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   async function triggerVictory() {
+    (window as any).collectHallidayKey?.('crystal');
     const ascii = `
        ___________
       '._==_==_=_.'
