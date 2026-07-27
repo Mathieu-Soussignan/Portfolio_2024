@@ -1114,6 +1114,85 @@ const { title, description } = Astro.props;
 				});
 				updateKeyHUD();
 			})();
+
+			// =============================================
+			// 🚀 QUANTUM SOCIAL PORTAL TRANSITION (GitHub & LinkedIn)
+			// =============================================
+			(() => {
+				document.addEventListener('click', (e) => {
+					const anchor = (e.target as HTMLElement).closest('a[href*="github.com"], a[href*="linkedin.com"]') as HTMLAnchorElement;
+					if (!anchor) return;
+
+					const href = anchor.href;
+					const isGitHub = href.includes('github.com');
+					const isLinkedIn = href.includes('linkedin.com');
+
+					if (!isGitHub && !isLinkedIn) return;
+
+					e.preventDefault();
+
+					// 1. Audio Synth Soft Futuristic Chime
+					try {
+						const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+						const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+						notes.forEach((freq, idx) => {
+							const o = ctx.createOscillator();
+							const g = ctx.createGain();
+							o.type = 'sine';
+							o.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.15);
+							g.gain.setValueAtTime(0, ctx.currentTime + idx * 0.15);
+							g.gain.linearRampToValueAtTime(0.08, ctx.currentTime + idx * 0.15 + 0.05);
+							g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.6);
+							o.connect(g); g.connect(ctx.destination);
+							o.start(ctx.currentTime + idx * 0.15);
+							o.stop(ctx.currentTime + idx * 0.15 + 0.6);
+						});
+					} catch(_err) {}
+
+					// 2. Spawn Full-Screen Quantum Portal Overlay
+					const portal = document.createElement('div');
+					portal.id = 'quantum-portal-overlay';
+					portal.className = isGitHub ? 'portal-github' : 'portal-linkedin';
+
+					const title = isGitHub ? '⚡ PORTAIL QUANTIQUE GITHUB' : '💼 RÉSEAU NEURAL LINKEDIN';
+					const icon = isGitHub ? '🐙' : '⚡';
+					const targetName = isGitHub ? 'github.com/Mathieu-Soussignan' : 'linkedin.com/in/mathieu-soussignan';
+					const statusText = isGitHub
+						? '> CHARGEMENT DES REPOSITORIES & COMMITS LÉGENDAIRES...'
+						: '> CONNEXION AU PROFIL DATA ENGINEER & IA S++...';
+
+					portal.innerHTML = `
+						<div class="qp-grid-bg"></div>
+						<div class="qp-card">
+							<div class="qp-icon">${icon}</div>
+							<div class="qp-badge">${isGitHub ? 'CYBER-WARP V2.0' : 'NEURAL-LINK V2.0'}</div>
+							<h2 class="qp-title">${title}</h2>
+							<div class="qp-target">DESTINATION : <span>${targetName}</span></div>
+							<div class="qp-console">
+								<div class="qp-line qp-l1">> INITIALISATION DU HYPER-SAUT QUANTIQUE...</div>
+								<div class="qp-line qp-l2">${statusText}</div>
+								<div class="qp-line qp-l3">> TÉLÉPORTATION DANS 3... 2... 1...</div>
+							</div>
+							<div class="qp-progress-bar"><div class="qp-progress-fill"></div></div>
+						</div>
+						<div class="qp-streaks">
+							${Array.from({length: 30}).map(() => `<div class="qp-streak" style="left:${Math.random()*100}%; animation-delay:${Math.random()*0.5}s; animation-duration:${0.8 + Math.random()*0.8}s;"></div>`).join('')}
+						</div>
+					`;
+
+					document.body.appendChild(portal);
+					requestAnimationFrame(() => portal.classList.add('qp-active'));
+
+					// 3. Trigger Redirect after 2.5s for optimal immersion
+					setTimeout(() => {
+						window.open(href, '_blank');
+						setTimeout(() => {
+							portal.classList.remove('qp-active');
+							setTimeout(() => portal.remove(), 500);
+						}, 500);
+					}, 2500);
+				});
+			})();
 		</script>
 
 		<style>
@@ -1946,6 +2025,109 @@ const { title, description } = Astro.props;
 			@keyframes cgRotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.2); } 100% { transform: rotate(360deg) scale(1); } }
 			:global(.cg-title) { font-size: 1.6rem; font-weight: 800; color: #ffd700; text-shadow: 0 0 20px #ffd700; font-family: 'Fira Code', monospace; }
 			:global(.cg-sub) { font-size: 0.9rem; color: #00f2fe; font-family: 'Fira Code', monospace; }
+
+			/* ========================================
+			   🚀 Quantum Social Portal Overlay
+			   ======================================== */
+			:global(#quantum-portal-overlay) {
+				position: fixed; inset: 0; z-index: 99999999;
+				display: flex; align-items: center; justify-content: center;
+				background: #05070c; opacity: 0; pointer-events: all;
+				transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+				font-family: 'Fira Code', monospace; overflow: hidden;
+			}
+			:global(#quantum-portal-overlay.qp-active) { opacity: 1; }
+
+			:global(.portal-github) {
+				--qp-accent: #00ff66;
+				--qp-glow: rgba(0, 255, 102, 0.5);
+			}
+			:global(.portal-linkedin) {
+				--qp-accent: #00f2fe;
+				--qp-glow: rgba(0, 242, 254, 0.5);
+			}
+
+			:global(.qp-grid-bg) {
+				position: absolute; inset: 0;
+				background-image: 
+					linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+					linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+				background-size: 40px 40px;
+				transform: perspective(500px) rotateX(60deg) translateY(-100px);
+				animation: qpGridMove 1s linear infinite;
+			}
+			@keyframes qpGridMove {
+				0% { background-position: 0 0; }
+				100% { background-position: 0 40px; }
+			}
+
+			:global(.qp-card) {
+				position: relative; z-index: 10;
+				display: flex; flex-direction: column; align-items: center; gap: 1rem;
+				padding: 3rem 2.5rem; width: 90%; max-width: 550px;
+				background: rgba(10, 14, 23, 0.92);
+				border: 2px solid var(--qp-accent);
+				border-radius: 20px;
+				backdrop-filter: blur(25px);
+				box-shadow: 0 0 60px var(--qp-glow), inset 0 0 30px rgba(0,0,0,0.8);
+				text-align: center;
+				animation: qpCardPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+			@keyframes qpCardPop {
+				from { transform: scale(0.8); opacity: 0; }
+				to { transform: scale(1); opacity: 1; }
+			}
+
+			:global(.qp-icon) { font-size: 3.5rem; animation: qpPulseIcon 0.8s ease infinite alternate; }
+			@keyframes qpPulseIcon { from { transform: scale(1); } to { transform: scale(1.15); } }
+
+			:global(.qp-badge) {
+				font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em; color: var(--qp-accent);
+				padding: 0.3rem 0.9rem; border-radius: 999px; background: rgba(255,255,255,0.05);
+				border: 1px solid var(--qp-accent);
+			}
+
+			:global(.qp-title) {
+				font-size: 1.4rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--qp-accent);
+			}
+
+			:global(.qp-target) { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+			:global(.qp-target span) { color: var(--qp-accent); font-weight: 700; }
+
+			:global(.qp-console) {
+				width: 100%; text-align: left; background: rgba(0,0,0,0.6);
+				border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+				padding: 0.8rem 1rem; font-size: 0.75rem; color: var(--qp-accent);
+				display: flex; flex-direction: column; gap: 0.4rem;
+			}
+			:global(.qp-line) { opacity: 0; animation: qpFadeLine 0.4s forwards; }
+			:global(.qp-l1) { animation-delay: 0.2s; }
+			:global(.qp-l2) { animation-delay: 0.8s; color: #fff; }
+			:global(.qp-l3) { animation-delay: 1.5s; color: #ffd700; font-weight: 800; }
+			@keyframes qpFadeLine { to { opacity: 1; } }
+
+			:global(.qp-progress-bar) {
+				width: 100%; height: 6px; background: rgba(255,255,255,0.1);
+				border-radius: 999px; overflow: hidden; margin-top: 0.5rem;
+			}
+			:global(.qp-progress-fill) {
+				width: 0%; height: 100%; background: var(--qp-accent);
+				box-shadow: 0 0 10px var(--qp-accent);
+				animation: qpFillBar 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			}
+			@keyframes qpFillBar { to { width: 100%; } }
+
+			:global(.qp-streaks) { position: absolute; inset: 0; pointer-events: none; }
+			:global(.qp-streak) {
+				position: absolute; top: -100px; width: 2px; height: 120px;
+				background: linear-gradient(to bottom, transparent, var(--qp-accent), transparent);
+				animation: qpStreakDrop 0.8s linear infinite;
+			}
+			@keyframes qpStreakDrop {
+				0% { transform: translateY(-100px); opacity: 0; }
+				50% { opacity: 1; }
+				100% { transform: translateY(100vh); opacity: 0; }
+			}
 		</style>
 	</body>
 </html>
