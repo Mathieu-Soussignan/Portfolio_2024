@@ -102,16 +102,233 @@ import Icon from "./Icon.astro";
         <p>• <span class="cmd">contact</span> ➔ Mes coordonnées et réseaux sociaux</p>
         <p>• <span class="cmd">matrix</span> ➔ Déclencher la pluie numérique Matrix 🟢</p>
         <p>• <span class="cmd">clear</span> ➔ Effacer le terminal</p>
+        <p style="margin-top:0.5rem; color:#444c5e; font-size:0.75rem; font-style:italic;">// Psst... certaines commandes ne sont pas listées ici. Les vrais devs savent quoi essayer. 🔓</p>
       </div>
     `,
-    matrix: `
+    matrix: '__MATRIX_RAIN__',
+  };
+
+  // === MATRIX RAIN — Full Screen Canvas Animation ===
+  function launchMatrixRain() {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'matrix-rain-overlay';
+    overlay.style.cssText = `
+      position: fixed; inset: 0; z-index: 999999;
+      background: #000000; cursor: pointer;
+      opacity: 0; transition: opacity 0.5s ease;
+    `;
+
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'display: block; width: 100%; height: 100%;';
+    overlay.appendChild(canvas);
+
+    // Message overlay
+    const msg = document.createElement('div');
+    msg.style.cssText = `
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      color: #00ff66; font-family: 'Fira Code', monospace; font-size: 0.85rem;
+      text-align: center; opacity: 0.7; text-shadow: 0 0 10px #00ff66;
+      pointer-events: none;
+    `;
+    msg.textContent = '「 Wake up, Neo... The Data Matrix has you. 」 — Cliquez pour quitter';
+    overlay.appendChild(msg);
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
+    const ctx = canvas.getContext('2d')!;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Matrix characters — mix of Katakana, Latin, numbers, symbols
+    const matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>{}[]|/\\';
+    const fontSize = 14;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops: number[] = [];
+
+    function initDrops() {
+      columns = Math.floor(canvas.width / fontSize);
+      drops = new Array(columns).fill(0).map(() => Math.random() * -100);
+    }
+    initDrops();
+
+    let animId: number;
+    let running = true;
+
+    function drawFrame() {
+      if (!running) return;
+
+      // Semi-transparent black to create trail effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = `${fontSize}px 'Fira Code', monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        // Random character
+        const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // Head of the column is brighter white-green
+        if (Math.random() > 0.975) {
+          ctx.fillStyle = '#ffffff';
+        } else {
+          // Varying green shades
+          const brightness = Math.random() * 100 + 155;
+          ctx.fillStyle = `rgb(0, ${brightness}, ${Math.floor(brightness * 0.4)})`;
+        }
+
+        ctx.fillText(char, x, y);
+
+        // Reset drop when it falls off screen + random restart
+        if (y > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+
+      animId = requestAnimationFrame(drawFrame);
+    }
+
+    drawFrame();
+
+    // Close on click or keypress
+    function closeMatrix() {
+      running = false;
+      cancelAnimationFrame(animId);
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.remove();
+        window.removeEventListener('resize', resize);
+      }, 500);
+      document.removeEventListener('keydown', closeMatrix);
+    }
+
+    overlay.addEventListener('click', closeMatrix);
+    document.addEventListener('keydown', closeMatrix);
+
+    // Auto-close after 10 seconds
+    setTimeout(() => {
+      if (running) closeMatrix();
+    }, 10000);
+
+    // Terminal output
+    const row = document.createElement('div');
+    row.className = 'history-item';
+    row.innerHTML = `
+      <div class="history-cmd"><span class="prompt">mathieu@keyrus:~$</span> <span class="cmd-text" style="color:#00ff66;">matrix</span></div>
       <div class="cmd-output matrix-rain">
-        <p>🟢 01001101 01100001 01110100 01101000 01101001 01100101 01110101 00100000 01010011</p>
-        <p>🟢 DATA_ENGINEER_LOADED // AI_MODELS_ACTIVE // FULLSTACK_MODE_ENGAGED</p>
+        <p>🟢 INITIATING MATRIX RAIN PROTOCOL...</p>
         <p>🟢 "Wake up, Neo... The Data Matrix has you." 🚀</p>
       </div>
-    `,
-  };
+    `;
+    history.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // === SECRET COMMANDS (Easter Egg #1) ===
+  const SECRET_COMMANDS = ["sudo hack", "matrix --godmode"];
+
+  function runHackAnimation() {
+    input.disabled = true;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*!?><{}[]|/\\";
+    const targetMsg = "ACCESS GRANTED — BIENVENUE DANS LA MATRICE";
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const promptSpan = `<div class="history-cmd"><span class="prompt">mathieu@keyrus:~$</span> <span class="cmd-text" style="color:#00ff66;">sudo hack</span></div>`;
+    const outputDiv = document.createElement("div");
+    outputDiv.className = "cmd-output hack-output";
+    outputDiv.style.cssText = "color:#00ff66; border-left-color:#00ff66; background:rgba(0,255,102,0.05); font-family:'Fira Code',monospace; white-space:pre;";
+
+    row.innerHTML = promptSpan;
+    row.appendChild(outputDiv);
+    history.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+
+    // Phase 1: Rapid random lines (1.5s)
+    const hackLines = [
+      "[SYS] Initializing kernel bypass...",
+      "[NET] Routing through encrypted tunnel ███████ OK",
+      "[AUTH] Brute-forcing access token... ██░░░░░░░░",
+      "[AUTH] Brute-forcing access token... █████░░░░░",
+      "[AUTH] Brute-forcing access token... ████████░░",
+      "[AUTH] Brute-forcing access token... ██████████ CRACKED",
+      "[DB] Injecting payload → 0x7F3A9C2E...",
+      "[DECRYPT] Decoding security layer 1/3... ✓",
+      "[DECRYPT] Decoding security layer 2/3... ✓",
+      "[DECRYPT] Decoding security layer 3/3... ✓",
+      "[FIREWALL] Bypassed ✓",
+      "[STATUS] Root access obtained",
+    ];
+
+    let lineIdx = 0;
+    const lineInterval = setInterval(() => {
+      if (lineIdx >= hackLines.length) {
+        clearInterval(lineInterval);
+        // Phase 2: Decryption reveal of final message
+        let resolved = new Array(targetMsg.length).fill(false);
+        let display = Array.from(targetMsg).map(() => chars[Math.floor(Math.random() * chars.length)]);
+
+        const decryptLine = document.createElement("p");
+        decryptLine.style.cssText = "margin-top:0.75rem; font-size:1.1rem; font-weight:bold; color:#00ff66; text-shadow:0 0 10px #00ff66;";
+        outputDiv.appendChild(decryptLine);
+
+        let decryptTick = 0;
+        const decryptInterval = setInterval(() => {
+          // Resolve 2-3 characters per tick
+          const toResolve = Math.min(3, targetMsg.length - resolved.filter(Boolean).length);
+          for (let r = 0; r < toResolve; r++) {
+            const unresolvedIndices = resolved.map((v, i) => (!v ? i : -1)).filter(i => i >= 0);
+            if (unresolvedIndices.length === 0) break;
+            const pick = unresolvedIndices[Math.floor(Math.random() * unresolvedIndices.length)];
+            resolved[pick] = true;
+            display[pick] = targetMsg[pick];
+          }
+          // Scramble unresolved
+          display = display.map((_c, i) => resolved[i] ? targetMsg[i] : chars[Math.floor(Math.random() * chars.length)]);
+          decryptLine.textContent = `> ${display.join("")}_`;
+          decryptTick++;
+          body.scrollTop = body.scrollHeight;
+
+          if (resolved.every(Boolean)) {
+            clearInterval(decryptInterval);
+            decryptLine.textContent = `> ${targetMsg} ✓`;
+
+            // Phase 3: Redirect countdown
+            const redirectLine = document.createElement("p");
+            redirectLine.style.cssText = "margin-top:0.5rem; color:#00f2fe; animation: pulse 0.5s infinite alternate;";
+            redirectLine.textContent = "[REDIRECT] Ouverture du portail en 2s...";
+            outputDiv.appendChild(redirectLine);
+            body.scrollTop = body.scrollHeight;
+
+            setTimeout(() => {
+              redirectLine.textContent = "[REDIRECT] Ouverture du portail en 1s...";
+              setTimeout(() => {
+                window.location.href = "/easter-egg/hack/";
+              }, 1000);
+            }, 1000);
+          }
+        }, 60);
+
+        return;
+      }
+      const p = document.createElement("p");
+      p.textContent = hackLines[lineIdx];
+      p.style.opacity = "0";
+      p.style.animation = "fadeInLine 0.15s forwards";
+      outputDiv.appendChild(p);
+      body.scrollTop = body.scrollHeight;
+      lineIdx++;
+    }, 130);
+  }
 
   function executeCommand(cmd: string) {
     const cleanCmd = cmd.trim().toLowerCase();
@@ -120,6 +337,20 @@ import Icon from "./Icon.astro";
     if (cleanCmd === "clear") {
       history.innerHTML = "";
       input.value = "";
+      return;
+    }
+
+    // Check for secret commands
+    if (SECRET_COMMANDS.includes(cleanCmd)) {
+      input.value = "";
+      runHackAnimation();
+      return;
+    }
+
+    // Matrix rain — full screen animation
+    if (cleanCmd === "matrix") {
+      input.value = "";
+      launchMatrixRain();
       return;
     }
 
@@ -323,5 +554,15 @@ import Icon from "./Icon.astro";
     color: #ffffff;
     border-color: #c561f6;
     transform: translateY(-2px);
+  }
+
+  @keyframes fadeInLine {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
   }
 </style>

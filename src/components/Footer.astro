@@ -47,11 +47,26 @@ const currentYear = new Date().getFullYear();
   <div class="footer-bottom-bar">
     <div class="wrapper bottom-content">
       <p>&copy; {currentYear} Mathieu Soussignan • Conçu & développé avec Astro, IA & Passion</p>
+      <p class="footer-secret-hint" title="Il y a plus d'un chemin caché ici...">
+        <span class="hint-glyph">⌨</span> <span class="hint-text">Ton clavier cache des secrets...</span>
+      </p>
       <a href="#" class="top-scroll-btn" id="scroll-to-top" title="Haut de page">
         <span>Remonter</span> ↑
       </a>
     </div>
   </div>
+  <!-- 
+    ██████╗ ███████╗██╗   ██╗    ███████╗███████╗ ██████╗██████╗ ███████╗████████╗
+    ██╔══██╗██╔════╝██║   ██║    ██╔════╝██╔════╝██╔════╝██╔══██╗██╔════╝╚══██╔══╝
+    ██║  ██║█████╗  ██║   ██║    ███████╗█████╗  ██║     ██████╔╝█████╗     ██║   
+    ██║  ██║██╔══╝  ╚██╗ ██╔╝    ╚════██║██╔══╝  ██║     ██╔══██╗██╔══╝     ██║   
+    ██████╔╝███████╗ ╚████╔╝     ███████║███████╗╚██████╗██║  ██║███████╗   ██║   
+    ╚═════╝ ╚══════╝  ╚═══╝      ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   
+    
+    Tu inspectes le code source ? Tu as l'instinct d'un vrai dev. 🔍
+    Indice 1: Le terminal sait des choses qu'il ne dit pas... essaye d'être root.
+    Indice 2: 7 lettres. Un prénom. Tape-les dans le bon ordre, n'importe où.
+  -->
 </footer>
 
 <script>
@@ -209,6 +224,35 @@ const currentYear = new Date().getFullYear();
   .top-scroll-btn:hover {
     color: #c561f6;
     transform: translateY(-2px);
+  }
+
+  /* Easter Egg Hint */
+  .footer-secret-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.12);
+    cursor: default;
+    transition: all 0.4s ease;
+    user-select: none;
+  }
+
+  .footer-secret-hint:hover {
+    color: rgba(197, 97, 246, 0.6);
+  }
+
+  .footer-secret-hint:hover .hint-glyph {
+    animation: hintBounce 0.6s ease;
+  }
+
+  @keyframes hintBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .hint-text {
+    letter-spacing: 0.02em;
   }
 
   @media (min-width: 50em) {

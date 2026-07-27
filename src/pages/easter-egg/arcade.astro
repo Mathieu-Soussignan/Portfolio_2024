@@ -1,0 +1,707 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Easter Egg — Salle d'Arcade">
+  <div class="arcade-wrapper">
+    <div class="scanlines"></div>
+    <!-- Header -->
+    <header class="arcade-header">
+      <a href="/" class="back-link">&lt; RETOUR</a>
+      <h1 class="neon-text glitch" data-text="🕹️ MATHIEU'S ARCADE">🕹️ MATHIEU'S ARCADE</h1>
+      <p class="subtitle">Tu as trouvé le secret... Bienvenue dans ma salle d'arcade personnelle !</p>
+    </header>
+
+    <!-- Pong Game -->
+    <section class="game-container">
+      <div class="crt-frame">
+        <div class="score-board">
+          <span id="player-score">0</span>
+          <span class="vs">VS</span>
+          <span id="ai-score">0</span>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="pong-canvas" width="700" height="400"></canvas>
+          <div id="start-screen" class="overlay-screen active">
+            <h2 class="blink">PRESS START</h2>
+            <p>Utilisez la souris ou le doigt pour jouer</p>
+          </div>
+          <div id="game-over-screen" class="overlay-screen">
+            <h2 id="winner-text">GAME OVER</h2>
+            <button id="restart-btn" class="retro-btn">REJOUER</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dev Stats -->
+    <section class="stats-section">
+      <h2 class="section-title">DEV STATS</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">☕</div>
+          <div class="stat-number" data-target="12847">0</div>
+          <div class="stat-label">Cafés bus</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-number" data-target="247391">0</div>
+          <div class="stat-label">Lignes de code écrites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🚀</div>
+          <div class="stat-number" data-target="23">0</div>
+          <div class="stat-label">Projets livrés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎮</div>
+          <div class="stat-number" data-target="4200" data-suffix="+">0</div>
+          <div class="stat-label">Heures de gaming</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quotes Generator -->
+    <section class="quotes-section">
+      <div class="quote-card">
+        <div class="quote-content">
+          <span class="quote-mark">"</span>
+          <p id="quote-text">Talk is cheap. Show me the code.</p>
+        </div>
+        <p id="quote-author">- Linus Torvalds</p>
+      </div>
+      <button id="new-quote-btn" class="retro-btn">💬 NOUVELLE CITATION</button>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  :root {
+    --retro-pink: #ff006e;
+    --retro-cyan: #00f2fe;
+    --retro-purple: #c561f6;
+    --retro-green: #39ff14;
+    --bg-dark: #0a0e17;
+  }
+
+  .arcade-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--bg-dark);
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 2rem;
+    overflow-x: hidden;
+    z-index: 1;
+  }
+
+  .scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Header */
+  .arcade-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .back-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--retro-cyan);
+    text-decoration: none;
+    font-weight: bold;
+    text-shadow: 0 0 5px var(--retro-cyan);
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: var(--retro-pink);
+    text-shadow: 0 0 10px var(--retro-pink);
+  }
+
+  .neon-text {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px var(--retro-pink),
+      0 0 40px var(--retro-pink),
+      0 0 80px var(--retro-pink);
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    color: var(--retro-cyan);
+    font-size: 1.2rem;
+    text-shadow: 0 0 5px rgba(0, 242, 254, 0.5);
+  }
+
+  /* Game */
+  .game-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4rem;
+  }
+
+  .crt-frame {
+    background: #111;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 
+      inset 0 0 20px rgba(255, 255, 255, 0.1),
+      0 0 20px rgba(0, 242, 254, 0.3),
+      0 0 40px rgba(197, 97, 246, 0.2);
+    border: 2px solid #333;
+    position: relative;
+    max-width: 100%;
+  }
+
+  .score-board {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 10px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--retro-green);
+    text-shadow: 0 0 10px var(--retro-green);
+  }
+
+  .score-board .vs {
+    font-size: 1.2rem;
+    color: var(--retro-purple);
+    text-shadow: 0 0 10px var(--retro-purple);
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    border: 4px solid #222;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+  }
+
+  .overlay-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--retro-green);
+    text-shadow: 0 0 10px var(--retro-green);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .overlay-screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .blink {
+    animation: blinker 1s linear infinite;
+    cursor: pointer;
+  }
+
+  @keyframes blinker {
+    50% { opacity: 0; }
+  }
+
+  .retro-btn {
+    background: transparent;
+    color: var(--retro-cyan);
+    border: 2px solid var(--retro-cyan);
+    padding: 10px 20px;
+    font-family: inherit;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.5), inset 0 0 10px rgba(0, 242, 254, 0.5);
+    text-shadow: 0 0 5px var(--retro-cyan);
+    transition: all 0.2s;
+    margin-top: 20px;
+  }
+
+  .retro-btn:hover {
+    background: var(--retro-cyan);
+    color: #000;
+    box-shadow: 0 0 20px var(--retro-cyan), inset 0 0 20px var(--retro-cyan);
+  }
+
+  /* Stats */
+  .section-title {
+    text-align: center;
+    color: var(--retro-pink);
+    text-shadow: 0 0 10px var(--retro-pink);
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--retro-purple);
+    box-shadow: 0 0 20px rgba(197, 97, 246, 0.3);
+  }
+
+  .stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--retro-cyan);
+    text-shadow: 0 0 10px var(--retro-cyan);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: #aaa;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Quotes */
+  .quotes-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .quote-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 4px solid var(--retro-green);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 2rem;
+    position: relative;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);
+  }
+
+  .quote-mark {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 4rem;
+    color: rgba(57, 255, 20, 0.2);
+    line-height: 1;
+  }
+
+  .quote-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #eee;
+    position: relative;
+    z-index: 2;
+    min-height: 3em;
+  }
+
+  .quote-author {
+    margin-top: 1rem;
+    color: var(--retro-green);
+    text-align: right;
+    font-weight: bold;
+    font-style: italic;
+    opacity: 1;
+    transition: opacity 0.5s;
+  }
+
+  @media (max-width: 768px) {
+    .neon-text {
+      font-size: 2rem;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  // === Audio Context Setup ===
+  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  
+  function playSound(type: 'hit' | 'score' | 'wall') {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    if (type === 'hit') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'score') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.3);
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    } else {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    }
+  }
+
+  // === Pong Game Logic ===
+  const canvas = document.getElementById('pong-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const startScreen = document.getElementById('start-screen')!;
+  const gameOverScreen = document.getElementById('game-over-screen')!;
+  const restartBtn = document.getElementById('restart-btn')!;
+  const playerScoreEl = document.getElementById('player-score')!;
+  const aiScoreEl = document.getElementById('ai-score')!;
+  const winnerText = document.getElementById('winner-text')!;
+
+  const WINNING_SCORE = 7;
+  let gameState = 'start'; // start, playing, gameover
+  let lastTime = 0;
+
+  // Game objects
+  const paddleWidth = 10;
+  const paddleHeight = 80;
+  
+  const player = { x: 20, y: canvas.height/2 - paddleHeight/2, width: paddleWidth, height: paddleHeight, score: 0 };
+  const ai = { x: canvas.width - 20 - paddleWidth, y: canvas.height/2 - paddleHeight/2, width: paddleWidth, height: paddleHeight, score: 0, speed: 200 }; // speed in px/s
+  
+  const ball = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: 6,
+    speed: 350, // px/s
+    dx: 0,
+    dy: 0,
+    history: [] as {x: number, y: number}[]
+  };
+
+  function resetBall() {
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 2;
+    ball.speed = 350;
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    ball.dx = direction * ball.speed;
+    ball.dy = (Math.random() * 2 - 1) * ball.speed * 0.5;
+    ball.history = [];
+  }
+
+  function initGame() {
+    player.score = 0;
+    ai.score = 0;
+    playerScoreEl.textContent = '0';
+    aiScoreEl.textContent = '0';
+    ai.speed = 200;
+    resetBall();
+    gameState = 'playing';
+    startScreen.classList.remove('active');
+    gameOverScreen.classList.remove('active');
+  }
+
+  // Input
+  let mouseY = player.y;
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleY = canvas.height / rect.height;
+    mouseY = (e.clientY - rect.top) * scaleY - player.height / 2;
+  });
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleY = canvas.height / rect.height;
+    mouseY = (e.touches[0].clientY - rect.top) * scaleY - player.height / 2;
+  }, { passive: false });
+
+  startScreen.addEventListener('click', initGame);
+  restartBtn.addEventListener('click', initGame);
+
+  // Update
+  function update(dt: number) {
+    if (gameState !== 'playing') return;
+
+    // Move player paddle (smooth follow mouse)
+    player.y += (mouseY - player.y) * 10 * dt;
+    // Clamp
+    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+
+    // Move AI paddle
+    // AI gets faster as its score gets lower relatively, or just progressive
+    const aiTargetY = ball.y - ai.height / 2;
+    let aiSpeedMod = ai.speed + (player.score * 20); // gets harder
+    if (ai.y < aiTargetY) ai.y += aiSpeedMod * dt;
+    if (ai.y > aiTargetY) ai.y -= aiSpeedMod * dt;
+    ai.y = Math.max(0, Math.min(canvas.height - ai.height, ai.y));
+
+    // Move ball
+    ball.x += ball.dx * dt;
+    ball.y += ball.dy * dt;
+    
+    // Trail history
+    ball.history.push({x: ball.x, y: ball.y});
+    if (ball.history.length > 10) ball.history.shift();
+
+    // Wall collision (top/bottom)
+    if (ball.y - ball.radius < 0) {
+      ball.y = ball.radius;
+      ball.dy *= -1;
+      playSound('wall');
+    } else if (ball.y + ball.radius > canvas.height) {
+      ball.y = canvas.height - ball.radius;
+      ball.dy *= -1;
+      playSound('wall');
+    }
+
+    // Paddle collision
+    function checkPaddle(paddle: any, isLeft: boolean) {
+      if (
+        ball.x - ball.radius < paddle.x + paddle.width &&
+        ball.x + ball.radius > paddle.x &&
+        ball.y + ball.radius > paddle.y &&
+        ball.y - ball.radius < paddle.y + paddle.height
+      ) {
+        playSound('hit');
+        // Calculate hit angle
+        let hitPoint = ball.y - (paddle.y + paddle.height / 2);
+        let normalizedHitPoint = hitPoint / (paddle.height / 2);
+        let bounceAngle = normalizedHitPoint * (Math.PI / 4); // Max 45 degrees
+
+        ball.speed += 20; // speed up
+        let direction = isLeft ? 1 : -1;
+        ball.dx = direction * ball.speed * Math.cos(bounceAngle);
+        ball.dy = ball.speed * Math.sin(bounceAngle);
+        
+        // Push ball out to prevent sticking
+        ball.x = isLeft ? paddle.x + paddle.width + ball.radius : paddle.x - ball.radius;
+      }
+    }
+
+    checkPaddle(player, true);
+    checkPaddle(ai, false);
+
+    // Scoring
+    if (ball.x < 0) {
+      ai.score++;
+      aiScoreEl.textContent = ai.score.toString();
+      playSound('score');
+      checkWin();
+      if(gameState === 'playing') resetBall();
+    } else if (ball.x > canvas.width) {
+      player.score++;
+      playerScoreEl.textContent = player.score.toString();
+      playSound('score');
+      checkWin();
+      if(gameState === 'playing') resetBall();
+    }
+  }
+
+  function checkWin() {
+    if (player.score >= WINNING_SCORE || ai.score >= WINNING_SCORE) {
+      gameState = 'gameover';
+      winnerText.textContent = player.score >= WINNING_SCORE ? 'VOUS AVEZ GAGNÉ!' : 'L\'IA A GAGNÉ!';
+      gameOverScreen.classList.add('active');
+    }
+  }
+
+  // Draw
+  function draw() {
+    // Clear with fade for trailing effect (optional, we use distinct trail array though)
+    ctx.fillStyle = '#0a0e17';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Center line
+    ctx.setLineDash([10, 15]);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw paddles (Neon Cyan/Pink)
+    ctx.fillStyle = '#00f2fe';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#00f2fe';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    ctx.fillStyle = '#ff006e';
+    ctx.shadowColor = '#ff006e';
+    ctx.fillRect(ai.x, ai.y, ai.width, ai.height);
+
+    // Draw ball trail
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < ball.history.length; i++) {
+      let alpha = i / ball.history.length;
+      ctx.fillStyle = `rgba(57, 255, 20, ${alpha * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(ball.history[i].x, ball.history[i].y, ball.radius * (alpha * 0.8), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Draw ball
+    ctx.fillStyle = '#39ff14';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#39ff14';
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function loop(timestamp: number) {
+    if (!lastTime) lastTime = timestamp;
+    const dt = (timestamp - lastTime) / 1000; // in seconds
+    lastTime = timestamp;
+
+    update(dt);
+    draw();
+
+    requestAnimationFrame(loop);
+  }
+  
+  // Start loop
+  requestAnimationFrame(loop);
+
+  // === Dev Stats Counters ===
+  const statsElements = document.querySelectorAll('.stat-number');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.getAttribute('data-target') || '0');
+        const suffix = entry.target.getAttribute('data-suffix') || '';
+        animateValue(entry.target, 0, target, 2000, suffix);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  statsElements.forEach(el => observer.observe(el));
+
+  function animateValue(obj: Element, start: number, end: number, duration: number, suffix: string) {
+    let startTimestamp: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // easeOutExpo
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(easeProgress * (end - start) + start);
+      obj.innerHTML = current.toLocaleString('en-US') + suffix;
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  // === Quotes Generator ===
+  const quotes = [
+    { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" },
+    { text: "Programs must be written for people to read, and only incidentally for machines to execute.", author: "Harold Abelson" },
+    { text: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.", author: "Martin Fowler" },
+    { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
+    { text: "Experience is the name everyone gives to their mistakes.", author: "Oscar Wilde" },
+    { text: "In order to be irreplaceable, one must always be different.", author: "Coco Chanel" },
+    { text: "Java is to JavaScript what car is to Carpet.", author: "Chris Heilmann" },
+    { text: "Sometimes it pays to stay in bed on Monday, rather than spending the rest of the week debugging Monday's code.", author: "Dan Salomon" },
+    { text: "Perfection is achieved not when there is nothing more to add, but rather when there is nothing more to take away.", author: "Antoine de Saint-Exupery" },
+    { text: "Code is like humor. When you have to explain it, it’s bad.", author: "Cory House" }
+  ];
+
+  const quoteText = document.getElementById('quote-text')!;
+  const quoteAuthor = document.getElementById('quote-author')!;
+  const newQuoteBtn = document.getElementById('new-quote-btn')!;
+
+  function typeWriter(text: string, element: HTMLElement, speed: number = 30) {
+    element.innerHTML = '';
+    let i = 0;
+    return new Promise<void>(resolve => {
+      function type() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          resolve();
+        }
+      }
+      type();
+    });
+  }
+
+  async function generateRandomQuote() {
+    newQuoteBtn.setAttribute('disabled', 'true');
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    const quote = quotes[randomIndex];
+    
+    quoteAuthor.style.opacity = '0';
+    await typeWriter(quote.text, quoteText);
+    quoteAuthor.textContent = `- ${quote.author}`;
+    quoteAuthor.style.opacity = '1';
+    
+    newQuoteBtn.removeAttribute('disabled');
+  }
+
+  newQuoteBtn.addEventListener('click', generateRandomQuote);
+
+</script>

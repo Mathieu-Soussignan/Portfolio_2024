@@ -1,0 +1,716 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Easter Egg — Hack the Matrix" description="Secret hacker terminal. Prove your worth.">
+  <!-- CRT Overlay -->
+  <div class="crt-overlay"></div>
+
+  <!-- Intro Animation Overlay -->
+  <div id="intro-overlay" class="intro-overlay">
+    <div class="decryption-container">
+      <span id="decryption-text" class="decryption-text">Initializing...</span>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="terminal-container">
+    <nav class="terminal-nav">
+      <a href="/" class="back-link">← [RETURN TO BASE]</a>
+    </nav>
+
+    <header class="terminal-header">
+      <h1 class="glitch-text" data-text="> HACK THE MATRIX_">> HACK THE MATRIX<span class="cursor">_</span></h1>
+      <p class="subtitle">Prouve tes skills, dev. Résous les 3 défis pour prouver que tu mérites d'être ici.</p>
+      <div class="stats-bar">
+        <span>[ NIVEAU: ELITE ]</span>
+        <span>[ CLEARANCE: S++ ]</span>
+        <span class="status-connected">[ STATUS: CONNECTED ]</span>
+      </div>
+    </header>
+
+    <main class="terminal-main">
+      <section class="challenges-section">
+        <h2 class="section-title">> SELECT_CHALLENGE</h2>
+        <div class="challenges-grid">
+          
+          <div class="challenge-card" data-challenge="1">
+            <div class="challenge-header">
+              <h3>Défi 1 — Inverser une chaîne</h3>
+              <span class="difficulty">⭐</span>
+            </div>
+            <p>Écris une fonction `reverseStr(str)` qui inverse une chaîne SANS utiliser `.reverse()`.</p>
+            <button class="load-btn" data-id="1">LOAD_MODULE</button>
+          </div>
+
+          <div class="challenge-card" data-challenge="2">
+            <div class="challenge-header">
+              <h3>Défi 2 — FizzBuzz</h3>
+              <span class="difficulty">⭐⭐</span>
+            </div>
+            <p>Écris `fizzBuzz(n)` retournant un tableau de 1 à n. Multiples de 3 = 'Fizz', 5 = 'Buzz', les deux = 'FizzBuzz'.</p>
+            <button class="load-btn" data-id="2">LOAD_MODULE</button>
+          </div>
+
+          <div class="challenge-card" data-challenge="3">
+            <div class="challenge-header">
+              <h3>Défi 3 — Trouver le doublon</h3>
+              <span class="difficulty">⭐⭐⭐</span>
+            </div>
+            <p>Écris `findDuplicate(arr)` qui trouve le nombre en double dans un tableau (ex: `[1,3,4,2,2]` -> `2`).</p>
+            <button class="load-btn" data-id="3">LOAD_MODULE</button>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="editor-section">
+        <h2 class="section-title">> OVERRIDE_CONSOLE</h2>
+        <div class="editor-wrapper">
+          <div class="editor-header">
+            <span class="file-name">script.js</span>
+            <div class="editor-actions">
+              <button id="btn-run" class="action-btn run-btn">▶ Exécuter</button>
+              <button id="btn-validate" class="action-btn validate-btn" disabled>✅ Valider</button>
+              <button id="btn-reset" class="action-btn reset-btn">🔄 Reset</button>
+            </div>
+          </div>
+          
+          <textarea id="code-editor" class="code-editor" spellcheck="false" placeholder="// Initializing input stream..."></textarea>
+          
+          <div class="console-wrapper">
+            <div class="console-header">SYSTEM_OUTPUT</div>
+            <div id="console-output" class="console-output"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  :root {
+    --bg-color: #05070a;
+    --neon-green: #00ff66;
+    --neon-green-dim: rgba(0, 255, 102, 0.2);
+    --neon-cyan: #00f2fe;
+    --text-main: #e0e0e0;
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+
+  body {
+    background-color: var(--bg-color) !important;
+    color: var(--neon-green);
+    font-family: var(--font-mono);
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  /* CRT Overlay Effect */
+  .crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.25) 50%), 
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 3px 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Intro Overlay */
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #000;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: opacity 0.8s ease-out;
+  }
+
+  .decryption-container {
+    text-align: center;
+    width: 80%;
+    max-width: 600px;
+  }
+
+  .decryption-text {
+    font-size: 1.5rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+    display: block;
+    margin-bottom: 20px;
+    min-height: 2rem;
+    word-break: break-word;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #111;
+    border: 1px solid var(--neon-green);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--neon-green);
+    width: 0%;
+    box-shadow: 0 0 10px var(--neon-green);
+    transition: width 0.1s linear;
+  }
+
+  /* Main Layout */
+  .terminal-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .terminal-nav {
+    margin-bottom: 2rem;
+  }
+
+  .back-link {
+    color: var(--neon-cyan);
+    text-decoration: none;
+    font-weight: bold;
+    text-shadow: 0 0 5px var(--neon-cyan);
+    transition: all 0.3s;
+  }
+
+  .back-link:hover {
+    color: #fff;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  }
+
+  /* Header */
+  .terminal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    border-bottom: 1px dashed var(--neon-green);
+    padding-bottom: 1.5rem;
+  }
+
+  .glitch-text {
+    font-size: 3rem;
+    margin: 0 0 1rem 0;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+    position: relative;
+    display: inline-block;
+  }
+
+  .cursor {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .subtitle {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+  }
+
+  .status-connected {
+    color: var(--neon-green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Main content */
+  .terminal-main {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    .terminal-main {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    color: var(--neon-cyan);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--neon-cyan);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  /* Challenges */
+  .challenges-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .challenge-card {
+    background: rgba(0, 255, 102, 0.05);
+    border: 1px solid var(--neon-green-dim);
+    padding: 1.2rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .challenge-card:hover {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 15px var(--neon-green-dim) inset, 0 0 10px var(--neon-green-dim);
+    transform: translateX(5px);
+  }
+
+  .challenge-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--neon-green);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+
+  .challenge-card:hover::before {
+    transform: scaleY(1);
+  }
+
+  .challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .challenge-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+  }
+
+  .challenge-card p {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .load-btn {
+    background: transparent;
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .load-btn:hover {
+    background: var(--neon-green);
+    color: #000;
+    box-shadow: 0 0 10px var(--neon-green);
+  }
+
+  /* Editor Section */
+  .editor-wrapper {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--neon-green);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
+  }
+
+  .editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: rgba(0, 255, 102, 0.1);
+    border-bottom: 1px solid var(--neon-green);
+  }
+
+  .file-name {
+    color: var(--neon-cyan);
+    font-weight: bold;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 0.3rem 0.8rem;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .action-btn:hover:not(:disabled) {
+    border-color: #fff;
+    color: #fff;
+  }
+
+  .run-btn:hover:not(:disabled) {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+  }
+
+  .validate-btn:not(:disabled) {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+  }
+
+  .validate-btn:hover:not(:disabled) {
+    background: var(--neon-green);
+    color: #000;
+    box-shadow: 0 0 10px var(--neon-green);
+  }
+
+  .action-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .code-editor {
+    width: 100%;
+    min-height: 250px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 1rem;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+    line-height: 1.5;
+  }
+
+  .code-editor:focus {
+    box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.1);
+  }
+
+  .console-wrapper {
+    border-top: 1px solid var(--neon-green-dim);
+    background: #020304;
+  }
+
+  .console-header {
+    font-size: 0.7rem;
+    color: #666;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #222;
+  }
+
+  .console-output {
+    padding: 1rem;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    color: #aaa;
+  }
+
+  .log-line {
+    margin: 0.2rem 0;
+  }
+
+  .log-error {
+    color: #ff3366;
+  }
+
+  .log-success {
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
+  }
+
+  .log-system {
+    color: var(--neon-cyan);
+  }
+</style>
+
+<script>
+  // --- Intro Animation ---
+  document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('intro-overlay');
+    const textEl = document.getElementById('decryption-text');
+    const progressFill = document.getElementById('progress-fill');
+    
+    if (!overlay || !textEl || !progressFill) return;
+
+    const targetText = "ACCESS GRANTED — BIENVENUE DANS LA MATRICE, MATHIEU";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+    
+    let iterations = 0;
+    const maxIterations = 40;
+    const intervalTime = 50;
+
+    const scrambleInterval = setInterval(() => {
+      textEl.innerText = targetText.split('').map((char, index) => {
+        if (char === ' ' || char === '—' || char === ',') return char;
+        if (index < (iterations / maxIterations) * targetText.length) {
+          return targetText[index];
+        }
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+      
+      progressFill.style.width = `${(iterations / maxIterations) * 100}%`;
+      
+      iterations++;
+      
+      if (iterations >= maxIterations) {
+        clearInterval(scrambleInterval);
+        textEl.innerText = targetText;
+        progressFill.style.width = '100%';
+        
+        setTimeout(() => {
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 800);
+        }, 1000);
+      }
+    }, intervalTime);
+  });
+
+
+  // --- Logic Editor & Challenges ---
+  
+  const challenges: Record<string, { starterCode: string; validate: (fnCode: string) => { success: boolean; msg: string } }> = {
+    '1': {
+      starterCode: `// Défi 1: Inverser une chaîne sans utiliser .reverse()
+function reverseStr(str) {
+  // Ton code ici
+  
+}
+
+// Test
+console.log(reverseStr('hello'));`,
+      validate: (fnCode: string) => {
+        try {
+          const fn = new Function(`
+            ${fnCode}
+            return typeof reverseStr === 'function' ? reverseStr : null;
+          `)();
+          
+          if (!fn) throw new Error("Fonction reverseStr introuvable");
+          if (fnCode.includes('.reverse(')) throw new Error("Tricheur ! L'utilisation de .reverse() est interdite.");
+          
+          const res = fn('hello');
+          if (res === 'olleh') return { success: true, msg: "Test validé ! 'hello' -> 'olleh'" };
+          return { success: false, msg: `Échec: attendu 'olleh', reçu '${res}'` };
+        } catch (e: unknown) {
+          return { success: false, msg: (e as Error).message };
+        }
+      }
+    },
+    '2': {
+      starterCode: `// Défi 2: FizzBuzz
+function fizzBuzz(n) {
+  // Ton code ici
+  // Doit retourner un tableau
+  
+}
+
+// Test
+console.log(fizzBuzz(15));`,
+      validate: (fnCode: string) => {
+        try {
+          const fn = new Function(`
+            ${fnCode}
+            return typeof fizzBuzz === 'function' ? fizzBuzz : null;
+          `)();
+          
+          if (!fn) throw new Error("Fonction fizzBuzz introuvable");
+          const arr = fn(15);
+          
+          if (!Array.isArray(arr)) throw new Error("La fonction doit retourner un tableau");
+          if (arr.length !== 15) throw new Error(`Le tableau doit contenir 15 éléments, reçu ${arr.length}`);
+          if (arr[14] === 'FizzBuzz' && arr[2] === 'Fizz' && arr[4] === 'Buzz') {
+            return { success: true, msg: "Test validé ! FizzBuzz implémenté avec succès." };
+          }
+          return { success: false, msg: "Échec : le contenu du tableau est incorrect." };
+        } catch (e: unknown) {
+          return { success: false, msg: (e as Error).message };
+        }
+      }
+    },
+    '3': {
+      starterCode: `// Défi 3: Trouver le doublon
+// Trouve le nombre qui apparaît plus d'une fois
+function findDuplicate(arr) {
+  // Ton code ici
+  
+}
+
+// Test
+console.log(findDuplicate([1,3,4,2,2]));`,
+      validate: (fnCode: string) => {
+        try {
+          const fn = new Function(`
+            ${fnCode}
+            return typeof findDuplicate === 'function' ? findDuplicate : null;
+          `)();
+          
+          if (!fn) throw new Error("Fonction findDuplicate introuvable");
+          
+          const res1 = fn([1,3,4,2,2]);
+          const res2 = fn([5,1,5,9]);
+          
+          if (res1 === 2 && res2 === 5) {
+            return { success: true, msg: "Test validé ! Algorithme performant." };
+          }
+          return { success: false, msg: `Échec. Test 1: attendu 2, reçu ${res1}` };
+        } catch (e: unknown) {
+          return { success: false, msg: (e as Error).message };
+        }
+      }
+    }
+  };
+
+  let currentChallenge: string | null = null;
+  
+  const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+  const consoleOut = document.getElementById('console-output') as HTMLDivElement;
+  const btnRun = document.getElementById('btn-run') as HTMLButtonElement;
+  const btnValidate = document.getElementById('btn-validate') as HTMLButtonElement;
+  const btnReset = document.getElementById('btn-reset') as HTMLButtonElement;
+  const loadBtns = document.querySelectorAll('.load-btn');
+
+  function logToConsole(msg: string, type: 'normal' | 'error' | 'success' | 'system' = 'normal') {
+    const span = document.createElement('div');
+    span.className = `log-line log-${type}`;
+    span.textContent = msg;
+    consoleOut.appendChild(span);
+    consoleOut.scrollTop = consoleOut.scrollHeight;
+  }
+
+  function clearConsole() {
+    consoleOut.innerHTML = '';
+  }
+
+  // Load challenge
+  loadBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = (e.target as HTMLElement).getAttribute('data-id');
+      if (id && challenges[id]) {
+        currentChallenge = id;
+        editor.value = challenges[id].starterCode;
+        btnValidate.disabled = false;
+        clearConsole();
+        logToConsole(`> MODULE_0${id} CHARGÉ. EN ATTENTE D'INSTRUCTIONS...`, 'system');
+      }
+    });
+  });
+
+  // Reset
+  btnReset.addEventListener('click', () => {
+    if (currentChallenge) {
+      editor.value = challenges[currentChallenge].starterCode;
+      clearConsole();
+      logToConsole('> BUFFER RÉINITIALISÉ.', 'system');
+    } else {
+      editor.value = '';
+      clearConsole();
+    }
+  });
+
+  // Exécuter le code (capture console.log)
+  btnRun.addEventListener('click', () => {
+    const code = editor.value;
+    clearConsole();
+    logToConsole('> EXÉCUTION EN COURS...', 'system');
+    
+    // Fake console for capture
+    const logs: string[] = [];
+    const fakeConsole = {
+      log: (...args: any[]) => logs.push(args.map((a: any) => 
+        typeof a === 'object' ? JSON.stringify(a) : String(a)
+      ).join(' ')),
+      error: (...args: any[]) => logs.push('ERROR: ' + args.join(' ')),
+      warn: (...args: any[]) => logs.push('WARN: ' + args.join(' '))
+    };
+
+    try {
+      // Create execution environment
+      const execute = new Function('console', `
+        try {
+          ${code}
+        } catch (e) {
+          throw e;
+        }
+      `);
+      
+      execute(fakeConsole);
+      
+      logs.forEach(l => logToConsole(l));
+      if (logs.length === 0) logToConsole('> Aucune sortie console.');
+      
+    } catch (err: any) {
+      logToConsole(`Erreur d'exécution: ${err.message}`, 'error');
+    }
+  });
+
+  // Validate challenge
+  btnValidate.addEventListener('click', () => {
+    if (!currentChallenge) return;
+    
+    const code = editor.value;
+    clearConsole();
+    logToConsole(`> VALIDATION DU MODULE_0${currentChallenge}...`, 'system');
+    
+    const result = challenges[currentChallenge].validate(code);
+    
+    if (result.success) {
+      logToConsole(`[SUCCESS] ${result.msg}`, 'success');
+      logToConsole('> CLEARANCE LEVEL UPGRADED.', 'success');
+    } else {
+      logToConsole(`[FAILED] ${result.msg}`, 'error');
+      logToConsole('> ACCÈS REFUSÉ.', 'error');
+    }
+  });
+
+</script>
+

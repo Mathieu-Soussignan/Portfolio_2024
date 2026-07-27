@@ -30,7 +30,7 @@ const { title, description } = Astro.props;
 		<div id="toast-container"></div>
 
 		<script>
-			// Add “loaded” class once the document has completely loaded.
+			// Add "loaded" class once the document has completely loaded.
 			addEventListener('load', () => document.documentElement.classList.add('loaded'));
 
 			// Global Toast notification helper
@@ -129,6 +129,117 @@ const { title, description } = Astro.props;
 			} else {
 				initAppleScrollReveal();
 			}
+
+			// =============================================
+			// 🥚 EASTER EGG #2 — Séquence clavier secrète
+			// =============================================
+			(() => {
+				const SECRET_SEQ = ['M','A','T','H','I','E','U'];
+				let seqIdx = 0;
+				let progressBar: HTMLElement | null = null;
+				let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+				function createProgressBar() {
+					if (progressBar) return;
+					progressBar = document.createElement('div');
+					progressBar.id = 'easter-egg-progress';
+					progressBar.innerHTML = `
+						<div class="ee-progress-track">
+							<span class="ee-hint-icon">🔑</span>
+							<div class="ee-letters-row">
+								${SECRET_SEQ.map((_l, i) => `<span class="ee-letter" data-idx="${i}">_</span>`).join('')}
+							</div>
+							<span class="ee-counter">0/${SECRET_SEQ.length}</span>
+						</div>
+					`;
+					document.body.appendChild(progressBar);
+				}
+
+				function updateProgress(idx: number) {
+					if (!progressBar) createProgressBar();
+					const letters = progressBar!.querySelectorAll('.ee-letter');
+					const counter = progressBar!.querySelector('.ee-counter');
+
+					letters.forEach((el, i) => {
+						const htmlEl = el as HTMLElement;
+						if (i < idx) {
+							// Reveal the letter
+							htmlEl.textContent = SECRET_SEQ[i];
+							htmlEl.classList.add('ee-active');
+							htmlEl.classList.remove('ee-next');
+						} else if (i === idx) {
+							// Next expected — subtle blinking hint
+							htmlEl.textContent = '?';
+							htmlEl.classList.add('ee-next');
+							htmlEl.classList.remove('ee-active');
+						} else {
+							// Hidden
+							htmlEl.textContent = '_';
+							htmlEl.classList.remove('ee-active', 'ee-next');
+						}
+					});
+
+					if (counter) counter.textContent = `${idx}/${SECRET_SEQ.length}`;
+
+					progressBar!.classList.add('ee-visible');
+					if (hideTimeout) clearTimeout(hideTimeout);
+					hideTimeout = setTimeout(() => {
+						if (seqIdx < SECRET_SEQ.length) {
+							progressBar?.classList.remove('ee-visible');
+							seqIdx = 0;
+							// Reset display
+							letters.forEach((el) => {
+								(el as HTMLElement).textContent = '_';
+								(el as HTMLElement).classList.remove('ee-active', 'ee-next');
+							});
+							if (counter) counter.textContent = `0/${SECRET_SEQ.length}`;
+						}
+					}, 4000);
+				}
+
+				function triggerPortalAnimation() {
+					const portal = document.createElement('div');
+					portal.id = 'ee-portal-overlay';
+					portal.innerHTML = `
+						<div class="ee-portal-ring"></div>
+						<div class="ee-portal-ring ee-ring-2"></div>
+						<div class="ee-portal-ring ee-ring-3"></div>
+						<p class="ee-portal-text">🕹️ ACCÈS DÉVERROUILLÉ</p>
+						<p class="ee-portal-sub">Chargement de la Salle d'Arcade...</p>
+					`;
+					document.body.appendChild(portal);
+					requestAnimationFrame(() => portal.classList.add('ee-portal-active'));
+
+					setTimeout(() => {
+						window.location.href = '/easter-egg/arcade/';
+					}, 2200);
+				}
+
+				document.addEventListener('keydown', (e) => {
+					// Ignore if user is typing in an input/textarea
+					const tag = (e.target as HTMLElement).tagName;
+					if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+					const key = e.key.toUpperCase();
+					if (key === SECRET_SEQ[seqIdx]) {
+						seqIdx++;
+						updateProgress(seqIdx);
+						if (seqIdx === SECRET_SEQ.length) {
+							// Sequence complete!
+							const letters = progressBar!.querySelectorAll('.ee-letter');
+							letters.forEach(el => (el as HTMLElement).classList.add('ee-complete'));
+							setTimeout(() => {
+								progressBar?.classList.remove('ee-visible');
+								triggerPortalAnimation();
+							}, 800);
+						}
+					} else if (key.length === 1 && key >= 'A' && key <= 'Z') {
+						// Only reset on letter keys, not on Shift/Ctrl/etc.
+						seqIdx = 0;
+						updateProgress(0);
+					}
+				});
+			})();
 		</script>
 
 		<style>
@@ -239,6 +350,183 @@ const { title, description } = Astro.props;
 				height: 45vw;
 				background: radial-gradient(circle, #00f2fe 0%, rgba(118, 17, 166, 0.3) 60%, transparent 100%);
 				animation-delay: -6s;
+			}
+
+			/* ============================
+			   🥚 Easter Egg Progress Bar
+			   ============================ */
+			:global(#easter-egg-progress) {
+				position: fixed;
+				bottom: 2rem;
+				left: 50%;
+				transform: translateX(-50%) translateY(80px);
+				z-index: 99999;
+				opacity: 0;
+				transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+				pointer-events: none;
+			}
+
+			:global(#easter-egg-progress.ee-visible) {
+				opacity: 1;
+				transform: translateX(-50%) translateY(0);
+			}
+
+			:global(.ee-progress-track) {
+				display: flex;
+				gap: 0.75rem;
+				padding: 0.6rem 1.2rem;
+				background: rgba(10, 14, 23, 0.95);
+				border: 1px solid rgba(197, 97, 246, 0.4);
+				border-radius: 9999px;
+				backdrop-filter: blur(20px);
+				box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(118, 17, 166, 0.3);
+				align-items: center;
+			}
+
+			:global(.ee-hint-icon) {
+				font-size: 1rem;
+				animation: eeKeyBounce 2s ease infinite;
+			}
+
+			@keyframes eeKeyBounce {
+				0%, 100% { transform: translateY(0); }
+				50% { transform: translateY(-3px); }
+			}
+
+			:global(.ee-letters-row) {
+				display: flex;
+				gap: 0.35rem;
+			}
+
+			:global(.ee-counter) {
+				font-family: 'Fira Code', monospace;
+				font-size: 0.7rem;
+				color: rgba(255, 255, 255, 0.35);
+				font-weight: 600;
+				letter-spacing: 0.02em;
+			}
+
+			:global(.ee-letter) {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 1.8rem;
+				height: 1.8rem;
+				border-radius: 6px;
+				font-family: 'Fira Code', monospace;
+				font-weight: 700;
+				font-size: 0.85rem;
+				background: rgba(255, 255, 255, 0.05);
+				color: rgba(255, 255, 255, 0.2);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+
+			:global(.ee-letter.ee-active) {
+				background: rgba(197, 97, 246, 0.25);
+				color: #c561f6;
+				border-color: #c561f6;
+				box-shadow: 0 0 12px rgba(197, 97, 246, 0.5);
+				transform: scale(1.1);
+			}
+
+			:global(.ee-letter.ee-next) {
+				color: rgba(0, 242, 254, 0.5);
+				border-color: rgba(0, 242, 254, 0.3);
+				animation: eeNextBlink 1s ease infinite;
+			}
+
+			@keyframes eeNextBlink {
+				0%, 100% { opacity: 0.4; border-color: rgba(0, 242, 254, 0.15); }
+				50% { opacity: 1; border-color: rgba(0, 242, 254, 0.5); }
+			}
+
+			:global(.ee-letter.ee-complete) {
+				background: rgba(0, 255, 102, 0.2);
+				color: #00ff66;
+				border-color: #00ff66;
+				box-shadow: 0 0 16px rgba(0, 255, 102, 0.6);
+				animation: eeCompletePulse 0.3s ease;
+			}
+
+			@keyframes eeCompletePulse {
+				0% { transform: scale(1.1); }
+				50% { transform: scale(1.3); }
+				100% { transform: scale(1.1); }
+			}
+
+			/* Portal Overlay */
+			:global(#ee-portal-overlay) {
+				position: fixed;
+				inset: 0;
+				z-index: 999999;
+				background: radial-gradient(circle at center, transparent 0%, #0a0e17 70%);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				opacity: 0;
+				transition: opacity 0.5s ease;
+			}
+
+			:global(#ee-portal-overlay.ee-portal-active) {
+				opacity: 1;
+			}
+
+			:global(.ee-portal-ring) {
+				position: absolute;
+				width: 200px;
+				height: 200px;
+				border: 3px solid #c561f6;
+				border-radius: 50%;
+				animation: portalSpin 2s linear infinite, portalGrow 2s ease-out forwards;
+				box-shadow: 0 0 30px rgba(197, 97, 246, 0.5), inset 0 0 30px rgba(197, 97, 246, 0.2);
+			}
+
+			:global(.ee-ring-2) {
+				animation-delay: 0.3s;
+				border-color: #00f2fe;
+				box-shadow: 0 0 30px rgba(0, 242, 254, 0.5), inset 0 0 30px rgba(0, 242, 254, 0.2);
+			}
+
+			:global(.ee-ring-3) {
+				animation-delay: 0.6s;
+				border-color: #00ff66;
+				box-shadow: 0 0 30px rgba(0, 255, 102, 0.5), inset 0 0 30px rgba(0, 255, 102, 0.2);
+			}
+
+			@keyframes portalSpin {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+
+			@keyframes portalGrow {
+				from { width: 50px; height: 50px; opacity: 0; }
+				to { width: 300px; height: 300px; opacity: 1; }
+			}
+
+			:global(.ee-portal-text) {
+				position: relative;
+				z-index: 2;
+				font-size: 1.8rem;
+				font-weight: 800;
+				color: #ffffff;
+				text-shadow: 0 0 20px rgba(197, 97, 246, 0.8);
+				animation: portalTextIn 0.8s ease 0.5s both;
+			}
+
+			:global(.ee-portal-sub) {
+				position: relative;
+				z-index: 2;
+				font-size: 1rem;
+				color: #00f2fe;
+				margin-top: 0.5rem;
+				animation: portalTextIn 0.8s ease 0.9s both;
+			}
+
+			@keyframes portalTextIn {
+				from { opacity: 0; transform: translateY(20px) scale(0.9); }
+				to { opacity: 1; transform: translateY(0) scale(1); }
 			}
 		</style>
 	</body>
