@@ -240,6 +240,757 @@ const { title, description } = Astro.props;
 					}
 				});
 			})();
+
+			// =============================================
+			// 🥚 EASTER EGG #3 — Konami Code → Anti-Gravité
+			// =============================================
+			(() => {
+				const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+				let konamiIdx = 0;
+				let antiGravityActive = false;
+
+				document.addEventListener('keydown', (e) => {
+					const tag = (e.target as HTMLElement).tagName;
+					if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+					if (antiGravityActive) return;
+
+					const expected = KONAMI[konamiIdx];
+					if (e.key === expected || e.key.toLowerCase() === expected) {
+						konamiIdx++;
+						if (konamiIdx === KONAMI.length) {
+							konamiIdx = 0;
+							activateAntiGravity();
+						}
+					} else {
+						konamiIdx = 0;
+					}
+				});
+
+				function activateAntiGravity() {
+					antiGravityActive = true;
+
+					// Sound effect
+					try {
+						const audioCtx = new AudioContext();
+						const osc = audioCtx.createOscillator();
+						const gain = audioCtx.createGain();
+						osc.connect(gain);
+						gain.connect(audioCtx.destination);
+						osc.type = 'sine';
+						osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+						osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5);
+						gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+						gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+						osc.start();
+						osc.stop(audioCtx.currentTime + 1);
+					} catch(_e) {}
+
+					// Make elements float
+					const floatables = document.querySelectorAll('section, .glass-card, .project-card, .metric-card, .tech-category-card, h1, h2, h3, img, .hero-actions, .footer-container');
+					const animations: Animation[] = [];
+
+					floatables.forEach((el, i) => {
+						const htmlEl = el as HTMLElement;
+						const randomX = (Math.random() - 0.5) * 30;
+						const randomRotate = (Math.random() - 0.5) * 8;
+						const delay = i * 50;
+						const duration = 2000 + Math.random() * 1000;
+
+						const anim = htmlEl.animate([
+							{ transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+							{ transform: `translateY(${-20 - Math.random() * 60}px) translateX(${randomX}px) rotate(${randomRotate}deg)`, opacity: 0.95 }
+						], {
+							duration,
+							delay,
+							fill: 'forwards',
+							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+						});
+						animations.push(anim);
+					});
+
+					// Particles
+					const particleContainer = document.createElement('div');
+					particleContainer.id = 'ag-particles';
+					particleContainer.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;overflow:hidden;';
+					document.body.appendChild(particleContainer);
+
+					for (let i = 0; i < 40; i++) {
+						const p = document.createElement('div');
+						p.style.cssText = `
+							position:absolute;
+							width:${3 + Math.random() * 5}px;
+							height:${3 + Math.random() * 5}px;
+							background:${['#c561f6','#00f2fe','#00ff66','#ffffff','#ff006e'][Math.floor(Math.random()*5)]};
+							border-radius:50%;
+							left:${Math.random()*100}%;
+							bottom:${-10 - Math.random() * 20}%;
+							box-shadow: 0 0 ${6+Math.random()*10}px currentColor;
+							animation: agFloat ${3+Math.random()*4}s ${Math.random()*2}s ease-out infinite;
+						`;
+						particleContainer.appendChild(p);
+					}
+
+					// HUD Overlay
+					const hud = document.createElement('div');
+					hud.id = 'ag-hud';
+					hud.innerHTML = `
+						<div class="ag-hud-inner">
+							<div class="ag-hud-top">
+								<div class="ag-stat"><span class="ag-label">LVL</span><span class="ag-value">42</span></div>
+								<div class="ag-stat"><span class="ag-label">CLASSE</span><span class="ag-value ag-class">DATA MAGE</span></div>
+								<div class="ag-stat"><span class="ag-label">XP</span><span class="ag-value" id="ag-xp">0</span></div>
+								<div class="ag-stat"><span class="ag-label">RANG</span><span class="ag-value ag-rank">S++</span></div>
+							</div>
+							<div class="ag-skills">
+								<div class="ag-skill"><span>Python</span><div class="ag-bar"><div class="ag-fill" style="--fill:95%"></div></div><span>95%</span></div>
+								<div class="ag-skill"><span>SQL & Data</span><div class="ag-bar"><div class="ag-fill" style="--fill:90%"></div></div><span>90%</span></div>
+								<div class="ag-skill"><span>IA / ML</span><div class="ag-bar"><div class="ag-fill" style="--fill:85%"></div></div><span>85%</span></div>
+								<div class="ag-skill"><span>React & Web</span><div class="ag-bar"><div class="ag-fill" style="--fill:88%"></div></div><span>88%</span></div>
+								<div class="ag-skill"><span>DevOps</span><div class="ag-bar"><div class="ag-fill" style="--fill:75%"></div></div><span>75%</span></div>
+							</div>
+							<div class="ag-hud-bottom">
+								<span>⚡ ANTI-GRAVITY MODE ACTIVATED</span>
+								<span class="ag-combo">COMBO: <span id="ag-combo-count">0</span>x</span>
+								<button id="ag-close-btn">✕ DÉSACTIVER</button>
+							</div>
+						</div>
+					`;
+					document.body.appendChild(hud);
+					requestAnimationFrame(() => hud.classList.add('ag-active'));
+
+					// Animate XP counter
+					let xpVal = 0;
+					const xpTarget = 247391;
+					const xpEl = document.getElementById('ag-xp');
+					const xpInterval = setInterval(() => {
+						xpVal += Math.ceil((xpTarget - xpVal) * 0.05);
+						if (xpVal >= xpTarget) { xpVal = xpTarget; clearInterval(xpInterval); }
+						if (xpEl) xpEl.textContent = xpVal.toLocaleString('fr-FR');
+					}, 30);
+
+					// Combo counter on scroll
+					let combo = 0;
+					const comboEl = document.getElementById('ag-combo-count');
+					const comboHandler = () => {
+						combo++;
+						if (comboEl) comboEl.textContent = String(combo);
+					};
+					window.addEventListener('scroll', comboHandler, { passive: true });
+
+					// Close function
+					function closeAntiGravity() {
+						animations.forEach(a => a.reverse());
+						hud.classList.remove('ag-active');
+						window.removeEventListener('scroll', comboHandler);
+						setTimeout(() => {
+							particleContainer.remove();
+							hud.remove();
+							antiGravityActive = false;
+						}, 600);
+					}
+
+					document.getElementById('ag-close-btn')?.addEventListener('click', closeAntiGravity);
+
+					// Auto-close after 15s
+					setTimeout(() => {
+						if (antiGravityActive) closeAntiGravity();
+					}, 15000);
+				}
+			})();
+
+			// =============================================
+			// 🥚 EASTER EGG #5 — DevTools Console & VR Warp
+			// =============================================
+			function triggerOasisTransition() {
+				// Prevent double trigger
+				if (document.getElementById('oasis-vr-overlay')) return;
+
+				// Web Audio Synth Warp Sound
+				try {
+					const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+					const osc = audioCtx.createOscillator();
+					const gain = audioCtx.createGain();
+					osc.type = 'sawtooth';
+					osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+					osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 1.8);
+					gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+					gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.2);
+					osc.connect(gain);
+					gain.connect(audioCtx.destination);
+					osc.start();
+					osc.stop(audioCtx.currentTime + 2.2);
+				} catch (_e) {}
+
+				// Glitch shake on existing page body
+				document.body.style.animation = 'oasisBodyGlitch 0.4s steps(2) 3';
+
+				// Create Overlay VR Warp
+				const overlay = document.createElement('div');
+				overlay.id = 'oasis-vr-overlay';
+				overlay.innerHTML = `
+					<div class="oasis-vr-grid"></div>
+					<div class="oasis-vr-tunnel"></div>
+					<div class="oasis-vr-hud">
+						<div class="oasis-vr-badge">🥽 OASIS VR NEURAL LINK v0.9.4</div>
+						<div class="oasis-vr-title">CONNEXION À L'OASIS...</div>
+						<div class="oasis-vr-logs">
+							<p>> Initialisation du casque VR... <span class="vr-ok">[OK]</span></p>
+							<p>> Synchronisation haptique... <span class="vr-ok">[OK]</span></p>
+							<p>> Ouverture du portail dimensionnel vers le Donjon... <span class="vr-blink">EN COURS</span></p>
+						</div>
+						<div class="oasis-vr-progress-bar"><div class="oasis-vr-fill"></div></div>
+					</div>
+				`;
+				document.body.appendChild(overlay);
+				requestAnimationFrame(() => overlay.classList.add('oasis-vr-active'));
+
+				setTimeout(() => {
+					window.location.href = '/easter-egg/oasis/';
+				}, 2200);
+			}
+
+			// Expose global function and getter in console
+			(window as any).oasis = triggerOasisTransition;
+			try {
+				Object.defineProperty(window, 'oasis', {
+					get: function() {
+						triggerOasisTransition();
+						return "🥽 Lancement de l'OASIS VR...";
+					},
+					configurable: true
+				});
+			} catch(_e) {}
+
+			console.log(
+				'%c' +
+				'╔══════════════════════════════════════════════════════════╗\n' +
+				'║                                                          ║\n' +
+				'║   🔍  CONSOLE DEVTOOLS DÉTECTÉE                          ║\n' +
+				'║   Tu as l\'instinct d\'un vrai développeur !                ║\n' +
+				'║                                                          ║\n' +
+				'║   🗝️  Pour lancer la transition vers L\'OASIS :          ║\n' +
+				'║   👉  Tape  oasis  ou  oasis()  ci-dessous et valide !   ║\n' +
+				'║                                                          ║\n' +
+				'║   "The OASIS was the brainchild of a genius."            ║\n' +
+				'║                  — Ready Player One                      ║\n' +
+				'║                                                          ║\n' +
+				'╚══════════════════════════════════════════════════════════╝',
+				'color: #00ff66; font-family: monospace; font-size: 12px; line-height: 1.5; background: #0a0e17; padding: 12px; border-radius: 8px;'
+			);
+			console.log(
+				'%c⚡ ASTUCE : Tape "oasis" dans cette console et appuie sur Entrée !',
+				'color: #00f2fe; font-size: 13px; font-weight: bold;'
+			);
+
+			// =============================================
+			// 🥚 EASTER EGG #6 — Pac-Man Exit Intent Trap
+			// =============================================
+			(() => {
+				let triggered = false;
+
+				function launchPacmanExitTrap() {
+					if (triggered || sessionStorage.getItem('pacman_exit_done')) return;
+					triggered = true;
+					sessionStorage.setItem('pacman_exit_done', 'true');
+
+					// Audio Siren
+					try {
+						const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+						const osc = ctx.createOscillator();
+						const g = ctx.createGain();
+						osc.type = 'sawtooth';
+						osc.frequency.setValueAtTime(400, ctx.currentTime);
+						osc.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.3);
+						osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + 0.6);
+						g.gain.setValueAtTime(0.1, ctx.currentTime);
+						g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+						osc.connect(g); g.connect(ctx.destination);
+						osc.start(); osc.stop(ctx.currentTime + 0.8);
+					} catch(_e) {}
+
+					// Overlay Modal with Arcade Frame & Touch D-Pad
+					const modal = document.createElement('div');
+					modal.id = 'pacman-exit-modal';
+					modal.innerHTML = `
+						<div class="pac-backdrop"></div>
+						<div class="pac-dialog">
+							<div class="pac-header">
+								<div class="pac-title">🕹️ VERROU PAC-MAN — PASS DE SORTIE</div>
+								<div class="pac-subtitle">Marque 500+ pts ou mange une Super-Gomme pour débloquer la sortie !</div>
+							</div>
+
+							<div class="pac-canvas-wrapper">
+								<canvas id="pac-canvas" width="418" height="286"></canvas>
+								<div class="pac-dpad-mobile">
+									<button class="dpad-btn dpad-up" id="pac-btn-up">▲</button>
+									<div class="dpad-row">
+										<button class="dpad-btn dpad-left" id="pac-btn-left">◄</button>
+										<button class="dpad-btn dpad-down" id="pac-btn-down">▼</button>
+										<button class="dpad-btn dpad-right" id="pac-btn-right">►</button>
+									</div>
+								</div>
+								<div class="pac-controls-hint">Clavier : ⬆️ ⬇️ ⬅️ ➡️ ou Z Q S D | Mobile : D-Pad ci-dessus</div>
+							</div>
+
+							<div class="pac-hud-bar">
+								<span id="pac-score-display">SCORE: <strong id="pac-score-val">0</strong></span>
+								<span id="pac-lives-display">VIES: <span id="pac-lives-icons">🟡🟡🟡</span></span>
+								<span id="pac-status-display" class="pac-status-wait">🔒 SORTIE BLOQUÉE</span>
+							</div>
+
+							<div class="pac-actions">
+								<button id="pac-exit-btn" class="pac-btn-exit" disabled>🔒 JOUE POUR DÉBLOQUER LA SORTIE</button>
+								<button id="pac-skip-btn" class="pac-btn-skip">Fermer sans jouer</button>
+							</div>
+						</div>
+					`;
+					document.body.appendChild(modal);
+					requestAnimationFrame(() => modal.classList.add('pac-active'));
+
+					const canvas = document.getElementById('pac-canvas') as HTMLCanvasElement;
+					if (!canvas) return;
+					const ctx = canvas.getContext('2d')!;
+
+					// =============================================
+					// NAMCO PAC-MAN TILE ENGINE (19x13 Grid)
+					// =============================================
+					const TILE = 22;
+					const COLS = 19;
+					const ROWS = 13;
+
+					// 1=Wall, 2=Dot, 3=Power Pellet, 0=Empty Space
+					const INITIAL_MAP = [
+						[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+						[1,3,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,3,1],
+						[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1,2,1],
+						[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1,2,1],
+						[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+						[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1,2,1],
+						[1,2,2,2,2,1,2,0,0,0,2,1,2,2,2,2,2,2,1],
+						[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1,2,1],
+						[1,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
+						[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1,2,1],
+						[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1,2,1],
+						[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],
+						[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+					];
+
+					let grid = INITIAL_MAP.map(r => [...r]);
+					let score = 0;
+					let lives = 3;
+					let frightenedTimer = 0;
+					let exitUnlocked = false;
+					let gameRunning = true;
+					let animId: number;
+
+					const pacman = {
+						tileX: 9, tileY: 9,
+						x: 9 * TILE + TILE/2, y: 9 * TILE + TILE/2,
+						dirX: 0, dirY: 0,
+						nextDirX: -1, nextDirY: 0,
+						speed: 2, angle: Math.PI,
+						mouth: 0.2, mouthDir: 0.03
+					};
+
+					const ghosts = [
+						{ name: 'Blinky', color: '#ff0000', tileX: 9, tileY: 6, x: 9*TILE+TILE/2, y: 6*TILE+TILE/2, dirX: 1, dirY: 0, speed: 1.5, eaten: false },
+						{ name: 'Pinky', color: '#ffb8ff', tileX: 8, tileY: 6, x: 8*TILE+TILE/2, y: 6*TILE+TILE/2, dirX: -1, dirY: 0, speed: 1.5, eaten: false },
+						{ name: 'Inky', color: '#00ffff', tileX: 10, tileY: 6, x: 10*TILE+TILE/2, y: 6*TILE+TILE/2, dirX: 0, dirY: -1, speed: 1.5, eaten: false },
+						{ name: 'Clyde', color: '#ffb852', tileX: 9, tileY: 5, x: 9*TILE+TILE/2, y: 5*TILE+TILE/2, dirX: 0, dirY: 1, speed: 1.5, eaten: false }
+					];
+
+					function canMove(x: number, y: number, dx: number, dy: number): boolean {
+						const nextTileX = Math.floor((x + dx * TILE/2) / TILE);
+						const nextTileY = Math.floor((y + dy * TILE/2) / TILE);
+						if (nextTileX < 0 || nextTileX >= COLS || nextTileY < 0 || nextTileY >= ROWS) return true; // wrap
+						return grid[nextTileY][nextTileX] !== 1;
+					}
+
+					// Sound synthesis
+					function playSound(type: 'waka' | 'power' | 'ghost' | 'die') {
+						try {
+							const actx = new (window.AudioContext || (window as any).webkitAudioContext)();
+							const o = actx.createOscillator();
+							const g = actx.createGain();
+							o.connect(g); g.connect(actx.destination);
+
+							if (type === 'waka') {
+								o.type = 'triangle';
+								o.frequency.setValueAtTime(250, actx.currentTime);
+								o.frequency.linearRampToValueAtTime(500, actx.currentTime + 0.06);
+								g.gain.setValueAtTime(0.06, actx.currentTime);
+								g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.06);
+								o.start(); o.stop(actx.currentTime + 0.06);
+							} else if (type === 'power') {
+								o.type = 'sawtooth';
+								o.frequency.setValueAtTime(600, actx.currentTime);
+								o.frequency.exponentialRampToValueAtTime(1200, actx.currentTime + 0.2);
+								g.gain.setValueAtTime(0.1, actx.currentTime);
+								g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.2);
+								o.start(); o.stop(actx.currentTime + 0.2);
+							} else if (type === 'ghost') {
+								o.type = 'square';
+								o.frequency.setValueAtTime(800, actx.currentTime);
+								o.frequency.exponentialRampToValueAtTime(300, actx.currentTime + 0.15);
+								g.gain.setValueAtTime(0.1, actx.currentTime);
+								g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.15);
+								o.start(); o.stop(actx.currentTime + 0.15);
+							} else if (type === 'die') {
+								o.type = 'sawtooth';
+								o.frequency.setValueAtTime(400, actx.currentTime);
+								o.frequency.linearRampToValueAtTime(100, actx.currentTime + 0.4);
+								g.gain.setValueAtTime(0.1, actx.currentTime);
+								g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.4);
+								o.start(); o.stop(actx.currentTime + 0.4);
+							}
+						} catch(_e) {}
+					}
+
+					function setDir(dx: number, dy: number) {
+						pacman.nextDirX = dx;
+						pacman.nextDirY = dy;
+					}
+
+					// Keyboard Controls
+					function onKeyDown(e: KeyboardEvent) {
+						if (['ArrowUp','w','Z','z'].includes(e.key)) setDir(0, -1);
+						if (['ArrowDown','s','S'].includes(e.key)) setDir(0, 1);
+						if (['ArrowLeft','a','q','Q','A'].includes(e.key)) setDir(-1, 0);
+						if (['ArrowRight','d','D'].includes(e.key)) setDir(1, 0);
+					}
+					window.addEventListener('keydown', onKeyDown);
+
+					// D-Pad Touch Buttons
+					document.getElementById('pac-btn-up')?.addEventListener('click', () => setDir(0, -1));
+					document.getElementById('pac-btn-down')?.addEventListener('click', () => setDir(0, 1));
+					document.getElementById('pac-btn-left')?.addEventListener('click', () => setDir(-1, 0));
+					document.getElementById('pac-btn-right')?.addEventListener('click', () => setDir(1, 0));
+
+					function checkUnlock() {
+						if (score >= 500 || exitUnlocked) {
+							if (!exitUnlocked) {
+								exitUnlocked = true;
+								playSound('power');
+							}
+							const status = document.getElementById('pac-status-display');
+							const exitBtn = document.getElementById('pac-exit-btn') as HTMLButtonElement;
+							if (status) {
+								status.textContent = '🎉 PASS ACCORDÉ !';
+								status.className = 'pac-status-ok';
+							}
+							if (exitBtn) {
+								exitBtn.disabled = false;
+								exitBtn.textContent = '🚀 PASS DE SORTIE DÉBLOQUÉ (OU CONTINUER)';
+								exitBtn.className = 'pac-btn-exit pac-unlocked';
+							}
+						}
+					}
+
+					function resetPositions() {
+						pacman.x = 9 * TILE + TILE/2;
+						pacman.y = 9 * TILE + TILE/2;
+						pacman.dirX = -1; pacman.dirY = 0;
+						pacman.nextDirX = -1; pacman.nextDirY = 0;
+
+						ghosts[0].x = 9*TILE+TILE/2; ghosts[0].y = 6*TILE+TILE/2;
+						ghosts[1].x = 8*TILE+TILE/2; ghosts[1].y = 6*TILE+TILE/2;
+						ghosts[2].x = 10*TILE+TILE/2; ghosts[2].y = 6*TILE+TILE/2;
+						ghosts[3].x = 9*TILE+TILE/2; ghosts[3].y = 5*TILE+TILE/2;
+					}
+
+					// Main Render Loop
+					function gameLoop() {
+						if (!gameRunning) return;
+
+						ctx.fillStyle = '#0a0e17';
+						ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+						// Decrement frightened timer
+						if (frightenedTimer > 0) frightenedTimer--;
+
+						// 1. Draw Maze
+						for (let r = 0; r < ROWS; r++) {
+							for (let c = 0; c < COLS; c++) {
+								const tile = grid[r][c];
+								const px = c * TILE;
+								const py = r * TILE;
+
+								if (tile === 1) {
+									// Blue Neon Wall
+									ctx.fillStyle = '#111836';
+									ctx.fillRect(px, py, TILE, TILE);
+									ctx.strokeStyle = '#2121ff';
+									ctx.lineWidth = 1.5;
+									ctx.strokeRect(px + 1, py + 1, TILE - 2, TILE - 2);
+								} else if (tile === 2) {
+									// Dot (Pac-Gomme)
+									ctx.fillStyle = '#ffb8ff';
+									ctx.beginPath();
+									ctx.arc(px + TILE/2, py + TILE/2, 2.5, 0, Math.PI * 2);
+									ctx.fill();
+								} else if (tile === 3) {
+									// Power Pellet
+									ctx.fillStyle = '#ffb8ae';
+									ctx.beginPath();
+									ctx.arc(px + TILE/2, py + TILE/2, 6, 0, Math.PI * 2);
+									ctx.fill();
+									ctx.shadowBlur = 8;
+									ctx.shadowColor = '#ffb8ae';
+									ctx.fill();
+									ctx.shadowBlur = 0;
+								}
+							}
+						}
+
+						// 2. Move Pacman
+						// Try buffered direction
+						if (canMove(pacman.x, pacman.y, pacman.nextDirX, pacman.nextDirY)) {
+							pacman.dirX = pacman.nextDirX;
+							pacman.dirY = pacman.nextDirY;
+						}
+
+						if (canMove(pacman.x, pacman.y, pacman.dirX, pacman.dirY)) {
+							pacman.x += pacman.dirX * pacman.speed;
+							pacman.y += pacman.dirY * pacman.speed;
+
+							if (pacman.dirX === 1) pacman.angle = 0;
+							if (pacman.dirX === -1) pacman.angle = Math.PI;
+							if (pacman.dirY === 1) pacman.angle = Math.PI / 2;
+							if (pacman.dirY === -1) pacman.angle = -Math.PI / 2;
+						}
+
+						// Tunnel wrap
+						if (pacman.x < 0) pacman.x = canvas.width;
+						if (pacman.x > canvas.width) pacman.x = 0;
+
+						// Eat dots
+						const currentTileC = Math.floor(pacman.x / TILE);
+						const currentTileR = Math.floor(pacman.y / TILE);
+						if (currentTileR >= 0 && currentTileR < ROWS && currentTileC >= 0 && currentTileC < COLS) {
+							const currentTile = grid[currentTileR][currentTileC];
+							if (currentTile === 2) {
+								grid[currentTileR][currentTileC] = 0;
+								score += 10;
+								playSound('waka');
+								checkUnlock();
+							} else if (currentTile === 3) {
+								grid[currentTileR][currentTileC] = 0;
+								score += 50;
+								frightenedTimer = 300; // ~5 seconds
+								playSound('power');
+								checkUnlock();
+							}
+						}
+
+						const scoreEl = document.getElementById('pac-score-val');
+						if (scoreEl) scoreEl.textContent = String(score);
+
+						// Animate Pacman Mouth
+						pacman.mouth += pacman.mouthDir;
+						if (pacman.mouth > 0.35 || pacman.mouth < 0.03) pacman.mouthDir *= -1;
+
+						// Draw Pacman
+						ctx.save();
+						ctx.translate(pacman.x, pacman.y);
+						ctx.rotate(pacman.angle);
+						ctx.fillStyle = '#ffff00';
+						ctx.beginPath();
+						ctx.arc(0, 0, TILE/2 - 2, pacman.mouth * Math.PI, (2 - pacman.mouth) * Math.PI);
+						ctx.lineTo(0, 0);
+						ctx.fill();
+						ctx.restore();
+
+						// 3. Move & Draw Ghosts
+						ghosts.forEach(g => {
+							// Move ghost
+							if (canMove(g.x, g.y, g.dirX, g.dirY) && Math.random() > 0.05) {
+								g.x += g.dirX * g.speed;
+								g.y += g.dirY * g.speed;
+							} else {
+								// Pick random new direction
+								const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+								const validDirs = dirs.filter(d => canMove(g.x, g.y, d.x, d.y));
+								if (validDirs.length > 0) {
+									const chosen = validDirs[Math.floor(Math.random() * validDirs.length)];
+									g.dirX = chosen.x;
+									g.dirY = chosen.y;
+								}
+							}
+
+							// Ghost Draw Color (Blue if frightened)
+							const isFrightened = frightenedTimer > 0;
+							const ghostColor = isFrightened ? (frightenedTimer < 60 && Math.floor(frightenedTimer/10)%2===0 ? '#ffffff' : '#0000ff') : g.color;
+
+							// Draw Ghost
+							ctx.fillStyle = ghostColor;
+							ctx.beginPath();
+							ctx.arc(g.x, g.y - 2, 9, Math.PI, 0, false);
+							ctx.lineTo(g.x + 9, g.y + 8);
+							ctx.lineTo(g.x + 4, g.y + 4);
+							ctx.lineTo(g.x, g.y + 8);
+							ctx.lineTo(g.x - 4, g.y + 4);
+							ctx.lineTo(g.x - 9, g.y + 8);
+							ctx.closePath();
+							ctx.fill();
+
+							// Eyes
+							if (!isFrightened) {
+								ctx.fillStyle = '#ffffff';
+								ctx.beginPath();
+								ctx.arc(g.x - 3, g.y - 4, 3, 0, Math.PI*2);
+								ctx.arc(g.x + 3, g.y - 4, 3, 0, Math.PI*2);
+								ctx.fill();
+								ctx.fillStyle = '#0000ff';
+								ctx.beginPath();
+								ctx.arc(g.x - 3 + g.dirX, g.y - 4 + g.dirY, 1.5, 0, Math.PI*2);
+								ctx.arc(g.x + 3 + g.dirX, g.y - 4 + g.dirY, 1.5, 0, Math.PI*2);
+								ctx.fill();
+							} else {
+								// Frightened eyes
+								ctx.fillStyle = '#ffb8ae';
+								ctx.fillRect(g.x - 4, g.y - 4, 2, 2);
+								ctx.fillRect(g.x + 2, g.y - 4, 2, 2);
+							}
+
+							// Collision with Pacman
+							const dist = Math.hypot(pacman.x - g.x, pacman.y - g.y);
+							if (dist < TILE - 4) {
+								if (isFrightened) {
+									// Eat ghost!
+									score += 200;
+									playSound('ghost');
+									g.x = 9 * TILE + TILE/2;
+									g.y = 6 * TILE + TILE/2;
+									checkUnlock();
+								} else {
+									// Pacman dies
+									playSound('die');
+									lives--;
+									const icons = document.getElementById('pac-lives-icons');
+									if (icons) icons.textContent = '🟡'.repeat(Math.max(0, lives));
+
+									if (lives <= 0) {
+										// Reset game
+										lives = 3;
+										if (icons) icons.textContent = '🟡🟡🟡';
+										grid = INITIAL_MAP.map(r => [...r]);
+									}
+									resetPositions();
+								}
+							}
+						});
+
+						animId = requestAnimationFrame(gameLoop);
+					}
+
+					gameLoop();
+
+					function showGeekFarewellModal() {
+						// Audio Victory Sound
+						try {
+							const actx = new (window.AudioContext || (window as any).webkitAudioContext)();
+							const o = actx.createOscillator();
+							const g = actx.createGain();
+							o.type = 'sine';
+							o.frequency.setValueAtTime(440, actx.currentTime);
+							o.frequency.exponentialRampToValueAtTime(880, actx.currentTime + 0.3);
+							o.frequency.exponentialRampToValueAtTime(1760, actx.currentTime + 0.6);
+							g.gain.setValueAtTime(0.15, actx.currentTime);
+							g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.8);
+							o.connect(g); g.connect(actx.destination);
+							o.start(); o.stop(actx.currentTime + 0.8);
+						} catch(_e) {}
+
+						// Farewell Overlay
+						const farewell = document.createElement('div');
+						farewell.id = 'geek-farewell-overlay';
+						farewell.innerHTML = `
+							<div class="fw-backdrop"></div>
+							<div class="fw-card">
+								<div class="fw-badge">👾 PLAYER 1 HAS LOGGED OUT</div>
+								<h2 class="fw-title">À BIENTÔT DANS L'OASIS !</h2>
+								<blockquote class="fw-quote">
+									"Merci d'avoir exploré mon univers. N'oublie jamais : la réalité est la seule chose qui soit réelle."
+									<cite>— James Halliday (Ready Player One)</cite>
+								</blockquote>
+
+								<div class="fw-stats-box">
+									<div class="fw-stat-item">
+										<span class="fw-stat-lbl">🏆 PAC-MAN SCORE</span>
+										<span class="fw-stat-val">${score} PTS</span>
+									</div>
+									<div class="fw-stat-item">
+										<span class="fw-stat-lbl">🥚 EASTER EGGS</span>
+										<span class="fw-stat-val">6 / 6 DÉBLOQUÉS</span>
+									</div>
+									<div class="fw-stat-item">
+										<span class="fw-stat-lbl">⚡ RANG DEV</span>
+										<span class="fw-stat-val fw-gold">S++ LÉGENDAIRE</span>
+									</div>
+								</div>
+
+								<div class="fw-actions">
+									<a href="mailto:contact@mathieu-soussignan.com" class="fw-btn-mail">
+										📧 Me contacter (contact@mathieu-soussignan.com)
+									</a>
+									<button id="fw-close-btn" class="fw-btn-close">
+										🚀 Revenir au Monde Réel
+									</button>
+								</div>
+							</div>
+							<div class="fw-confetti-container" id="fw-confetti"></div>
+						`;
+						document.body.appendChild(farewell);
+						requestAnimationFrame(() => farewell.classList.add('fw-active'));
+
+						// Confetti Burst
+						const confettiContainer = document.getElementById('fw-confetti');
+						if (confettiContainer) {
+							for (let i = 0; i < 50; i++) {
+								const c = document.createElement('div');
+								c.className = 'fw-particle';
+								const colors = ['#ffd700','#00ff66','#00f2fe','#c561f6','#ff006e'];
+								c.style.cssText = `
+									left: ${Math.random()*100}%;
+									top: ${Math.random()*40 + 30}%;
+									background: ${colors[Math.floor(Math.random()*colors.length)]};
+									width: ${4 + Math.random()*6}px;
+									height: ${4 + Math.random()*6}px;
+									animation-delay: ${Math.random()*0.5}s;
+									animation-duration: ${1.5 + Math.random()*1.5}s;
+								`;
+								confettiContainer.appendChild(c);
+							}
+						}
+
+						document.getElementById('fw-close-btn')?.addEventListener('click', () => {
+							farewell.classList.remove('fw-active');
+							setTimeout(() => farewell.remove(), 400);
+						});
+					}
+
+					function closeModal() {
+						gameRunning = false;
+						cancelAnimationFrame(animId);
+						window.removeEventListener('keydown', onKeyDown);
+						modal.classList.remove('pac-active');
+						setTimeout(() => modal.remove(), 400);
+					}
+
+					document.getElementById('pac-skip-btn')?.addEventListener('click', closeModal);
+					document.getElementById('pac-exit-btn')?.addEventListener('click', () => {
+						closeModal();
+						showGeekFarewellModal();
+					});
+				}
+
+				// Exit Intent Detection (Mouse moving to top edge to close tab)
+				document.addEventListener('mouseleave', (e) => {
+					if (e.clientY <= 15) {
+						launchPacmanExitTrap();
+					}
+				});
+			})();
 		</script>
 
 		<style>
@@ -527,6 +1278,444 @@ const { title, description } = Astro.props;
 			@keyframes portalTextIn {
 				from { opacity: 0; transform: translateY(20px) scale(0.9); }
 				to { opacity: 1; transform: translateY(0) scale(1); }
+			}
+
+			/* ========================================
+			   🥚 Anti-Gravity Mode — HUD & Particles
+			   ======================================== */
+			@keyframes agFloat {
+				0% { transform: translateY(0); opacity: 0; }
+				10% { opacity: 1; }
+				90% { opacity: 1; }
+				100% { transform: translateY(-110vh); opacity: 0; }
+			}
+
+			:global(#ag-hud) {
+				position: fixed;
+				inset: 0;
+				z-index: 99999;
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity 0.5s ease;
+			}
+
+			:global(#ag-hud.ag-active) {
+				opacity: 1;
+			}
+
+			:global(.ag-hud-inner) {
+				position: absolute;
+				inset: 0;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				padding: 1.5rem;
+			}
+
+			:global(.ag-hud-top) {
+				display: flex;
+				gap: 2rem;
+				justify-content: center;
+				flex-wrap: wrap;
+			}
+
+			:global(.ag-stat) {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 0.2rem;
+			}
+
+			:global(.ag-label) {
+				font-family: 'Fira Code', monospace;
+				font-size: 0.65rem;
+				color: rgba(255,255,255,0.5);
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+			}
+
+			:global(.ag-value) {
+				font-family: 'Fira Code', monospace;
+				font-size: 1.4rem;
+				font-weight: 800;
+				color: #00f2fe;
+				text-shadow: 0 0 15px rgba(0,242,254,0.6);
+			}
+
+			:global(.ag-class) {
+				color: #c561f6;
+				text-shadow: 0 0 15px rgba(197,97,246,0.6);
+			}
+
+			:global(.ag-rank) {
+				color: #00ff66;
+				text-shadow: 0 0 15px rgba(0,255,102,0.6);
+				animation: eeNextBlink 1.5s ease infinite;
+			}
+
+			:global(.ag-skills) {
+				position: absolute;
+				right: 1.5rem;
+				top: 50%;
+				transform: translateY(-50%);
+				display: flex;
+				flex-direction: column;
+				gap: 0.6rem;
+				max-width: 220px;
+			}
+
+			:global(.ag-skill) {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-family: 'Fira Code', monospace;
+				font-size: 0.7rem;
+				color: rgba(255,255,255,0.7);
+			}
+
+			:global(.ag-skill span:first-child) {
+				min-width: 80px;
+				text-align: right;
+			}
+
+			:global(.ag-bar) {
+				flex: 1;
+				height: 6px;
+				background: rgba(255,255,255,0.1);
+				border-radius: 3px;
+				overflow: hidden;
+			}
+
+			:global(.ag-fill) {
+				height: 100%;
+				width: var(--fill);
+				background: linear-gradient(90deg, #7611a6, #c561f6, #00f2fe);
+				border-radius: 3px;
+				animation: agFillGrow 1.5s ease-out forwards;
+				box-shadow: 0 0 8px rgba(197,97,246,0.5);
+			}
+
+			@keyframes agFillGrow {
+				from { width: 0; }
+				to { width: var(--fill); }
+			}
+
+			:global(.ag-hud-bottom) {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 2rem;
+				flex-wrap: wrap;
+				font-family: 'Fira Code', monospace;
+				font-size: 0.8rem;
+				color: #00ff66;
+				text-shadow: 0 0 10px rgba(0,255,102,0.5);
+			}
+
+			:global(.ag-combo) {
+				color: #ff006e;
+				text-shadow: 0 0 10px rgba(255,0,110,0.5);
+			}
+
+			:global(#ag-close-btn) {
+				pointer-events: all;
+				background: rgba(255,255,255,0.08);
+				border: 1px solid rgba(255,255,255,0.2);
+				color: rgba(255,255,255,0.6);
+				padding: 0.4rem 1rem;
+				border-radius: 6px;
+				font-family: 'Fira Code', monospace;
+				font-size: 0.75rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			:global(#ag-close-btn:hover) {
+				background: rgba(255,0,110,0.2);
+				border-color: #ff006e;
+				color: #ff006e;
+			}
+
+			@media (max-width: 50em) {
+				:global(.ag-skills) {
+					display: none;
+				}
+			}
+
+			/* ========================================
+			   🥽 OASIS VR Neural Link Warp Transition
+			   ======================================== */
+			@keyframes oasisBodyGlitch {
+				0% { filter: none; transform: translate(0, 0); }
+				20% { filter: invert(0.8) hue-rotate(90deg); transform: translate(-5px, 3px); }
+				40% { filter: contrast(200%) saturate(300%); transform: translate(5px, -3px); }
+				60% { filter: invert(0.5); transform: translate(-3px, -3px); }
+				80% { filter: hue-rotate(180deg); transform: translate(3px, 2px); }
+				100% { filter: none; transform: translate(0, 0); }
+			}
+
+			:global(#oasis-vr-overlay) {
+				position: fixed; inset: 0; z-index: 9999999;
+				background: #05070c;
+				display: flex; flex-direction: column;
+				align-items: center; justify-content: center;
+				overflow: hidden;
+				opacity: 0; transition: opacity 0.4s ease;
+				pointer-events: all;
+			}
+			:global(#oasis-vr-overlay.oasis-vr-active) { opacity: 1; }
+
+			:global(.oasis-vr-grid) {
+				position: absolute; inset: -50%;
+				background-image: 
+					linear-gradient(rgba(0, 242, 254, 0.25) 1px, transparent 1px),
+					linear-gradient(90deg, rgba(197, 97, 246, 0.25) 1px, transparent 1px);
+				background-size: 50px 50px;
+				transform: perspective(400px) rotateX(60deg);
+				animation: vrGridMove 1s linear infinite;
+			}
+			@keyframes vrGridMove {
+				0% { transform: perspective(400px) rotateX(60deg) translateY(0); }
+				100% { transform: perspective(400px) rotateX(60deg) translateY(50px); }
+			}
+
+			:global(.oasis-vr-tunnel) {
+				position: absolute; inset: 0;
+				background: radial-gradient(circle at center, transparent 10%, #05070c 80%);
+				pointer-events: none;
+			}
+
+			:global(.oasis-vr-hud) {
+				position: relative; z-index: 2;
+				display: flex; flex-direction: column; align-items: center; gap: 1rem;
+				padding: 2.5rem; border-radius: 16px;
+				background: rgba(10, 14, 23, 0.9);
+				border: 1px solid rgba(0, 242, 254, 0.4);
+				box-shadow: 0 0 50px rgba(0, 242, 254, 0.3), inset 0 0 30px rgba(197, 97, 246, 0.2);
+				backdrop-filter: blur(15px);
+				max-width: 90vw; width: 480px;
+				text-align: center;
+			}
+
+			:global(.oasis-vr-badge) {
+				font-family: 'Fira Code', monospace; font-size: 0.75rem;
+				color: #00ff66; letter-spacing: 0.15em;
+				text-shadow: 0 0 10px rgba(0,255,102,0.6);
+			}
+
+			:global(.oasis-vr-title) {
+				font-size: 1.5rem; font-weight: 800; color: #ffffff;
+				text-shadow: 0 0 20px rgba(0, 242, 254, 0.8);
+				letter-spacing: 0.05em;
+			}
+
+			:global(.oasis-vr-logs) {
+				font-family: 'Fira Code', monospace; font-size: 0.75rem;
+				color: rgba(255,255,255,0.7);
+				display: flex; flex-direction: column; gap: 0.4rem;
+				text-align: left; width: 100%; margin: 0.5rem 0;
+			}
+			:global(.vr-ok) { color: #00ff66; font-weight: bold; }
+			:global(.vr-blink) { color: #00f2fe; animation: eeNextBlink 0.8s infinite; }
+
+			:global(.oasis-vr-progress-bar) {
+				width: 100%; height: 8px;
+				background: rgba(255,255,255,0.1);
+				border-radius: 4px; overflow: hidden;
+				border: 1px solid rgba(0, 242, 254, 0.3);
+			}
+
+			:global(.oasis-vr-fill) {
+				height: 100%; width: 0%;
+				background: linear-gradient(90deg, #7611a6, #c561f6, #00f2fe, #00ff66);
+				box-shadow: 0 0 15px #00f2fe;
+				animation: vrProgress 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			}
+			@keyframes vrProgress {
+				0% { width: 0%; }
+				50% { width: 65%; }
+				100% { width: 100%; }
+			}
+
+			/* ========================================
+			   👻 Pac-Man Exit Intent Trap CSS
+			   ======================================== */
+			:global(#pacman-exit-modal) {
+				position: fixed; inset: 0; z-index: 9999999;
+				display: flex; align-items: center; justify-content: center;
+				opacity: 0; transition: opacity 0.4s ease;
+				pointer-events: all;
+			}
+			:global(#pacman-exit-modal.pac-active) { opacity: 1; }
+
+			:global(.pac-backdrop) {
+				position: absolute; inset: 0;
+				background: rgba(5, 7, 12, 0.93);
+				backdrop-filter: blur(12px);
+			}
+
+			:global(.pac-dialog) {
+				position: relative; z-index: 2;
+				background: #0d0f18;
+				border: 3px solid #ffff00;
+				border-radius: 16px;
+				box-shadow: 0 0 40px rgba(255, 255, 0, 0.4), 0 20px 60px rgba(0, 0, 0, 0.8);
+				padding: 1.5rem; width: 440px; max-width: 95vw;
+				display: flex; flex-direction: column; align-items: center; gap: 1rem;
+				font-family: 'Fira Code', monospace;
+			}
+
+			:global(.pac-header) { text-align: center; }
+			:global(.pac-title) { color: #ffff00; font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; text-shadow: 0 0 10px rgba(255, 255, 0, 0.6); }
+			:global(.pac-subtitle) { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; margin-top: 0.3rem; }
+
+			:global(.pac-canvas-wrapper) {
+				width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+			}
+			:global(#pac-canvas) {
+				background: #000; border-radius: 8px; border: 2px solid #2121ff;
+				box-shadow: 0 0 15px rgba(33, 33, 255, 0.4); max-width: 100%; height: auto;
+			}
+			:global(.pac-controls-hint) { font-size: 0.65rem; color: rgba(255, 255, 255, 0.4); text-align: center; }
+
+			:global(.pac-hud-bar) {
+				display: flex; justify-content: space-between; width: 100%; font-size: 0.8rem; font-weight: 700;
+			}
+			:global(.pac-status-wait) { color: #ff006e; }
+			:global(.pac-status-ok) { color: #00ff66; text-shadow: 0 0 10px #00ff66; animation: eeNextBlink 0.8s infinite; }
+
+			:global(.pac-actions) { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
+			:global(.pac-btn-exit) {
+				width: 100%; padding: 0.75rem; border-radius: 8px; border: none;
+				background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.4);
+				font-family: 'Fira Code', monospace; font-size: 0.8rem; font-weight: 700;
+				cursor: not-allowed; transition: all 0.3s ease;
+			}
+			:global(.pac-unlocked) {
+				background: linear-gradient(135deg, #00ff66, #00f2fe) !important;
+				color: #000 !important; cursor: pointer !important;
+				box-shadow: 0 0 20px rgba(0, 255, 102, 0.6) !important;
+			}
+			:global(.pac-unlocked:hover) { transform: scale(1.02); }
+
+			:global(.pac-btn-skip) {
+				background: transparent; border: none; color: rgba(255, 255, 255, 0.3);
+				font-size: 0.7rem; cursor: pointer; text-decoration: underline; text-align: center;
+			}
+			:global(.pac-btn-skip:hover) { color: rgba(255, 255, 255, 0.7); }
+
+			/* Touch D-Pad */
+			:global(.pac-dpad-mobile) {
+				display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 0.2rem;
+			}
+			:global(.dpad-row) {
+				display: flex; gap: 4px;
+			}
+			:global(.dpad-btn) {
+				width: 38px; height: 32px; background: rgba(33, 33, 255, 0.2);
+				border: 1px solid #2121ff; border-radius: 6px; color: #ffff00;
+				font-size: 0.8rem; cursor: pointer; user-select: none;
+				display: flex; align-items: center; justify-content: center;
+				transition: all 0.15s ease;
+			}
+			:global(.dpad-btn:active) {
+				background: #2121ff; color: #ffffff; transform: scale(0.95);
+			}
+
+			/* ========================================
+			   👾 Geek Farewell Animation & Overlay
+			   ======================================== */
+			:global(#geek-farewell-overlay) {
+				position: fixed; inset: 0; z-index: 99999999;
+				display: flex; align-items: center; justify-content: center;
+				opacity: 0; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+				pointer-events: all;
+			}
+			:global(#geek-farewell-overlay.fw-active) { opacity: 1; }
+
+			:global(.fw-backdrop) {
+				position: absolute; inset: 0;
+				background: rgba(5, 7, 12, 0.95);
+				backdrop-filter: blur(15px);
+			}
+
+			:global(.fw-card) {
+				position: relative; z-index: 2;
+				background: linear-gradient(145deg, #120e24 0%, #0a0d18 100%);
+				border: 2px solid #ffd700;
+				border-radius: 20px;
+				box-shadow: 0 0 50px rgba(255, 215, 0, 0.3), 0 20px 80px rgba(0, 0, 0, 0.9);
+				padding: 2rem; width: 480px; max-width: 92vw;
+				display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.2rem;
+				font-family: 'Fira Code', monospace;
+				animation: fwPopIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+			}
+
+			@keyframes fwPopIn {
+				from { transform: scale(0.8) translateY(30px); opacity: 0; }
+				to { transform: scale(1) translateY(0); opacity: 1; }
+			}
+
+			:global(.fw-badge) {
+				font-size: 0.75rem; font-weight: 800; color: #ffd700; letter-spacing: 0.15em;
+				text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+			}
+
+			:global(.fw-title) {
+				font-size: 1.6rem; font-weight: 800; color: #ffffff;
+				text-shadow: 0 0 20px rgba(0, 242, 254, 0.8);
+				letter-spacing: 0.05em; margin: 0;
+			}
+
+			:global(.fw-quote) {
+				font-size: 0.82rem; font-style: italic; color: rgba(255, 255, 255, 0.85);
+				line-height: 1.6; background: rgba(255, 255, 255, 0.04);
+				border-left: 3px solid #c561f6; padding: 0.8rem 1rem; border-radius: 6px;
+				margin: 0; text-align: left;
+			}
+
+			:global(.fw-quote cite) {
+				display: block; font-style: normal; font-weight: bold; color: #c561f6;
+				margin-top: 0.4rem; font-size: 0.75rem; text-align: right;
+			}
+
+			:global(.fw-stats-box) {
+				display: flex; justify-content: space-around; width: 100%;
+				background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 10px; padding: 0.8rem 0.5rem;
+			}
+
+			:global(.fw-stat-item) { display: flex; flex-direction: column; gap: 0.2rem; align-items: center; }
+			:global(.fw-stat-lbl) { font-size: 0.6rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.05em; }
+			:global(.fw-stat-val) { font-size: 0.95rem; font-weight: 800; color: #00f2fe; }
+			:global(.fw-gold) { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.6); }
+
+			:global(.fw-actions) { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
+			:global(.fw-btn-mail) {
+				display: block; text-decoration: none;
+				background: linear-gradient(135deg, #7611a6, #c561f6); color: #fff;
+				padding: 0.8rem; border-radius: 10px; font-weight: 700; font-size: 0.8rem;
+				box-shadow: 0 4px 20px rgba(197, 97, 246, 0.4); transition: all 0.25s ease;
+			}
+			:global(.fw-btn-mail:hover) { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(197, 97, 246, 0.6); color: #fff; }
+
+			:global(.fw-btn-close) {
+				background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
+				color: rgba(255, 255, 255, 0.7); padding: 0.6rem; border-radius: 10px;
+				font-family: 'Fira Code', monospace; font-size: 0.75rem; cursor: pointer;
+				transition: all 0.2s ease;
+			}
+			:global(.fw-btn-close:hover) { color: #ff006e; border-color: #ff006e; background: rgba(255,0,110,0.1); }
+
+			:global(.fw-confetti-container) { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+			:global(.fw-particle) {
+				position: absolute; border-radius: 50%;
+				animation: fwParticleBurst 2s ease-out forwards;
+			}
+			@keyframes fwParticleBurst {
+				0% { transform: scale(0) translateY(0); opacity: 1; }
+				50% { opacity: 1; }
+				100% { transform: scale(1.5) translateY(120px) rotate(360deg); opacity: 0; }
 			}
 		</style>
 	</body>

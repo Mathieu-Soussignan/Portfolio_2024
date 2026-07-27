@@ -1,0 +1,600 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Easter Egg — L'OASIS de Mathieu" description="Un jeu d'aventure textuel caché dans le portfolio de Mathieu Soussignan.">
+  <div class="oasis-wrapper">
+    <a href="/" class="back-link">← Retour au portfolio</a>
+    
+    <div class="terminal-container">
+      <div class="scanlines"></div>
+      
+      <div class="stats-bar" id="statsBar">
+        ❤️ HP: 100 | ⭐ Score: 0 | 🎒 Inventaire: 0 items
+      </div>
+
+      <div class="output-area" id="outputArea">
+        <!-- Messages will be printed here -->
+      </div>
+
+      <div class="input-container">
+        <div class="quick-actions">
+          <button class="action-btn" data-cmd="regarder">[Regarder]</button>
+          <button class="action-btn" data-cmd="inventaire">[Inventaire]</button>
+          <button class="action-btn" data-cmd="aide">[Aide]</button>
+          <button class="action-btn" data-cmd="stats">[Stats]</button>
+        </div>
+        <form class="input-form" id="inputForm">
+          <span class="prompt-symbol">&gt;</span>
+          <input 
+            type="text" 
+            id="cmdInput" 
+            autocomplete="off" 
+            spellcheck="false" 
+            autofocus 
+            placeholder="Tape une commande ou un choix..."
+          />
+        </form>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .oasis-wrapper {
+    min-height: 100vh;
+    background-color: #050505;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+    z-index: 10;
+  }
+
+  .back-link {
+    color: #00ff00;
+    text-decoration: none;
+    align-self: flex-start;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: #fff;
+    text-shadow: 0 0 8px #fff;
+  }
+
+  .terminal-container {
+    width: 100%;
+    max-width: 900px;
+    height: 80vh;
+    background-color: #0a0e17;
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2), inset 0 0 20px rgba(0, 255, 0, 0.1);
+    animation: pulseGlow 4s infinite alternate;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.2), inset 0 0 10px rgba(0, 255, 0, 0.1); }
+    100% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.2); }
+  }
+
+  .scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.1)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.6;
+  }
+
+  .stats-bar {
+    background-color: rgba(0, 255, 0, 0.1);
+    color: #00ff00;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #00ff00;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .output-area {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    color: #00ff00;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    z-index: 10;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .output-area::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .output-area::-webkit-scrollbar-track {
+    background: #0a0e17;
+  }
+  
+  .output-area::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 4px;
+  }
+
+  .message-block {
+    margin-bottom: 1rem;
+  }
+
+  .msg-system { color: #00ff00; }
+  .msg-user { color: #fff; opacity: 0.8; margin-bottom: 1.5rem; }
+  .msg-error { color: #ff3333; }
+  .msg-success { color: #ffff00; }
+  .msg-info { color: #00ffff; }
+
+  .input-container {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 255, 0, 0.3);
+    background-color: rgba(10, 14, 23, 0.9);
+    z-index: 10;
+  }
+
+  .quick-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    background: rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  }
+
+  .input-form {
+    display: flex;
+    align-items: center;
+  }
+
+  .prompt-symbol {
+    color: #00ff00;
+    margin-right: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  #cmdInput {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 1.2rem;
+    outline: none;
+  }
+
+  #cmdInput::placeholder {
+    color: rgba(0, 255, 0, 0.3);
+  }
+
+  /* Blinking cursor for the typewriter effect */
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.2rem;
+    background-color: #00ff00;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .ascii-art {
+    white-space: pre;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    color: #ffff00;
+    margin: 1rem 0;
+  }
+</style>
+
+<script>
+  // Game State
+  const state: {
+    hp: number;
+    score: number;
+    inventory: string[];
+    currentRoom: number;
+    visited: Set<number>;
+    awaitingPuzzle: boolean;
+    puzzleAttempts: number;
+    isTyping: boolean;
+    typewriterInterval: ReturnType<typeof setInterval> | null;
+    achievements: string[];
+  } = {
+    hp: 100,
+    score: 0,
+    inventory: [],
+    currentRoom: -1,
+    visited: new Set(),
+    awaitingPuzzle: false,
+    puzzleAttempts: 0,
+    isTyping: false,
+    typewriterInterval: null,
+    achievements: []
+  };
+
+  const ITEMS: Record<number, string> = {
+    0: '🗡️ Épée Python',
+    1: '🛡️ Bouclier React',
+    2: '📜 Parchemin SQL'
+  };
+
+  interface RoomPuzzle {
+    text: string;
+    answers: string[];
+    successMsg: string;
+    achievement: string;
+    nextRoom: number;
+    maxAttempts?: number;
+    hint?: string;
+  }
+
+  interface Room {
+    title: string;
+    desc: string;
+    item: number | null;
+    puzzle: RoomPuzzle | null;
+  }
+
+  const ROOMS: Record<number, Room> = {
+    0: {
+      title: "L'Entrée de l'OASIS",
+      desc: "Tu te trouves devant un immense portail digital qui pulse d'énergie violette. Au-dessus, des lettres holographiques : 'BIENVENUE DANS L'OASIS DE MATHIEU'. Deux chemins s'offrent à toi...\n\n[1] Le Chemin de la Data\n[2] La Grotte du Web",
+      item: null,
+      puzzle: null
+    },
+    1: {
+      title: "Le Chemin de la Data",
+      desc: "Tu avances dans un couloir fait de flux de données lumineux. Des DataFrames Pandas flottent autour de toi. Au bout du chemin, tu aperçois le TEMPLE DU MACHINE LEARNING.",
+      item: 0,
+      puzzle: {
+        text: "🐛 Un BUG GÉANT bloque le passage ! Il te pose une énigme...\n'Quel mot-clé Python permet de gérer les exceptions ?'",
+        answers: ['try', 'try/except', 'try except'],
+        successMsg: "Le BUG se désintègre ! Tu découvres le projet Predict Cars — un modèle ML Random Forest qui prédit les prix automobiles avec 95% de précision.",
+        achievement: "Projet Predict Cars",
+        nextRoom: 3
+      }
+    },
+    2: {
+      title: "La Grotte du Web",
+      desc: "Tu descends dans une grotte illuminée par des composants React qui brillent comme des cristaux. Des APIs RESTful coulent comme des rivières de JSON.",
+      item: 1,
+      puzzle: {
+        text: "💀 LEGACY CODE te barre la route ! Tu dois choisir le bon refactor...\n'Quel hook React permet de gérer un état local ?'",
+        answers: ['usestate', 'useState'],
+        successMsg: "Le LEGACY CODE s'effondre ! Tu découvres CreatorComptability V2 — le SaaS d'élite Rank S++ pour créateurs de contenu, propulsé par Vue 3.5, FastAPI et Mistral AI.",
+        achievement: "Projet CreatorComptability V2",
+        nextRoom: 3
+      }
+    },
+    3: {
+      title: "La Salle du Boss — Le Gardien de l'IA",
+      desc: "Tu entres dans une immense arène digitale. Au centre, un GARDIEN DE L'IA fait de code neural t'attend. Ses yeux brillent en bleu PyTorch.",
+      item: 2,
+      puzzle: {
+        text: "Le Gardien te défie : 'Quel algorithme d'apprentissage supervisé est basé sur la construction d'arbres de décision multiples ?'",
+        answers: ['random forest', 'randomforest', 'forêt aléatoire', 'foret aleatoire'],
+        successMsg: "Une onde de choc parcourt l'arène. Le Gardien s'incline devant ton savoir.",
+        achievement: "Gardien de l'IA Vaincu",
+        nextRoom: 4,
+        maxAttempts: 3,
+        hint: "Pense à une forêt... mais aléatoire."
+      }
+    },
+    4: {
+      title: "La Salle du Trésor — Victoire",
+      desc: "🏆 VICTOIRE ! Le Gardien s'incline. Les murs de l'arène se dissolvent, révélant le TRÉSOR DE L'OASIS...",
+      item: null,
+      puzzle: null
+    }
+  };
+
+  // Elements
+  const outputArea = document.getElementById('outputArea')!;
+  const inputForm = document.getElementById('inputForm')!;
+  const cmdInput = document.getElementById('cmdInput') as HTMLInputElement;
+  const statsBar = document.getElementById('statsBar')!;
+  const actionBtns = document.querySelectorAll('.action-btn');
+
+  // Initialization
+  function initGame() {
+    updateStats();
+    enterRoom(0);
+  }
+
+  function updateStats() {
+    statsBar.innerHTML = `❤️ HP: ${state.hp} | ⭐ Score: ${state.score} | 🎒 Inventaire: ${state.inventory.length} items`;
+  }
+
+  function printMsg(text: string, className: string = 'msg-system', useTypewriter: boolean = false): Promise<void> {
+    return new Promise<void>((resolve) => {
+      const block = document.createElement('div');
+      block.className = `message-block ${className}`;
+      outputArea.appendChild(block);
+
+      if (useTypewriter && !state.isTyping) {
+        state.isTyping = true;
+        let i = 0;
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        
+        // Disable input while typing
+        cmdInput.disabled = true;
+
+        block.appendChild(cursor);
+        
+        state.typewriterInterval = setInterval((() => {
+          if (i < text.length) {
+            cursor.insertAdjacentText('beforebegin', text.charAt(i));
+            i++;
+            outputArea.scrollTop = outputArea.scrollHeight;
+          } else {
+            if (state.typewriterInterval) clearInterval(state.typewriterInterval);
+            block.removeChild(cursor);
+            state.isTyping = false;
+            cmdInput.disabled = false;
+            cmdInput.focus();
+            resolve();
+          }
+        }) as TimerHandler, 15); // typing speed
+
+        // Allow click to skip
+        const skipHandler = () => {
+          if (state.isTyping) {
+            if (state.typewriterInterval) clearInterval(state.typewriterInterval);
+            cursor.insertAdjacentText('beforebegin', text.substring(i));
+            block.removeChild(cursor);
+            state.isTyping = false;
+            cmdInput.disabled = false;
+            cmdInput.focus();
+            outputArea.removeEventListener('click', skipHandler);
+            resolve();
+          }
+        };
+        outputArea.addEventListener('click', skipHandler);
+        
+      } else {
+        block.innerText = text;
+        outputArea.scrollTop = outputArea.scrollHeight;
+        resolve();
+      }
+    });
+  }
+
+  async function enterRoom(roomId: number) {
+    state.currentRoom = roomId;
+    const room = ROOMS[roomId];
+    state.awaitingPuzzle = false;
+    state.puzzleAttempts = 0;
+
+    await printMsg(`\n=== ${room.title} ===\n`, 'msg-info', true);
+    await printMsg(room.desc, 'msg-system', true);
+
+    // Collect item
+    if (room.item !== null && !state.visited.has(roomId)) {
+      const itemName = ITEMS[room.item];
+      state.inventory.push(itemName);
+      await printMsg(`✨ Tu as trouvé un objet : ${itemName} !`, 'msg-success', false);
+      updateStats();
+    }
+
+    state.visited.add(roomId);
+
+    // Trigger puzzle
+    if (room.puzzle) {
+      state.awaitingPuzzle = true;
+      await printMsg(room.puzzle.text, 'msg-error', true);
+    } else if (roomId === 4) {
+      triggerVictory();
+    }
+  }
+
+  async function triggerVictory() {
+    const ascii = `
+       ___________
+      '._==_==_=_.'
+      .-\\:      /-.
+     | (|:.     |) |
+      '-|:.     |-'
+        \\::.    /
+         '::. .'
+           ) (
+         _.' '._
+        \`"""""""\`
+    `;
+    
+    const block = document.createElement('div');
+    block.className = 'ascii-art';
+    block.innerText = ascii;
+    outputArea.appendChild(block);
+    
+    await printMsg(`Score Final : ${state.score} / HP Restants : ${state.hp}`, 'msg-success', false);
+    
+    if (state.achievements.length > 0) {
+      await printMsg(`\nProjets découverts :\n- ${state.achievements.join('\n- ')}`, 'msg-info', false);
+    }
+
+    await printMsg(`\n"La quête n'est jamais vraiment terminée pour un développeur passionné." — Mathieu Soussignan\n`, 'msg-info', true);
+    
+    // Add button to go back
+    const btn = document.createElement('button');
+    btn.className = 'action-btn';
+    btn.innerText = "Retourner au monde réel (Portfolio)";
+    btn.style.marginTop = "1rem";
+    btn.onclick = () => window.location.href = '/';
+    outputArea.appendChild(btn);
+    outputArea.scrollTop = outputArea.scrollHeight;
+  }
+
+  async function handleCommand(cmd: string) {
+    if (state.isTyping) return; // Ignore input while typing
+    
+    cmdInput.value = '';
+    const cleanCmd = cmd.trim().toLowerCase();
+    
+    if (!cleanCmd) return;
+    
+    await printMsg(`> ${cmd}`, 'msg-user', false);
+
+    // Global Commands
+    if (cleanCmd === 'aide' || cleanCmd === 'help') {
+      await printMsg("Commandes disponibles :\n- [1], [2], etc. : Faire un choix\n- regarder (look) : Relire la description de la salle\n- inventaire (inv) : Voir tes objets\n- stats : Voir tes statistiques\n- aide (help) : Afficher ce message", 'msg-system', false);
+      return;
+    }
+    
+    if (cleanCmd === 'inventaire' || cleanCmd === 'inv') {
+      if (state.inventory.length === 0) {
+        await printMsg("Ton inventaire est vide.", 'msg-system', false);
+      } else {
+        await printMsg(`Inventaire :\n- ${state.inventory.join('\n- ')}`, 'msg-system', false);
+      }
+      return;
+    }
+
+    if (cleanCmd === 'stats') {
+      await printMsg(`HP: ${state.hp}/100\nScore: ${state.score}\nSalles visitées: ${state.visited.size}`, 'msg-system', false);
+      return;
+    }
+
+    if (cleanCmd === 'regarder' || cleanCmd === 'look') {
+      const room = ROOMS[state.currentRoom];
+      await printMsg(`\n=== ${room.title} ===\n`, 'msg-info', false);
+      await printMsg(room.desc, 'msg-system', false);
+      if (state.awaitingPuzzle) {
+        await printMsg(room.puzzle!.text, 'msg-error', false);
+      }
+      return;
+    }
+
+    // Room specific logic
+    if (state.awaitingPuzzle) {
+      const room = ROOMS[state.currentRoom];
+      const isCorrect = room.puzzle!.answers.some(ans => cleanCmd.includes(ans.toLowerCase()));
+      
+      if (isCorrect) {
+        state.awaitingPuzzle = false;
+        
+        // Score calculation
+        let points = 100;
+        if (state.puzzleAttempts === 0) points += 50; // First try bonus
+        state.score += points;
+        
+        if (room.puzzle!.achievement) {
+          state.achievements.push(room.puzzle!.achievement);
+        }
+
+        updateStats();
+        await printMsg(room.puzzle!.successMsg, 'msg-success', true);
+        
+        setTimeout(() => {
+          enterRoom(room.puzzle!.nextRoom);
+        }, 1500);
+
+      } else {
+        state.puzzleAttempts++;
+        state.hp -= 10;
+        updateStats();
+        
+        if (state.hp <= 0) {
+          await printMsg("GAME OVER. Tes HP sont tombés à 0. Le code legacy t'a englouti.", 'msg-error', true);
+          // Restart after a delay
+          setTimeout(() => {
+            outputArea.innerHTML = '';
+            state.hp = 100;
+            state.score = 0;
+            state.inventory = [];
+            state.visited.clear();
+            state.achievements = [];
+            initGame();
+          }, 3000);
+          return;
+        }
+
+        let failMsg = "Ce n'est pas la bonne réponse ! Tu perds 10 HP. (-10 HP)";
+        if (room.puzzle!.maxAttempts && state.puzzleAttempts >= room.puzzle!.maxAttempts && room.puzzle!.hint) {
+          failMsg += `\nIndice : ${room.puzzle!.hint}`;
+        }
+        await printMsg(failMsg, 'msg-error', false);
+      }
+      return;
+    }
+
+    // Navigation choices (Room 0)
+    if (state.currentRoom === 0) {
+      if (cleanCmd === '1' || cleanCmd.includes('data')) {
+        enterRoom(1);
+        return;
+      } else if (cleanCmd === '2' || cleanCmd.includes('web')) {
+        enterRoom(2);
+        return;
+      }
+    }
+
+    // Default catch-all
+    await printMsg("Commande non reconnue. Tape 'aide' pour voir les commandes disponibles.", 'msg-system', false);
+  }
+
+  inputForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleCommand(cmdInput.value);
+  });
+
+  actionBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      handleCommand(btn.getAttribute('data-cmd') || '');
+      cmdInput.focus();
+    });
+  });
+
+  // Start the game when the page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    initGame();
+  });
+</script>

@@ -136,6 +136,153 @@ const projects = (await getCollection("work"))
             }
           });
         }
+
+        // =============================================
+        // 🥚 EASTER EGG #4 — 7 Clicks → Holographic Card
+        // =============================================
+        (() => {
+          const profileImg = document.querySelector('.profile-img') as HTMLElement;
+          if (!profileImg) return;
+          
+          let clickCount = 0;
+          let clickTimer: ReturnType<typeof setTimeout> | null = null;
+          const REQUIRED_CLICKS = 7;
+          let cardShown = false;
+
+          profileImg.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (cardShown) return;
+            
+            clickCount++;
+            
+            if (clickTimer) clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+
+            // Visual feedback — small pulse on each click
+            profileImg.style.transition = 'transform 0.15s ease';
+            profileImg.style.transform = 'scale(1.05)';
+            setTimeout(() => { profileImg.style.transform = 'scale(1)'; }, 150);
+
+            // Show subtle counter after 3 clicks
+            if (clickCount >= 3 && clickCount < REQUIRED_CLICKS) {
+              (window as any).showToast?.(`🔮 ${clickCount}/${REQUIRED_CLICKS}...`);
+            }
+
+            if (clickCount >= REQUIRED_CLICKS) {
+              clickCount = 0;
+              cardShown = true;
+              showHolographicCard();
+            }
+          });
+
+          function showHolographicCard() {
+            // Flash effect
+            const flash = document.createElement('div');
+            flash.style.cssText = 'position:fixed;inset:0;z-index:999998;background:#ffffff;opacity:1;transition:opacity 0.5s ease;pointer-events:none;';
+            document.body.appendChild(flash);
+            requestAnimationFrame(() => { flash.style.opacity = '0'; });
+            setTimeout(() => flash.remove(), 500);
+
+            // Overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'holo-overlay';
+            overlay.innerHTML = `
+              <div class="holo-backdrop"></div>
+              <div class="holo-card-container">
+                <div class="holo-card" id="holo-card-el">
+                  <!-- FRONT -->
+                  <div class="holo-face holo-front">
+                    <div class="holo-shine"></div>
+                    <div class="holo-rainbow"></div>
+                    <div class="holo-rarity">★★★★★ LÉGENDAIRE</div>
+                    <div class="holo-photo">
+                      <img src="/assets/profil-home.jpg" alt="Mathieu Soussignan" />
+                    </div>
+                    <div class="holo-name">MATHIEU SOUSSIGNAN</div>
+                    <div class="holo-class">「 DATA MAGE — RANG S++ 」</div>
+                    <div class="holo-desc">Data Engineer & Développeur IA chez Keyrus. Architecte de solutions intelligentes & créateur de SaaS d'élite.</div>
+                    <div class="holo-flip-hint">🔄 Cliquer pour retourner</div>
+                  </div>
+                  <!-- BACK -->
+                  <div class="holo-face holo-back">
+                    <div class="holo-shine"></div>
+                    <div class="holo-rainbow"></div>
+                    <h3 class="holo-stats-title">⚔️ STATISTIQUES</h3>
+                    <div class="holo-stats">
+                      <div class="holo-stat-row"><span>🐍 Force (Python)</span><div class="holo-stat-bar"><div style="width:95%"></div></div><span>95</span></div>
+                      <div class="holo-stat-row"><span>🧠 Intelligence (IA/ML)</span><div class="holo-stat-bar"><div style="width:85%"></div></div><span>85</span></div>
+                      <div class="holo-stat-row"><span>⚡ Agilité (React)</span><div class="holo-stat-bar"><div style="width:88%"></div></div><span>88</span></div>
+                      <div class="holo-stat-row"><span>🗄️ Sagesse (SQL/Data)</span><div class="holo-stat-bar"><div style="width:90%"></div></div><span>90</span></div>
+                      <div class="holo-stat-row"><span>🐳 Endurance (DevOps)</span><div class="holo-stat-bar"><div style="width:75%"></div></div><span>75</span></div>
+                    </div>
+                    <h3 class="holo-stats-title">🏆 ACHIEVEMENTS</h3>
+                    <div class="holo-achievements">
+                      <span class="holo-badge">🚀 Premier SaaS en Prod</span>
+                      <span class="holo-badge">✅ 78/78 Tests Passés</span>
+                      <span class="holo-badge">🔄 Reconversion Réussie</span>
+                      <span class="holo-badge">🤖 Mistral AI Intégré</span>
+                      <span class="holo-badge">📊 Data Pipelines Master</span>
+                    </div>
+                    <div class="holo-flip-hint">🔄 Cliquer pour retourner</div>
+                  </div>
+                </div>
+              </div>
+              <div class="holo-actions">
+                <button id="holo-collect-btn">💎 Collectionner cette carte</button>
+                <button id="holo-close-btn">✕ Fermer</button>
+              </div>
+              <div class="holo-particles" id="holo-particles"></div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Particles
+            const particleContainer = document.getElementById('holo-particles')!;
+            for (let i = 0; i < 30; i++) {
+              const p = document.createElement('div');
+              p.className = 'holo-particle';
+              p.style.cssText = `
+                left:${Math.random()*100}%;
+                top:${Math.random()*100}%;
+                width:${2+Math.random()*4}px;
+                height:${2+Math.random()*4}px;
+                animation-delay:${Math.random()*3}s;
+                animation-duration:${2+Math.random()*3}s;
+              `;
+              particleContainer.appendChild(p);
+            }
+
+            requestAnimationFrame(() => overlay.classList.add('holo-active'));
+
+            // Card flip
+            const card = document.getElementById('holo-card-el')!;
+            card.addEventListener('click', () => {
+              card.classList.toggle('holo-flipped');
+            });
+
+            // Parallax on mouse move
+            overlay.addEventListener('mousemove', (e) => {
+              const rect = card.getBoundingClientRect();
+              const centerX = rect.left + rect.width / 2;
+              const centerY = rect.top + rect.height / 2;
+              const rotateY = ((e.clientX - centerX) / (window.innerWidth / 2)) * 15;
+              const rotateX = ((e.clientY - centerY) / (window.innerHeight / 2)) * -10;
+              card.style.setProperty('--rx', `${rotateX}deg`);
+              card.style.setProperty('--ry', `${rotateY}deg`);
+            });
+
+            // Collect
+            document.getElementById('holo-collect-btn')?.addEventListener('click', () => {
+              localStorage.setItem('holo-card-collected', 'true');
+              (window as any).showToast?.('💎 Carte Légendaire ajoutée à ta collection !');
+            });
+
+            // Close
+            document.getElementById('holo-close-btn')?.addEventListener('click', () => {
+              overlay.classList.remove('holo-active');
+              setTimeout(() => { overlay.remove(); cardShown = false; }, 500);
+            });
+          }
+        })();
       </script>
 
       <!-- TERMINAL SHOWCASE -->
@@ -647,5 +794,130 @@ const projects = (await getCollection("work"))
       border-radius: 1.5rem;
       height: 9.5rem;
     }
+  }
+
+  /* ========================================
+     🥚 Easter Egg #4 — Holographic Card
+     ======================================== */
+  :global(#holo-overlay) {
+    position: fixed; inset: 0; z-index: 999999;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.5rem;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  :global(#holo-overlay.holo-active) { opacity: 1; }
+
+  :global(.holo-backdrop) {
+    position: absolute; inset: 0;
+    background: rgba(5, 7, 12, 0.92);
+    backdrop-filter: blur(10px);
+  }
+
+  :global(.holo-card-container) {
+    position: relative; z-index: 2;
+    perspective: 1200px;
+  }
+
+  :global(.holo-card) {
+    --rx: 0deg; --ry: 0deg;
+    width: 320px; height: 480px;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 0.1s ease;
+    cursor: pointer;
+    animation: holoEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  :global(.holo-card.holo-flipped) {
+    --ry: 180deg !important;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes holoEntrance {
+    from { opacity: 0; transform: rotateX(20deg) rotateY(-30deg) scale(0.6); }
+    to { opacity: 1; transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1); }
+  }
+
+  :global(.holo-face) {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(145deg, #1a1035 0%, #0d0a1a 50%, #0f1520 100%);
+    border: 2px solid rgba(197, 97, 246, 0.5);
+    box-shadow: 0 0 40px rgba(197, 97, 246, 0.3), 0 20px 60px rgba(0,0,0,0.5);
+  }
+  :global(.holo-back) { transform: rotateY(180deg); }
+
+  :global(.holo-shine) {
+    position: absolute; inset: 0;
+    background: linear-gradient(125deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+    pointer-events: none;
+    animation: holoShineMove 3s ease infinite;
+  }
+  @keyframes holoShineMove {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+  }
+
+  :global(.holo-rainbow) {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg,
+      rgba(255,0,110,0.1) 0%,
+      rgba(197,97,246,0.1) 25%,
+      rgba(0,242,254,0.1) 50%,
+      rgba(0,255,102,0.1) 75%,
+      rgba(255,0,110,0.1) 100%
+    );
+    background-size: 400% 400%;
+    animation: holoRainbow 4s ease infinite;
+    pointer-events: none;
+  }
+  @keyframes holoRainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  :global(.holo-rarity) {
+    font-family: 'Fira Code', monospace; font-size: 0.7rem;
+    color: #ffd700; letter-spacing: 0.15em;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    margin-bottom: 0.75rem;
+  }
+  :global(.holo-photo) { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid #c561f6; box-shadow: 0 0 20px rgba(197,97,246,0.5); margin-bottom: 1rem; }
+  :global(.holo-photo img) { width: 100%; height: 100%; object-fit: cover; }
+  :global(.holo-name) { font-size: 1.2rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); letter-spacing: 0.05em; }
+  :global(.holo-class) { font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #c561f6; margin: 0.5rem 0; text-shadow: 0 0 8px rgba(197,97,246,0.4); }
+  :global(.holo-desc) { font-size: 0.75rem; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.5; max-width: 260px; }
+  :global(.holo-flip-hint) { position: absolute; bottom: 0.75rem; font-size: 0.65rem; color: rgba(255,255,255,0.3); }
+
+  :global(.holo-stats-title) { font-size: 0.85rem; color: #00f2fe; font-weight: 700; margin-bottom: 0.5rem; text-shadow: 0 0 8px rgba(0,242,254,0.4); width: 100%; text-align: left; }
+  :global(.holo-stats) { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; margin-bottom: 1rem; }
+  :global(.holo-stat-row) { display: flex; align-items: center; gap: 0.5rem; font-size: 0.65rem; color: rgba(255,255,255,0.7); font-family: 'Fira Code', monospace; }
+  :global(.holo-stat-row span:first-child) { min-width: 140px; }
+  :global(.holo-stat-bar) { flex: 1; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+  :global(.holo-stat-bar div) { height: 100%; background: linear-gradient(90deg, #7611a6, #c561f6, #00f2fe); border-radius: 3px; }
+  :global(.holo-achievements) { display: flex; flex-wrap: wrap; gap: 0.3rem; width: 100%; }
+  :global(.holo-badge) { font-size: 0.6rem; padding: 0.2rem 0.5rem; background: rgba(197,97,246,0.15); border: 1px solid rgba(197,97,246,0.3); border-radius: 4px; color: #c561f6; font-family: 'Fira Code', monospace; }
+
+  :global(.holo-actions) { position: relative; z-index: 2; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  :global(.holo-actions button) {
+    font-family: 'Fira Code', monospace; font-size: 0.8rem; font-weight: 600;
+    padding: 0.6rem 1.5rem; border-radius: 9999px;
+    cursor: pointer; transition: all 0.25s ease; border: none;
+  }
+  :global(#holo-collect-btn) { background: linear-gradient(135deg, #7611a6, #c561f6); color: #fff; box-shadow: 0 4px 20px rgba(197,97,246,0.4); }
+  :global(#holo-collect-btn:hover) { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(197,97,246,0.6); }
+  :global(#holo-close-btn) { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+  :global(#holo-close-btn:hover) { color: #ff006e; border-color: #ff006e; }
+
+  :global(.holo-particles) { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+  :global(.holo-particle) { position: absolute; background: #ffd700; border-radius: 50%; box-shadow: 0 0 6px #ffd700; animation: holoParticleFloat 3s ease-in-out infinite alternate; }
+  @keyframes holoParticleFloat {
+    0% { transform: translateY(0) scale(1); opacity: 0.3; }
+    100% { transform: translateY(-30px) scale(1.5); opacity: 0.8; }
   }
 </style>
