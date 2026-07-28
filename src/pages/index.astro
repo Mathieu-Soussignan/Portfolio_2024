@@ -137,9 +137,203 @@ const projects = (await getCollection("work"))
           });
         }
 
-        // =============================================
-        // 🥚 EASTER EGG #4 — 7 Clicks → Holographic Card
-        // =============================================
+          // =============================================
+          // 🐇 EASTER EGG #5 — White Rabbit (Follow the White Rabbit)
+          // =============================================
+          (() => {
+            // The White Rabbit from Matrix — appears randomly, must be clicked!
+            const rabbit = document.createElement('div');
+            rabbit.id = 'white-rabbit';
+            rabbit.innerHTML = '🐇';
+            rabbit.style.cssText = `
+              position: fixed;
+              z-index: 99999;
+              font-size: 2rem;
+              cursor: pointer;
+              pointer-events: all;
+              opacity: 0;
+              transform: scale(0.5) rotate(0deg);
+              transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                          left 3s ease-in-out,
+                          top 3s ease-in-out;
+              filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+              user-select: none;
+            `;
+            document.body.appendChild(rabbit);
+
+            let rabbitClicked = false;
+            let rabbitInterval: ReturnType<typeof setInterval> | null = null;
+            let rabbitPhase = 0;
+
+            // Rabbit spawn positions (viewport %)
+            const positions = [
+              { left: '15%', top: '20%' },
+              { left: '70%', top: '35%' },
+              { left: '30%', top: '55%' },
+              { left: '80%', top: '15%' },
+              { left: '10%', top: '70%' },
+              { left: '60%', top: '60%' },
+              { left: '40%', top: '80%' },
+              { left: '85%', top: '50%' },
+              { left: '5%', top: '40%' },
+              { left: '50%', top: '10%' },
+            ];
+
+            function showRabbit(index: number) {
+              if (rabbitClicked) return;
+              const pos = positions[index % positions.length];
+              
+              // Random rotation for playful effect
+              const rot = -20 + Math.random() * 40;
+              rabbit.style.left = pos.left;
+              rabbit.style.top = pos.top;
+              rabbit.style.transform = `scale(1) rotate(${rot}deg)`;
+              rabbit.style.opacity = '1';
+
+              // Subtle text hint (Matrix style)
+              if (rabbitPhase === 0) {
+                showToast('🐇 Un lapin blanc ?', 2000);
+              } else if (rabbitPhase === 2) {
+                showToast('🐇 Tu as vu ? Il se cache...', 2000);
+              }
+              rabbitPhase++;
+            }
+
+            function hideRabbit() {
+              if (rabbitClicked) return;
+              rabbit.style.opacity = '0';
+              rabbit.style.transform = 'scale(0.3) rotate(0deg)';
+            }
+
+            // Click handler
+            rabbit.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (rabbitClicked) return;
+              rabbitClicked = true;
+
+              // Flash white
+              const flash = document.createElement('div');
+              flash.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#ffffff;opacity:0;transition:opacity 0.2s ease;pointer-events:none;';
+              document.body.appendChild(flash);
+              requestAnimationFrame(() => { flash.style.opacity = '0.8'; });
+              setTimeout(() => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 300);
+              }, 200);
+
+              // Rabbit grows and glows
+              rabbit.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+              rabbit.style.transform = 'scale(3)';
+              rabbit.style.filter = 'drop-shadow(0 0 50px rgba(255, 255, 255, 1))';
+              rabbit.style.opacity = '0';
+
+              // Show toast
+              showToast('🐇 "Suis le lapin blanc..." — Matrix', 4000);
+              showToast('🔮 Redirection vers l\'OASIS...', 2000);
+
+              setTimeout(() => {
+                window.location.href = '/easter-egg/oasis/';
+              }, 2000);
+            });
+
+            // Start rabbit sequence
+            function startRabbitSequence() {
+              if (rabbitClicked) return;
+              
+              // First appearance after 4s
+              setTimeout(() => {
+                if (rabbitClicked) return;
+                showRabbit(0);
+                
+                // Hide after 2s
+                setTimeout(() => {
+                  hideRabbit();
+                  
+                  // Second appearance after 3s pause
+                  setTimeout(() => {
+                    if (rabbitClicked) return;
+                    showRabbit(1);
+                    
+                    setTimeout(() => {
+                      hideRabbit();
+                      
+                      // Third appearance after 2s pause
+                      setTimeout(() => {
+                        if (rabbitClicked) return;
+                        showRabbit(2);
+                        
+                        setTimeout(() => {
+                          hideRabbit();
+                          
+                          // Then random appearances every 8-15s
+                          if (!rabbitClicked) {
+                            rabbitInterval = setInterval(() => {
+                              if (rabbitClicked) {
+                                if (rabbitInterval) clearInterval(rabbitInterval);
+                                return;
+                              }
+                              const idx = Math.floor(Math.random() * positions.length);
+                              showRabbit(idx);
+                              setTimeout(() => {
+                                hideRabbit();
+                              }, 1500 + Math.random() * 1000);
+                            }, 8000 + Math.random() * 7000);
+                          }
+                        }, 2000);
+                      }, 1000);
+                    }, 4000);
+                  }, 3000);
+                }, 2000);
+              }, 4000);
+            }
+
+            // Toast helper
+            function showToast(msg: string, duration: number = 1500) {
+              const existing = document.querySelector('.rabbit-toast');
+              if (existing) existing.remove();
+              
+              const toast = document.createElement('div');
+              toast.className = 'rabbit-toast';
+              toast.textContent = msg;
+              toast.style.cssText = `
+                position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+                z-index: 100000;
+                background: rgba(0, 0, 0, 0.85);
+                color: #ffffff;
+                font-family: 'Fira Code', monospace;
+                font-size: 0.85rem;
+                padding: 0.5rem 1.2rem;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                pointer-events: none;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+              `;
+              document.body.appendChild(toast);
+              requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(-10px)';
+              });
+              setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+              }, duration);
+            }
+
+            // Also make the existing window.showToast work with rabbit
+            (window as any).showToastRabbit = showToast;
+
+            // Start sequence after page load
+            setTimeout(startRabbitSequence, 2000);
+          })();
+
+          // =============================================
+          // 🥚 EASTER EGG #4 — 7 Clicks → Holographic Card
+          // =============================================
         (() => {
           const profileImg = document.querySelector('.profile-img') as HTMLElement;
           if (!profileImg) return;
