@@ -39,14 +39,15 @@ import Icon from "./Icon.astro";
     </form>
   </div>
 
-  <div class="terminal-quick-actions">
-    <button type="button" class="quick-cmd" data-cmd="whoami">whoami</button>
-    <button type="button" class="quick-cmd" data-cmd="skills">skills</button>
-    <button type="button" class="quick-cmd" data-cmd="projects">projects</button>
-    <button type="button" class="quick-cmd" data-cmd="contact">contact</button>
-    <button type="button" class="quick-cmd" data-cmd="matrix">matrix</button>
-    <button type="button" class="quick-cmd" data-cmd="clear">clear</button>
-  </div>
+      <div class="terminal-quick-actions">
+        <button type="button" class="quick-cmd" data-cmd="whoami">whoami</button>
+        <button type="button" class="quick-cmd" data-cmd="skills">skills</button>
+        <button type="button" class="quick-cmd" data-cmd="projects">projects</button>
+        <button type="button" class="quick-cmd" data-cmd="contact">contact</button>
+        <button type="button" class="quick-cmd" data-cmd="matrix">matrix</button>
+        <button type="button" class="quick-cmd" data-cmd="mario">mario</button>
+        <button type="button" class="quick-cmd" data-cmd="clear">clear</button>
+      </div>
 </div>
 
 <script>
@@ -369,6 +370,26 @@ import Icon from "./Icon.astro";
     if (cleanCmd === "matrix") {
       input.value = "";
       launchMatrixRain();
+      return;
+    }
+
+    // Mario — redirect to hidden level
+    if (cleanCmd === "mario" || cleanCmd === "super-mario" || cleanCmd === "mathio") {
+      input.value = "";
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.innerHTML = `
+        <div class="history-cmd"><span class="prompt">mathieu@keyrus:~$</span> <span class="cmd-text" style="color:#ff006e;">${cleanCmd}</span></div>
+        <div class="cmd-output" style="border-left-color:#e52521; background:rgba(229,37,33,0.05);">
+          <p>🍄 <strong style="color:#e52521;">SUPER MATHIO</strong> — Chargement du niveau secret...</p>
+          <p style="color:#fbd000; font-size:0.8rem;">"It's-a me, Mathio!" 🏁</p>
+        </div>
+      `;
+      history.appendChild(row);
+      body.scrollTop = body.scrollHeight;
+      setTimeout(() => {
+        window.location.href = '/easter-egg/mario/';
+      }, 1500);
       return;
     }
 

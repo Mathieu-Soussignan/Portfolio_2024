@@ -1,0 +1,731 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Easter Egg — Super Mario" description="Un niveau de Super Mario caché dans le portfolio.">
+  <div class="mario-wrapper">
+    <div class="game-header">
+      <a href="/" class="back-link">← Retour au portfolio</a>
+      <h1 class="game-title">🍄 SUPER MATHIO</h1>
+      <p class="game-subtitle">Easter Egg Secret — Trouvé !</p>
+    </div>
+
+    <div class="game-container">
+      <div class="hud">
+        <div class="hud-item"><span class="hud-label">SCORE</span><span id="scoreDisplay">0</span></div>
+        <div class="hud-item"><span class="hud-label">COINS</span><span id="coinDisplay">0</span></div>
+        <div class="hud-item"><span class="hud-label">LIVES</span><span id="livesDisplay">❤️ x3</span></div>
+        <div class="hud-item"><span class="hud-label">TIME</span><span id="timeDisplay">300</span></div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="marioCanvas" width="800" height="450"></canvas>
+
+        <div id="startScreen" class="overlay-screen active">
+          <h2 class="title-blink">🍄 SUPER MATHIO</h2>
+          <p>Atteins le drapeau pour gagner !</p>
+          <p class="controls-info">← → pour bouger • ↑ ou ESPACE pour sauter</p>
+          <button id="startBtn" class="retro-btn">PRESS START</button>
+        </div>
+
+        <div id="gameOverScreen" class="overlay-screen">
+          <h2 id="gameOverTitle">GAME OVER</h2>
+          <p id="gameOverMsg">Tu as perdu toutes tes vies !</p>
+          <button id="restartBtn" class="retro-btn">REESSAYER</button>
+        </div>
+
+        <div id="winScreen" class="overlay-screen">
+          <h2>🎉 VICTOIRE !</h2>
+          <p id="winMsg">Tu as terminé le niveau !</p>
+          <button id="winBackBtn" class="retro-btn">⬅ RETOUR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-controls" id="mobileControls">
+      <div class="dpad">
+        <button class="ctrl-btn" id="btnLeft">◀</button>
+        <button class="ctrl-btn" id="btnRight">▶</button>
+        <button class="ctrl-btn" id="btnJump">⬆ SAUT</button>
+      </div>
+    </div>
+
+    <div class="game-footer">
+      <p>🎮 Hidden Level — "World 1-1" · Portfolio de Mathieu Soussignan</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  :root {
+    --mario-red: #e52521;
+    --mario-blue: #049cd8;
+    --mario-yellow: #fbd000;
+    --mario-green: #00a800;
+    --mario-brown: #8b4513;
+    --mario-sky: #5c94fc;
+  }
+
+  .mario-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .game-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .back-link {
+    color: var(--mario-yellow);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 5px var(--mario-yellow);
+    transition: all 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: #fff;
+    text-shadow: 0 0 10px var(--mario-yellow);
+  }
+
+  .game-title {
+    font-size: 2rem;
+    color: var(--mario-red);
+    text-shadow: 2px 2px 0 #000, 0 0 20px rgba(229, 37, 33, 0.5);
+    margin-bottom: 0.3rem;
+    letter-spacing: 2px;
+  }
+
+  .game-subtitle {
+    font-size: 0.8rem;
+    color: var(--mario-yellow);
+    opacity: 0.7;
+  }
+
+  .game-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--mario-blue);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.85rem;
+  }
+
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hud-label {
+    font-size: 0.6rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    background: #000;
+    border: 2px solid var(--mario-blue);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    cursor: none;
+  }
+
+  .overlay-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+  }
+
+  .overlay-screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .title-blink {
+    font-size: 2.5rem;
+    color: var(--mario-red);
+    text-shadow: 2px 2px 0 #000, 0 0 15px rgba(229, 37, 33, 0.5);
+    animation: pulse 1s infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+  }
+
+  .controls-info {
+    font-size: 0.75rem;
+    color: #888;
+  }
+
+  .retro-btn {
+    background: var(--mario-red);
+    color: white;
+    border: 2px solid #fff;
+    padding: 0.7rem 2rem;
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #7a0000;
+    transition: all 0.1s ease;
+  }
+
+  .retro-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #7a0000;
+    background: #ff3a3a;
+  }
+
+  .retro-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #7a0000;
+  }
+
+  .mobile-controls {
+    display: none;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+  }
+
+  .dpad {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .ctrl-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .ctrl-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.9);
+  }
+
+  .ctrl-btn.jump-btn {
+    background: rgba(229, 37, 33, 0.3);
+    border-color: var(--mario-red);
+  }
+
+  .game-footer {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    color: #555;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    .game-title { font-size: 1.5rem; }
+    .title-blink { font-size: 1.5rem; }
+    .hud { font-size: 0.7rem; flex-wrap: wrap; gap: 0.3rem; }
+    .mobile-controls { display: flex; }
+  }
+
+  @media (pointer: coarse) {
+    .mobile-controls { display: flex; }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // 🍄 SUPER MATHIO — Niveau caché
+  // ============================================================
+
+  const canvas = document.getElementById('marioCanvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const W = 800, H = 450;
+
+  const scoreDisplay = document.getElementById('scoreDisplay')!;
+  const coinDisplay = document.getElementById('coinDisplay')!;
+  const livesDisplay = document.getElementById('livesDisplay')!;
+  const timeDisplay = document.getElementById('timeDisplay')!;
+  const startScreen = document.getElementById('startScreen')!;
+  const startBtn = document.getElementById('startBtn')!;
+  const gameOverScreen = document.getElementById('gameOverScreen')!;
+  const gameOverTitle = document.getElementById('gameOverTitle')!;
+  const gameOverMsg = document.getElementById('gameOverMsg')!;
+  const restartBtn = document.getElementById('restartBtn')!;
+  const winScreen = document.getElementById('winScreen')!;
+  const winMsg = document.getElementById('winMsg')!;
+  const winBackBtn = document.getElementById('winBackBtn')!;
+
+  const GRAVITY = 1200;
+  const PLAYER_SPEED = 220;
+  const JUMP_FORCE = -540;
+  const TILE = 40;
+  const VIEWPORT_W = 800;
+  const LEVEL_WIDTH = 4000;
+  const GROUND_Y = H - TILE;
+  const PLATFORM_Y = GROUND_Y - TILE;
+
+  const COLORS = {
+    ground: '#8b4513', groundTop: '#00a800',
+    brick: '#c84c0c', brickDark: '#a03808',
+    question: '#fbd000', questionDark: '#d4a800',
+    pipe: '#00a800', pipeBorder: '#007800',
+    marioRed: '#e52521', marioSkin: '#fbb040',
+    marioBlue: '#049cd8', marioBrown: '#8b4513',
+    coin: '#fbd000', goomba: '#8b4513',
+    flagPole: '#808080', flag: '#00a800',
+  };
+
+  let gameState: 'start' | 'playing' | 'gameover' | 'win' = 'start';
+  let score = 0, coins = 0, lives = 3, timeLeft = 300;
+  let timeTimer: ReturnType<typeof setInterval> | null = null;
+  let cameraX = 0, animFrameId: number, lastTime = 0;
+
+  const keys: Record<string, boolean> = {};
+  let jumpPressed = false;
+
+  document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    if (['Space', 'ArrowUp'].includes(e.code)) {
+      e.preventDefault();
+      if (!jumpPressed) { jumpPressed = true; if (player.onGround) player.vy = JUMP_FORCE; }
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+    if (['Space', 'ArrowUp'].includes(e.code)) jumpPressed = false;
+  });
+
+  interface Player { x: number; y: number; w: number; h: number; vx: number; vy: number; onGround: boolean; facing: number; frame: number; frameTimer: number; dead: boolean; }
+  let player: Player = { x: 80, y: PLATFORM_Y - 40, w: 28, h: 36, vx: 0, vy: 0, onGround: false, facing: 1, frame: 0, frameTimer: 0, dead: false };
+
+  interface Tile { x: number; y: number; type: number; hit?: boolean; broken?: boolean; }
+  interface CoinObj { x: number; y: number; collected: boolean; }
+  interface Goomba { x: number; y: number; w: number; h: number; vx: number; alive: boolean; frame: number; frameTimer: number; }
+  interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; }
+
+  let tiles: Tile[] = [], coinsList: CoinObj[] = [], goombas: Goomba[] = [], particles: Particle[] = [];
+
+  function buildLevel() {
+    tiles = []; coinsList = []; goombas = [];
+
+    // Ground bottom row
+    for (let i = 0; i < Math.ceil(LEVEL_WIDTH / TILE); i++)
+      tiles.push({ x: i * TILE, y: GROUND_Y, type: 1 });
+
+    // Floor (with gaps)
+    for (let i = 0; i < Math.ceil(LEVEL_WIDTH / TILE); i++) {
+      if ((i >= 18 && i <= 19) || (i >= 35 && i <= 36) || (i >= 52 && i <= 53)) continue;
+      tiles.push({ x: i * TILE, y: PLATFORM_Y, type: 1 });
+    }
+
+    // Questions blocks — 2 tiles above floor (v1 style, reachable with jump)
+    const qp = [12, 22, 30, 45, 58];
+    qp.forEach(px => tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE * 2, type: 3, hit: false }));
+
+    // Brick blocks
+    const bp = [10, 11, 14, 15, 25, 26, 27, 40, 41, 48, 49];
+    bp.forEach(px => tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE * 2, type: 2, broken: false }));
+
+    // Staircase near end
+    for (let step = 0; step < 4; step++)
+      for (let s = 0; s <= step; s++)
+        tiles.push({ x: (70 + s) * TILE, y: PLATFORM_Y - step * TILE, type: 1 });
+
+    // Pipe 1 — 2 tiles tall
+    tiles.push({ x: 28 * TILE, y: PLATFORM_Y - TILE * 2, type: 4 });
+    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y - TILE * 2, type: 5 });
+    tiles.push({ x: 28 * TILE, y: PLATFORM_Y - TILE, type: 6 });
+    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y - TILE, type: 6 });
+    tiles.push({ x: 28 * TILE, y: PLATFORM_Y, type: 6 });
+    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y, type: 6 });
+
+    // Pipe 2 — 2 tiles tall
+    tiles.push({ x: 55 * TILE, y: PLATFORM_Y - TILE * 2, type: 4 });
+    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y - TILE * 2, type: 5 });
+    tiles.push({ x: 55 * TILE, y: PLATFORM_Y - TILE, type: 6 });
+    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y - TILE, type: 6 });
+    tiles.push({ x: 55 * TILE, y: PLATFORM_Y, type: 6 });
+    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y, type: 6 });
+
+    // Floating platform — JUST 2 blocks wide + accessible height (v1 was TILE*3 = too high, now TILE*2)
+    tiles.push({ x: 38 * TILE, y: PLATFORM_Y - TILE * 2, type: 7 });
+    tiles.push({ x: 39 * TILE, y: PLATFORM_Y - TILE * 2, type: 7 });
+
+    // Coins — at reachable height (2 tiles above floor)
+    const cp = [8, 14, 20, 33, 42, 50, 65];
+    cp.forEach(px => coinsList.push({ x: px * TILE + TILE/2 - 8, y: PLATFORM_Y - TILE * 2 + TILE/2 - 8, collected: false }));
+
+    // Goombas
+    const gp = [16, 32, 47, 60];
+    gp.forEach(gx => goombas.push({ x: gx * TILE, y: PLATFORM_Y - TILE, w: 32, h: 32, vx: -60, alive: true, frame: 0, frameTimer: 0 }));
+  }
+
+  function rectCollide(a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w?: number; h?: number }) {
+    const bw = b.w ?? TILE, bh = b.h ?? TILE;
+    return a.x < b.x + bw && a.x + a.w > b.x && a.y < b.y + bh && a.y + a.h > b.y;
+  }
+
+  function addParticles(x: number, y: number, count: number, color: string) {
+    for (let i = 0; i < count; i++)
+      particles.push({ x, y, vx: (Math.random()-0.5)*200, vy: -Math.random()*300-100, life: 0.5+Math.random()*0.5, color });
+  }
+
+  function resetPlayer() {
+    player.x = 80; player.y = PLATFORM_Y - 40;
+    player.vx = 0; player.vy = 0; player.onGround = false; player.dead = false;
+    cameraX = 0;
+  }
+
+  function updateHUD() {
+    scoreDisplay.textContent = score.toString();
+    coinDisplay.textContent = coins.toString();
+    livesDisplay.textContent = `❤️ x${lives}`;
+    timeDisplay.textContent = timeLeft.toString();
+  }
+
+  function playerDie() {
+    if (player.dead) return;
+    player.dead = true; player.vy = -400; lives--; updateHUD();
+    if (lives <= 0) {
+      setTimeout(() => { gameState = 'gameover'; gameOverTitle.textContent = 'GAME OVER'; gameOverMsg.textContent = 'Tu as perdu toutes tes vies !'; gameOverScreen.classList.add('active'); }, 1000);
+    } else {
+      setTimeout(() => { resetPlayer(); player.dead = false; gameState = 'playing'; }, 1000);
+    }
+  }
+
+  function resetGame() {
+    resetPlayer(); buildLevel();
+    score = 0; coins = 0; lives = 3; timeLeft = 300;
+    updateHUD();
+    if (timeTimer) clearInterval(timeTimer);
+    timeTimer = setInterval(() => {
+      if (gameState === 'playing') { timeLeft--; updateHUD(); if (timeLeft <= 0) playerDie(); }
+    }, 1000);
+    gameState = 'playing';
+    startScreen.classList.remove('active');
+    gameOverScreen.classList.remove('active');
+    winScreen.classList.remove('active');
+  }
+
+  function updatePlayer(dt: number) {
+    if (player.dead) { player.vy += GRAVITY * dt; player.y += player.vy * dt; return; }
+
+    let moveX = 0;
+    if (keys['ArrowLeft'] || keys['KeyA']) moveX = -1;
+    if (keys['ArrowRight'] || keys['KeyD']) moveX = 1;
+
+    if ((keys['Space'] || keys['ArrowUp']) && player.onGround && !jumpPressed) {
+      player.vy = JUMP_FORCE; jumpPressed = true;
+    }
+    if (!(keys['Space'] || keys['ArrowUp']) && jumpPressed) {
+      jumpPressed = false;
+      if (player.vy < -200) player.vy *= 0.85;
+    }
+
+    if (moveX !== 0) player.facing = moveX;
+    player.vx = moveX * PLAYER_SPEED;
+    player.x += player.vx * dt;
+    cameraX = Math.max(0, Math.min(player.x - VIEWPORT_W/2, LEVEL_WIDTH - VIEWPORT_W));
+
+    for (const tile of tiles) {
+      if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+      if (rectCollide(player, tile)) {
+        if (player.vx > 0) { player.x = tile.x - player.w; player.vx = 0; }
+        else if (player.vx < 0) { player.x = tile.x + TILE; player.vx = 0; }
+      }
+    }
+
+    player.vy += GRAVITY * dt;
+    player.y += player.vy * dt;
+    player.onGround = false;
+
+    for (const tile of tiles) {
+      if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+      if (rectCollide(player, tile)) {
+        if (player.vy > 0) {
+          player.y = tile.y - player.h; player.vy = 0; player.onGround = true;
+        } else if (player.vy < 0) {
+          player.y = tile.y + TILE; player.vy = 0;
+          if (tile.type === 3 && !tile.hit) {
+            tile.hit = true; coins++; score += 100;
+            addParticles(tile.x + TILE/2, tile.y, 10, '#fbd000'); updateHUD();
+          }
+          if (tile.type === 2 && !tile.broken) {
+            tile.broken = true; score += 50;
+            addParticles(tile.x + TILE/2, tile.y + TILE/2, 15, '#c84c0c'); updateHUD();
+          }
+        }
+      }
+    }
+
+    if (player.y > H + 50) playerDie();
+
+    if (Math.abs(player.vx) > 10 && player.onGround) {
+      player.frameTimer += dt;
+      if (player.frameTimer > 0.1) { player.frame = (player.frame + 1) % 3; player.frameTimer = 0; }
+    } else player.frame = 0;
+  }
+
+  function updateCoins() {
+    for (const coin of coinsList) {
+      if (coin.collected) continue;
+      if (rectCollide(player, { x: coin.x, y: coin.y, w: 16, h: 16 })) {
+        coin.collected = true; coins++; score += 200;
+        addParticles(coin.x + 8, coin.y + 8, 8, '#fbd000'); updateHUD();
+      }
+    }
+  }
+
+  function updateGoombas(dt: number) {
+    for (const g of goombas) {
+      if (!g.alive) continue;
+      g.x += g.vx * dt;
+      g.frameTimer += dt;
+      if (g.frameTimer > 0.2) { g.frame = (g.frame + 1) % 2; g.frameTimer = 0; }
+      for (const tile of tiles) {
+        if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+        if (rectCollide(g, tile)) { g.vx *= -1; break; }
+      }
+      if (rectCollide(player, g) && !player.dead) {
+        if (player.vy > 0 && player.y + player.h - g.y < 20) {
+          g.alive = false; player.vy = -300; score += 500;
+          addParticles(g.x + g.w/2, g.y + g.h/2, 10, '#8b4513'); updateHUD();
+        } else { playerDie(); }
+      }
+      if (g.y > H + 50) g.alive = false;
+    }
+    goombas = goombas.filter(g => g.alive);
+  }
+
+  function updateParticles(dt: number) {
+    for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 200 * dt; p.life -= dt; }
+    particles = particles.filter(p => p.life > 0);
+  }
+
+  function checkWin() {
+    if (player.x >= LEVEL_WIDTH - 100 && !player.dead) {
+      gameState = 'win'; score += timeLeft * 10;
+      if (timeTimer) clearInterval(timeTimer);
+      updateHUD(); winMsg.textContent = `Score final : ${score} points ! 🏆`;
+      winScreen.classList.add('active');
+    }
+  }
+
+  function drawBackground() {
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+    skyGrad.addColorStop(0, '#5c94fc'); skyGrad.addColorStop(0.7, '#8cb4ff'); skyGrad.addColorStop(1, '#b8d4ff');
+    ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIEWPORT_W, H);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    for (let i = 0; i < 6; i++) {
+      const cx = (i*700+100 - cameraX*0.3) % (VIEWPORT_W+200) - 100, cy = 40 + (i%3)*50;
+      drawCloud(cx, cy, 60+(i%2)*30);
+    }
+    ctx.fillStyle = 'rgba(0,168,0,0.3)';
+    for (let i = 0; i < 5; i++) {
+      const hx = (i*800+50 - cameraX*0.2) % (VIEWPORT_W+400) - 200;
+      drawHill(hx, PLATFORM_Y, 120+(i%3)*60);
+    }
+  }
+  function drawCloud(x: number, y: number, s: number) {
+    ctx.beginPath();
+    ctx.arc(x, y, s*0.3, 0, Math.PI*2); ctx.arc(x+s*0.3, y-s*0.15, s*0.25, 0, Math.PI*2);
+    ctx.arc(x+s*0.5, y, s*0.3, 0, Math.PI*2); ctx.arc(x+s*0.25, y+s*0.1, s*0.2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  function drawHill(x: number, y: number, s: number) {
+    ctx.beginPath(); ctx.moveTo(x-s, y); ctx.quadraticCurveTo(x, y-s*0.6, x+s, y); ctx.fill();
+  }
+
+  function drawTiles() {
+    for (const tile of tiles) {
+      if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+      const sx = tile.x - cameraX;
+      if (sx < -TILE || sx > VIEWPORT_W + TILE) continue;
+      switch (tile.type) {
+        case 1:
+          ctx.fillStyle = COLORS.groundTop; ctx.fillRect(sx, tile.y, TILE, 8);
+          ctx.fillStyle = COLORS.ground; ctx.fillRect(sx, tile.y+8, TILE, TILE-8);
+          ctx.strokeStyle = '#6b3410'; ctx.lineWidth = 1; ctx.strokeRect(sx+1, tile.y+1, TILE-2, TILE-2);
+          break;
+        case 2:
+          ctx.fillStyle = COLORS.brick; ctx.fillRect(sx, tile.y, TILE, TILE);
+          ctx.strokeStyle = COLORS.brickDark; ctx.lineWidth = 1;
+          ctx.strokeRect(sx, tile.y, TILE/2, TILE/2); ctx.strokeRect(sx+TILE/2, tile.y, TILE/2, TILE/2);
+          ctx.strokeRect(sx+TILE/4, tile.y+TILE/2, TILE/2, TILE/2); ctx.strokeRect(sx-TILE/4+TILE/2, tile.y+TILE/2, TILE/2, TILE/2);
+          break;
+        case 3:
+          if (tile.hit) {
+            ctx.fillStyle = '#666'; ctx.fillRect(sx, tile.y, TILE, TILE);
+            ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.strokeRect(sx, tile.y, TILE, TILE);
+          } else {
+            ctx.fillStyle = COLORS.question; ctx.fillRect(sx, tile.y, TILE, TILE);
+            ctx.strokeStyle = COLORS.questionDark; ctx.lineWidth = 2; ctx.strokeRect(sx+2, tile.y+2, TILE-4, TILE-4);
+            ctx.fillStyle = '#fff'; ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.fillText('?', sx+TILE/2, tile.y+TILE-10);
+          }
+          break;
+        case 4: case 5: case 6:
+          const pw = TILE*2;
+          ctx.fillStyle = COLORS.pipe; ctx.fillRect(sx, tile.y, pw, TILE);
+          ctx.strokeStyle = COLORS.pipeBorder; ctx.lineWidth = 2; ctx.strokeRect(sx, tile.y, pw, TILE);
+          if (tile.type === 4 || tile.type === 5) { ctx.fillStyle = '#00c800'; ctx.fillRect(sx+2, tile.y+2, pw-4, 6); }
+          break;
+        case 7:
+          ctx.fillStyle = '#c8a060'; ctx.fillRect(sx, tile.y, TILE, TILE);
+          ctx.strokeStyle = '#a08040'; ctx.lineWidth = 1; ctx.strokeRect(sx, tile.y, TILE, TILE);
+          break;
+      }
+    }
+  }
+
+  function drawCoins() {
+    for (const coin of coinsList) {
+      if (coin.collected) continue;
+      const cx = coin.x - cameraX + 8, cy = coin.y + 8;
+      const scale = 1 + Math.sin(Date.now()*0.005+coin.x)*0.2;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, 1);
+      ctx.fillStyle = COLORS.coin; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#d4a800'; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawGoombas() {
+    for (const g of goombas) {
+      if (!g.alive) continue;
+      const gx = g.x - cameraX;
+      if (gx < -g.w || gx > VIEWPORT_W + g.w) continue;
+      ctx.fillStyle = COLORS.goomba; ctx.fillRect(gx, g.y, g.w, g.h);
+      ctx.fillStyle = '#5c2e0a';
+      ctx.fillRect(gx+2, g.y+g.h-8, 12, 8); ctx.fillRect(gx+g.w-14, g.y+g.h-8, 12, 8);
+      if (g.frame === 1) { ctx.fillRect(gx+8, g.y+g.h-8, 12, 8); ctx.fillRect(gx+g.w-20, g.y+g.h-8, 12, 8); }
+      ctx.fillStyle = '#f0f0f0'; ctx.fillRect(gx+6, g.y+8, 8, 8); ctx.fillRect(gx+g.w-14, g.y+8, 8, 8);
+      ctx.fillStyle = '#000'; ctx.fillRect(gx+8, g.y+8, 4, 4); ctx.fillRect(gx+g.w-12, g.y+8, 4, 4);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(gx+4, g.y+6); ctx.lineTo(gx+12, g.y+4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx+g.w-4, g.y+6); ctx.lineTo(gx+g.w-12, g.y+4); ctx.stroke();
+    }
+  }
+
+  function drawPlayer() {
+    if (player.dead && player.y > H + 50) return;
+    const px = player.x - cameraX;
+    ctx.save(); ctx.translate(px + player.w/2, player.y + player.h/2);
+    if (player.dead) ctx.rotate(player.vy * 0.05);
+    ctx.fillStyle = COLORS.marioRed; ctx.fillRect(-12, -18, 24, 8);
+    ctx.fillStyle = COLORS.marioSkin; ctx.fillRect(-10, -10, 20, 14);
+    ctx.fillStyle = '#000'; const eyeX = player.facing > 0 ? 4 : -8; ctx.fillRect(eyeX, -8, 4, 4);
+    ctx.fillStyle = COLORS.marioBrown; ctx.fillRect(-6, 0, 12, 3);
+    ctx.fillStyle = COLORS.marioRed; ctx.fillRect(-10, 4, 20, 12);
+    ctx.fillStyle = COLORS.marioSkin;
+    if (player.frame === 1) { ctx.fillRect(-14, 6, 4, 8); ctx.fillRect(10, 4, 4, 8); }
+    else if (player.frame === 2) { ctx.fillRect(-14, 4, 4, 8); ctx.fillRect(10, 6, 4, 8); }
+    else { ctx.fillRect(-14, 5, 4, 8); ctx.fillRect(10, 5, 4, 8); }
+    ctx.fillStyle = COLORS.marioBlue; ctx.fillRect(-10, 10, 20, 6);
+    ctx.fillStyle = COLORS.marioBlue;
+    if (!player.onGround) { ctx.fillRect(-10, 16, 8, 6); ctx.fillRect(2, 16, 8, 6); }
+    else if (player.frame === 1) { ctx.fillRect(-10, 16, 8, 6); ctx.fillRect(2, 14, 8, 6); }
+    else if (player.frame === 2) { ctx.fillRect(-10, 14, 8, 6); ctx.fillRect(2, 16, 8, 6); }
+    else { ctx.fillRect(-10, 16, 8, 6); ctx.fillRect(2, 16, 8, 6); }
+    ctx.fillStyle = COLORS.marioBrown; ctx.fillRect(-11, 20, 10, 4); ctx.fillRect(1, 20, 10, 4);
+    ctx.restore();
+  }
+
+  function drawFlag() {
+    const fx = LEVEL_WIDTH - 80 - cameraX;
+    if (fx < -40 || fx > VIEWPORT_W + 40) return;
+    ctx.fillStyle = COLORS.flagPole; ctx.fillRect(fx, PLATFORM_Y - TILE*3, 6, TILE*3);
+    ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.arc(fx+3, PLATFORM_Y - TILE*3, 8, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = COLORS.flag; ctx.beginPath();
+    ctx.moveTo(fx+6, PLATFORM_Y - TILE*3 + 14);
+    ctx.lineTo(fx+60, PLATFORM_Y - TILE*2 + 8);
+    ctx.lineTo(fx+6, PLATFORM_Y - TILE - 8);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function drawParticles() {
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life*2); ctx.fillStyle = p.color;
+      const px = p.x - cameraX; ctx.fillRect(px-2, p.y-2, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function update(dt: number) {
+    if (gameState !== 'playing') return;
+    updatePlayer(dt); updateCoins(); updateGoombas(dt); updateParticles(dt); checkWin();
+  }
+  function draw() {
+    drawBackground(); drawTiles(); drawCoins(); drawGoombas(); drawFlag(); drawPlayer(); drawParticles();
+  }
+  function gameLoop(timestamp: number) {
+    if (!lastTime) lastTime = timestamp;
+    const dt = Math.min((timestamp - lastTime)/1000, 0.05);
+    lastTime = timestamp;
+    update(dt); draw();
+    animFrameId = requestAnimationFrame(gameLoop);
+  }
+
+  startBtn.addEventListener('click', resetGame);
+  restartBtn.addEventListener('click', resetGame);
+  winBackBtn.addEventListener('click', () => window.location.href = '/');
+
+  document.getElementById('btnLeft')?.addEventListener('touchstart', () => keys['ArrowLeft'] = true);
+  document.getElementById('btnLeft')?.addEventListener('touchend', () => keys['ArrowLeft'] = false);
+  document.getElementById('btnRight')?.addEventListener('touchstart', () => keys['ArrowRight'] = true);
+  document.getElementById('btnRight')?.addEventListener('touchend', () => keys['ArrowRight'] = false);
+  document.getElementById('btnJump')?.addEventListener('touchstart', (e) => { e.preventDefault(); if (player.onGround) player.vy = JUMP_FORCE; });
+
+  buildLevel();
+  updateHUD();
+  requestAnimationFrame(gameLoop);
+</script>
