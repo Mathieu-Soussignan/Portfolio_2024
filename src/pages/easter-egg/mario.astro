@@ -15,6 +15,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="hud-item"><span class="hud-label">SCORE</span><span id="scoreDisplay">0</span></div>
         <div class="hud-item"><span class="hud-label">COINS</span><span id="coinDisplay">0</span></div>
         <div class="hud-item"><span class="hud-label">LIVES</span><span id="livesDisplay">❤️ x3</span></div>
+        <div class="hud-item"><span class="hud-label">FORM</span><span id="formDisplay" class="form-badge">👤 NORMAL</span></div>
         <div class="hud-item"><span class="hud-label">TIME</span><span id="timeDisplay">300</span></div>
       </div>
 
@@ -22,9 +23,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <canvas id="marioCanvas" width="800" height="450"></canvas>
 
         <div id="startScreen" class="overlay-screen active">
-          <h2 class="title-blink">🍄 SUPER MATHIO</h2>
-          <p>Atteins le drapeau pour gagner !</p>
-          <p class="controls-info">← → pour bouger • ↑ ou ESPACE pour sauter</p>
+          <h2 class="title-blink">🍄 SUPER MATHIO S++</h2>
+          <p>Atteins le drapeau pour débloquer le Badge S++ !</p>
+          <p class="controls-info">← → pour bouger • ↑ / ESPACE pour sauter • X / MAJ pour tirer 🔥</p>
           <button id="startBtn" class="retro-btn">PRESS START</button>
         </div>
 
@@ -35,9 +36,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </div>
 
         <div id="winScreen" class="overlay-screen">
-          <h2>🎉 VICTOIRE !</h2>
+          <h2 class="title-gold">🏆 VICTOIRE S++ !</h2>
           <p id="winMsg">Tu as terminé le niveau !</p>
-          <button id="winBackBtn" class="retro-btn">⬅ RETOUR</button>
+          <div class="win-badge">RANG : DÉVELOPPEUR LÉGENDAIRE S++</div>
+          <button id="winBackBtn" class="retro-btn gold-btn">⬅ RETOUR AU PORTFOLIO</button>
         </div>
       </div>
     </div>
@@ -46,7 +48,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div class="dpad">
         <button class="ctrl-btn" id="btnLeft">◀</button>
         <button class="ctrl-btn" id="btnRight">▶</button>
-        <button class="ctrl-btn" id="btnJump">⬆ SAUT</button>
+        <button class="ctrl-btn jump-btn" id="btnJump">⬆ SAUT</button>
+        <button class="ctrl-btn fire-btn" id="btnFire">🔥 TIR</button>
       </div>
     </div>
 
@@ -239,6 +242,44 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     justify-content: center;
   }
 
+  .form-badge {
+    color: #ffd700;
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+
+  .title-gold {
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+    font-size: 2.2rem;
+  }
+
+  .win-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #00ff66;
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid #00ff66;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+    margin: 1rem 0;
+  }
+
+  .gold-btn {
+    background: linear-gradient(135deg, #ffd700, #ff8c00) !important;
+    color: #000 !important;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5) !important;
+  }
+
+  .ctrl-btn.fire-btn {
+    background: rgba(255, 140, 0, 0.3);
+    border-color: #ff8c00;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
   .ctrl-btn {
     width: 60px;
     height: 60px;
@@ -284,7 +325,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script>
   // ============================================================
-  // 🍄 SUPER MATHIO — Niveau caché
+  // 🍄 SUPER MATHIO S++ — RÉTRO ENGINE GOLD TIER
   // ============================================================
 
   const canvas = document.getElementById('marioCanvas') as HTMLCanvasElement;
@@ -294,6 +335,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const scoreDisplay = document.getElementById('scoreDisplay')!;
   const coinDisplay = document.getElementById('coinDisplay')!;
   const livesDisplay = document.getElementById('livesDisplay')!;
+  const formDisplay = document.getElementById('formDisplay')!;
   const timeDisplay = document.getElementById('timeDisplay')!;
   const startScreen = document.getElementById('startScreen')!;
   const startBtn = document.getElementById('startBtn')!;
@@ -306,13 +348,84 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const winBackBtn = document.getElementById('winBackBtn')!;
 
   const GRAVITY = 1200;
-  const PLAYER_SPEED = 220;
-  const JUMP_FORCE = -540;
+  const PLAYER_SPEED = 240;
+  const JUMP_FORCE = -550;
   const TILE = 40;
   const VIEWPORT_W = 800;
   const LEVEL_WIDTH = 4000;
   const GROUND_Y = H - TILE;
   const PLATFORM_Y = GROUND_Y - TILE;
+
+  // ---- WEB AUDIO SYNTHESIZER SFX ----
+  function playAudioFX(type: 'jump' | 'coin' | 'stomp' | 'powerup' | 'fire' | 'win' | 'over') {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const actx = new AudioContextClass();
+
+      if (type === 'jump') {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'square';
+        o.frequency.setValueAtTime(150, actx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(600, actx.currentTime + 0.15);
+        g.gain.setValueAtTime(0.12, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.15);
+        o.connect(g); g.connect(actx.destination);
+        o.start(); o.stop(actx.currentTime + 0.15);
+      } else if (type === 'coin') {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(987, actx.currentTime);
+        o.frequency.setValueAtTime(1318, actx.currentTime + 0.08);
+        g.gain.setValueAtTime(0.15, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.3);
+        o.connect(g); g.connect(actx.destination);
+        o.start(); o.stop(actx.currentTime + 0.3);
+      } else if (type === 'stomp') {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(250, actx.currentTime);
+        o.frequency.linearRampToValueAtTime(60, actx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.2, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.1);
+        o.connect(g); g.connect(actx.destination);
+        o.start(); o.stop(actx.currentTime + 0.1);
+      } else if (type === 'powerup') {
+        const notes = [330, 392, 659, 523, 587, 784];
+        notes.forEach((freq, idx) => {
+          const o = actx.createOscillator(), g = actx.createGain();
+          o.type = 'sine';
+          o.frequency.setValueAtTime(freq, actx.currentTime + idx * 0.06);
+          g.gain.setValueAtTime(0.15, actx.currentTime + idx * 0.06);
+          g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + idx * 0.06 + 0.1);
+          o.connect(g); g.connect(actx.destination);
+          o.start(actx.currentTime + idx * 0.06);
+          o.stop(actx.currentTime + idx * 0.06 + 0.1);
+        });
+      } else if (type === 'fire') {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(800, actx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(200, actx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.15, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.1);
+        o.connect(g); g.connect(actx.destination);
+        o.start(); o.stop(actx.currentTime + 0.1);
+      } else if (type === 'win') {
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        notes.forEach((freq, idx) => {
+          const o = actx.createOscillator(), g = actx.createGain();
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(freq, actx.currentTime + idx * 0.12);
+          g.gain.setValueAtTime(0.2, actx.currentTime + idx * 0.12);
+          g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + idx * 0.12 + 0.3);
+          o.connect(g); g.connect(actx.destination);
+          o.start(actx.currentTime + idx * 0.12);
+          o.stop(actx.currentTime + idx * 0.12 + 0.3);
+        });
+      }
+    } catch(_e) {}
+  }
 
   const COLORS = {
     ground: '#8b4513', groundTop: '#00a800',
@@ -329,6 +442,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   let score = 0, coins = 0, lives = 3, timeLeft = 300;
   let timeTimer: ReturnType<typeof setInterval> | null = null;
   let cameraX = 0, animFrameId: number, lastTime = 0;
+  let screenShakeTimer = 0;
 
   const keys: Record<string, boolean> = {};
   let jumpPressed = false;
@@ -337,73 +451,124 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     keys[e.code] = true;
     if (['Space', 'ArrowUp'].includes(e.code)) {
       e.preventDefault();
-      if (!jumpPressed) { jumpPressed = true; if (player.onGround) player.vy = JUMP_FORCE; }
+      if (!jumpPressed) {
+        jumpPressed = true;
+        if (player.onGround) {
+          player.vy = JUMP_FORCE;
+          playAudioFX('jump');
+        }
+      }
+    }
+    if (['KeyX', 'ShiftLeft', 'ShiftRight'].includes(e.code)) {
+      shootFireball();
     }
   });
+
   document.addEventListener('keyup', (e) => {
     keys[e.code] = false;
     if (['Space', 'ArrowUp'].includes(e.code)) jumpPressed = false;
   });
 
-  interface Player { x: number; y: number; w: number; h: number; vx: number; vy: number; onGround: boolean; facing: number; frame: number; frameTimer: number; dead: boolean; }
-  let player: Player = { x: 80, y: PLATFORM_Y - 40, w: 28, h: 36, vx: 0, vy: 0, onGround: false, facing: 1, frame: 0, frameTimer: 0, dead: false };
+  interface Player {
+    x: number; y: number; w: number; h: number;
+    vx: number; vy: number; onGround: boolean;
+    facing: number; frame: number; frameTimer: number;
+    dead: boolean; isBig: boolean; isStar: boolean;
+    starTimer: number; fireTimer: number;
+  }
 
-  interface Tile { x: number; y: number; type: number; hit?: boolean; broken?: boolean; }
+  let player: Player = {
+    x: 80, y: PLATFORM_Y - 40, w: 28, h: 36,
+    vx: 0, vy: 0, onGround: false, facing: 1,
+    frame: 0, frameTimer: 0, dead: false,
+    isBig: false, isStar: false, starTimer: 0, fireTimer: 0
+  };
+
+  interface Tile { x: number; y: number; type: number; hit?: boolean; broken?: boolean; item?: 'mushroom' | 'star' | 'coin'; }
   interface CoinObj { x: number; y: number; collected: boolean; }
   interface Goomba { x: number; y: number; w: number; h: number; vx: number; alive: boolean; frame: number; frameTimer: number; }
+  interface PowerUpItem { x: number; y: number; w: number; h: number; vx: number; vy: number; type: 'mushroom' | 'star'; active: boolean; }
+  interface FireballObj { x: number; y: number; vx: number; vy: number; active: boolean; }
   interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; }
+  interface FloatingText { x: number; y: number; text: string; color: string; life: number; }
 
-  let tiles: Tile[] = [], coinsList: CoinObj[] = [], goombas: Goomba[] = [], particles: Particle[] = [];
+  let tiles: Tile[] = [];
+  let coinsList: CoinObj[] = [];
+  let goombas: Goomba[] = [];
+  let powerUps: PowerUpItem[] = [];
+  let fireballs: FireballObj[] = [];
+  let particles: Particle[] = [];
+  let floatTexts: FloatingText[] = [];
+
+  function addFloatingText(x: number, y: number, text: string, color: string = '#ffd700') {
+    floatTexts.push({ x, y, text, color, life: 0.8 });
+  }
+
+  function triggerShake(duration: number = 0.2) {
+    screenShakeTimer = duration;
+  }
+
+  function shootFireball() {
+    if (gameState !== 'playing' || player.dead) return;
+    if (fireballs.filter(f => f.active).length >= 3) return;
+    fireballs.push({
+      x: player.x + (player.facing > 0 ? player.w : -10),
+      y: player.y + player.h / 2,
+      vx: player.facing * 400,
+      vy: -100,
+      active: true
+    });
+    playAudioFX('fire');
+  }
+
+  const BLOCK_Y = PLATFORM_Y - Math.round(TILE * 2.5); // 55px vertical clearance above floor for smooth movement under blocks
 
   function buildLevel() {
-    tiles = []; coinsList = []; goombas = [];
+    tiles = []; coinsList = []; goombas = []; powerUps = []; fireballs = []; floatTexts = [];
 
     // Ground bottom row
     for (let i = 0; i < Math.ceil(LEVEL_WIDTH / TILE); i++)
       tiles.push({ x: i * TILE, y: GROUND_Y, type: 1 });
 
-    // Floor (with gaps)
+    // Floor with gaps
     for (let i = 0; i < Math.ceil(LEVEL_WIDTH / TILE); i++) {
       if ((i >= 18 && i <= 19) || (i >= 35 && i <= 36) || (i >= 52 && i <= 53)) continue;
       tiles.push({ x: i * TILE, y: PLATFORM_Y, type: 1 });
     }
 
-    // Questions blocks — 2 tiles above floor (v1 style, reachable with jump)
-    const qp = [12, 22, 30, 45, 58];
-    qp.forEach(px => tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE * 2, type: 3, hit: false }));
+    // Question blocks with Items (Mushroom at 12 & 30, Star at 45)
+    tiles.push({ x: 12 * TILE, y: BLOCK_Y, type: 3, hit: false, item: 'mushroom' });
+    tiles.push({ x: 22 * TILE, y: BLOCK_Y, type: 3, hit: false, item: 'coin' });
+    tiles.push({ x: 30 * TILE, y: BLOCK_Y, type: 3, hit: false, item: 'mushroom' });
+    tiles.push({ x: 45 * TILE, y: BLOCK_Y, type: 3, hit: false, item: 'star' });
+    tiles.push({ x: 58 * TILE, y: BLOCK_Y, type: 3, hit: false, item: 'coin' });
 
     // Brick blocks
     const bp = [10, 11, 14, 15, 25, 26, 27, 40, 41, 48, 49];
-    bp.forEach(px => tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE * 2, type: 2, broken: false }));
+    bp.forEach(px => tiles.push({ x: px * TILE, y: BLOCK_Y, type: 2, broken: false }));
 
     // Staircase near end
     for (let step = 0; step < 4; step++)
       for (let s = 0; s <= step; s++)
         tiles.push({ x: (70 + s) * TILE, y: PLATFORM_Y - step * TILE, type: 1 });
 
-    // Pipe 1 — 2 tiles tall
-    tiles.push({ x: 28 * TILE, y: PLATFORM_Y - TILE * 2, type: 4 });
-    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y - TILE * 2, type: 5 });
-    tiles.push({ x: 28 * TILE, y: PLATFORM_Y - TILE, type: 6 });
-    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y - TILE, type: 6 });
-    tiles.push({ x: 28 * TILE, y: PLATFORM_Y, type: 6 });
-    tiles.push({ x: 28 * TILE + TILE, y: PLATFORM_Y, type: 6 });
+    // Pipes
+    [28, 55].forEach(px => {
+      tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE * 2, type: 4 });
+      tiles.push({ x: (px + 1) * TILE, y: PLATFORM_Y - TILE * 2, type: 5 });
+      tiles.push({ x: px * TILE, y: PLATFORM_Y - TILE, type: 6 });
+      tiles.push({ x: (px + 1) * TILE, y: PLATFORM_Y - TILE, type: 6 });
+      tiles.push({ x: px * TILE, y: PLATFORM_Y, type: 6 });
+      tiles.push({ x: (px + 1) * TILE, y: PLATFORM_Y, type: 6 });
+    });
 
-    // Pipe 2 — 2 tiles tall
-    tiles.push({ x: 55 * TILE, y: PLATFORM_Y - TILE * 2, type: 4 });
-    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y - TILE * 2, type: 5 });
-    tiles.push({ x: 55 * TILE, y: PLATFORM_Y - TILE, type: 6 });
-    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y - TILE, type: 6 });
-    tiles.push({ x: 55 * TILE, y: PLATFORM_Y, type: 6 });
-    tiles.push({ x: 55 * TILE + TILE, y: PLATFORM_Y, type: 6 });
+    // Floating platform
+    tiles.push({ x: 38 * TILE, y: BLOCK_Y, type: 7 });
+    tiles.push({ x: 39 * TILE, y: BLOCK_Y, type: 7 });
 
-    // Floating platform — JUST 2 blocks wide + accessible height (v1 was TILE*3 = too high, now TILE*2)
-    tiles.push({ x: 38 * TILE, y: PLATFORM_Y - TILE * 2, type: 7 });
-    tiles.push({ x: 39 * TILE, y: PLATFORM_Y - TILE * 2, type: 7 });
-
-    // Coins — at reachable height (2 tiles above floor)
+    // Coins
     const cp = [8, 14, 20, 33, 42, 50, 65];
-    cp.forEach(px => coinsList.push({ x: px * TILE + TILE/2 - 8, y: PLATFORM_Y - TILE * 2 + TILE/2 - 8, collected: false }));
+    cp.forEach(px => coinsList.push({ x: px * TILE + TILE/2 - 8, y: BLOCK_Y + TILE/2 - 8, collected: false }));
 
     // Goombas
     const gp = [16, 32, 47, 60];
@@ -421,9 +586,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function resetPlayer() {
-    player.x = 80; player.y = PLATFORM_Y - 40;
-    player.vx = 0; player.vy = 0; player.onGround = false; player.dead = false;
+    player = {
+      x: 80, y: PLATFORM_Y - 40, w: 28, h: 36,
+      vx: 0, vy: 0, onGround: false, facing: 1,
+      frame: 0, frameTimer: 0, dead: false,
+      isBig: false, isStar: false, starTimer: 0, fireTimer: 0
+    };
     cameraX = 0;
+    updateHUD();
   }
 
   function updateHUD() {
@@ -431,25 +601,60 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     coinDisplay.textContent = coins.toString();
     livesDisplay.textContent = `❤️ x${lives}`;
     timeDisplay.textContent = timeLeft.toString();
+
+    if (player.isStar) {
+      formDisplay.textContent = '⭐ INVINCIBLE';
+      formDisplay.style.color = '#00f2fe';
+    } else if (player.isBig) {
+      formDisplay.textContent = '🍄 BIG MATHIO';
+      formDisplay.style.color = '#ffd700';
+    } else {
+      formDisplay.textContent = '👤 NORMAL';
+      formDisplay.style.color = '#ffffff';
+    }
   }
 
   function playerDie() {
     if (player.dead) return;
-    player.dead = true; player.vy = -400; lives--; updateHUD();
+    if (player.isBig) {
+      // Degrade to small Mario with grace period
+      player.isBig = false;
+      player.h = 36;
+      addFloatingText(player.x, player.y - 20, 'DEGRADATION!', '#ff006e');
+      playAudioFX('stomp');
+      updateHUD();
+      return;
+    }
+    player.dead = true;
+    player.vy = -400;
+    lives--;
+    updateHUD();
+    triggerShake(0.4);
+
     if (lives <= 0) {
-      setTimeout(() => { gameState = 'gameover'; gameOverTitle.textContent = 'GAME OVER'; gameOverMsg.textContent = 'Tu as perdu toutes tes vies !'; gameOverScreen.classList.add('active'); }, 1000);
+      setTimeout(() => {
+        gameState = 'gameover';
+        gameOverTitle.textContent = 'GAME OVER';
+        gameOverMsg.textContent = 'Tu as perdu toutes tes vies !';
+        gameOverScreen.classList.add('active');
+      }, 1000);
     } else {
-      setTimeout(() => { resetPlayer(); player.dead = false; gameState = 'playing'; }, 1000);
+      setTimeout(() => { resetPlayer(); gameState = 'playing'; }, 1000);
     }
   }
 
   function resetGame() {
-    resetPlayer(); buildLevel();
+    resetPlayer();
+    buildLevel();
     score = 0; coins = 0; lives = 3; timeLeft = 300;
     updateHUD();
     if (timeTimer) clearInterval(timeTimer);
     timeTimer = setInterval(() => {
-      if (gameState === 'playing') { timeLeft--; updateHUD(); if (timeLeft <= 0) playerDie(); }
+      if (gameState === 'playing') {
+        timeLeft--;
+        updateHUD();
+        if (timeLeft <= 0) playerDie();
+      }
     }, 1000);
     gameState = 'playing';
     startScreen.classList.remove('active');
@@ -458,14 +663,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function updatePlayer(dt: number) {
-    if (player.dead) { player.vy += GRAVITY * dt; player.y += player.vy * dt; return; }
+    if (player.dead) {
+      player.vy += GRAVITY * dt;
+      player.y += player.vy * dt;
+      return;
+    }
+
+    // Update Star Timer
+    if (player.isStar) {
+      player.starTimer -= dt;
+      if (player.starTimer <= 0) {
+        player.isStar = false;
+        updateHUD();
+      }
+    }
 
     let moveX = 0;
     if (keys['ArrowLeft'] || keys['KeyA']) moveX = -1;
     if (keys['ArrowRight'] || keys['KeyD']) moveX = 1;
 
     if ((keys['Space'] || keys['ArrowUp']) && player.onGround && !jumpPressed) {
-      player.vy = JUMP_FORCE; jumpPressed = true;
+      player.vy = JUMP_FORCE;
+      jumpPressed = true;
+      playAudioFX('jump');
     }
     if (!(keys['Space'] || keys['ArrowUp']) && jumpPressed) {
       jumpPressed = false;
@@ -477,6 +697,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     player.x += player.vx * dt;
     cameraX = Math.max(0, Math.min(player.x - VIEWPORT_W/2, LEVEL_WIDTH - VIEWPORT_W));
 
+    // Horizontal collisions
     for (const tile of tiles) {
       if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
       if (rectCollide(player, tile)) {
@@ -489,20 +710,54 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     player.y += player.vy * dt;
     player.onGround = false;
 
+    // Vertical collisions
     for (const tile of tiles) {
       if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
       if (rectCollide(player, tile)) {
         if (player.vy > 0) {
-          player.y = tile.y - player.h; player.vy = 0; player.onGround = true;
+          player.y = tile.y - player.h;
+          player.vy = 0;
+          player.onGround = true;
         } else if (player.vy < 0) {
-          player.y = tile.y + TILE; player.vy = 0;
+          player.y = tile.y + TILE;
+          player.vy = 0;
+
+          // Question Block Hit
           if (tile.type === 3 && !tile.hit) {
-            tile.hit = true; coins++; score += 100;
-            addParticles(tile.x + TILE/2, tile.y, 10, '#fbd000'); updateHUD();
+            tile.hit = true;
+            triggerShake(0.15);
+
+            if (tile.item === 'mushroom' || tile.item === 'star') {
+              powerUps.push({
+                x: tile.x + 4,
+                y: tile.y - TILE,
+                w: 32, h: 32,
+                vx: 80, vy: -150,
+                type: tile.item,
+                active: true
+              });
+              addFloatingText(tile.x + 10, tile.y - 15, `ITEM!`, '#ffd700');
+            } else {
+              coins++; score += 100;
+              playAudioFX('coin');
+              addParticles(tile.x + TILE/2, tile.y, 10, '#fbd000');
+              addFloatingText(tile.x + 10, tile.y - 15, '+100', '#ffd700');
+            }
+            updateHUD();
           }
+
+          // Brick Break
           if (tile.type === 2 && !tile.broken) {
-            tile.broken = true; score += 50;
-            addParticles(tile.x + TILE/2, tile.y + TILE/2, 15, '#c84c0c'); updateHUD();
+            if (player.isBig || player.isStar) {
+              tile.broken = true;
+              score += 50;
+              triggerShake(0.2);
+              addParticles(tile.x + TILE/2, tile.y + TILE/2, 15, '#c84c0c');
+              addFloatingText(tile.x + 10, tile.y, '+50', '#ff8c00');
+              updateHUD();
+            } else {
+              triggerShake(0.1);
+            }
           }
         }
       }
@@ -510,18 +765,102 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     if (player.y > H + 50) playerDie();
 
+    // Frame animation
     if (Math.abs(player.vx) > 10 && player.onGround) {
       player.frameTimer += dt;
-      if (player.frameTimer > 0.1) { player.frame = (player.frame + 1) % 3; player.frameTimer = 0; }
+      if (player.frameTimer > 0.1) {
+        player.frame = (player.frame + 1) % 3;
+        player.frameTimer = 0;
+      }
     } else player.frame = 0;
+  }
+
+  function updatePowerUps(dt: number) {
+    for (const item of powerUps) {
+      if (!item.active) continue;
+      item.x += item.vx * dt;
+      item.vy += GRAVITY * dt;
+      item.y += item.vy * dt;
+
+      // Platform collisions for PowerUps
+      for (const tile of tiles) {
+        if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+        if (rectCollide(item, tile)) {
+          if (item.vy > 0) {
+            item.y = tile.y - item.h;
+            item.vy = item.type === 'star' ? -250 : 0; // Star bounces!
+          } else if (item.vx > 0) {
+            item.x = tile.x - item.w; item.vx *= -1;
+          } else if (item.vx < 0) {
+            item.x = tile.x + TILE; item.vx *= -1;
+          }
+        }
+      }
+
+      // Collect item by player
+      if (rectCollide(player, item)) {
+        item.active = false;
+        playAudioFX('powerup');
+
+        if (item.type === 'mushroom') {
+          player.isBig = true;
+          player.h = 44;
+          player.y -= 8;
+          score += 1000;
+          addFloatingText(player.x, player.y - 20, 'SUPER MATHIO! +1000', '#ffd700');
+        } else if (item.type === 'star') {
+          player.isStar = true;
+          player.starTimer = 8.0;
+          score += 2000;
+          addFloatingText(player.x, player.y - 20, 'INVINCIBLE! +2000', '#00f2fe');
+        }
+        updateHUD();
+      }
+    }
+  }
+
+  function updateFireballs(dt: number) {
+    for (const fb of fireballs) {
+      if (!fb.active) continue;
+      fb.x += fb.vx * dt;
+      fb.vy += GRAVITY * dt * 0.6;
+      fb.y += fb.vy * dt;
+
+      // Bounce on floor
+      for (const tile of tiles) {
+        if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
+        if (rectCollide({ x: fb.x, y: fb.y, w: 12, h: 12 }, tile)) {
+          if (fb.vy > 0) { fb.y = tile.y - 12; fb.vy = -180; }
+          else fb.active = false;
+        }
+      }
+
+      // Hit Goombas
+      for (const g of goombas) {
+        if (!g.alive) continue;
+        if (rectCollide({ x: fb.x, y: fb.y, w: 12, h: 12 }, g)) {
+          g.alive = false; fb.active = false; score += 500;
+          playAudioFX('stomp');
+          addParticles(g.x + 16, g.y + 16, 12, '#ff8c00');
+          addFloatingText(g.x, g.y, '+500', '#ff8c00');
+          updateHUD();
+        }
+      }
+
+      if (fb.x < cameraX || fb.x > cameraX + VIEWPORT_W || fb.y > H) fb.active = false;
+    }
   }
 
   function updateCoins() {
     for (const coin of coinsList) {
       if (coin.collected) continue;
       if (rectCollide(player, { x: coin.x, y: coin.y, w: 16, h: 16 })) {
-        coin.collected = true; coins++; score += 200;
-        addParticles(coin.x + 8, coin.y + 8, 8, '#fbd000'); updateHUD();
+        coin.collected = true;
+        coins++; score += 200;
+        playAudioFX('coin');
+        addParticles(coin.x + 8, coin.y + 8, 8, '#fbd000');
+        addFloatingText(coin.x, coin.y - 10, '+200', '#ffd700');
+        updateHUD();
       }
     }
   }
@@ -532,15 +871,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       g.x += g.vx * dt;
       g.frameTimer += dt;
       if (g.frameTimer > 0.2) { g.frame = (g.frame + 1) % 2; g.frameTimer = 0; }
+
       for (const tile of tiles) {
         if (tile.type === 0 || (tile.type === 2 && tile.broken)) continue;
         if (rectCollide(g, tile)) { g.vx *= -1; break; }
       }
+
       if (rectCollide(player, g) && !player.dead) {
-        if (player.vy > 0 && player.y + player.h - g.y < 20) {
-          g.alive = false; player.vy = -300; score += 500;
-          addParticles(g.x + g.w/2, g.y + g.h/2, 10, '#8b4513'); updateHUD();
-        } else { playerDie(); }
+        if (player.isStar) {
+          // Invincible destroy!
+          g.alive = false; score += 800;
+          playAudioFX('stomp');
+          addParticles(g.x + 16, g.y + 16, 15, '#00f2fe');
+          addFloatingText(g.x, g.y, 'STORM! +800', '#00f2fe');
+          updateHUD();
+        } else if (player.vy > 0 && player.y + player.h - g.y < 22) {
+          // Stomp Goomba
+          g.alive = false;
+          player.vy = -320;
+          score += 500;
+          playAudioFX('stomp');
+          addParticles(g.x + g.w/2, g.y + g.h/2, 10, '#8b4513');
+          addFloatingText(g.x, g.y, '+500', '#ffd700');
+          updateHUD();
+        } else {
+          playerDie();
+        }
       }
       if (g.y > H + 50) g.alive = false;
     }
@@ -548,15 +904,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function updateParticles(dt: number) {
-    for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 200 * dt; p.life -= dt; }
+    for (const p of particles) {
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vy += 200 * dt; p.life -= dt;
+    }
     particles = particles.filter(p => p.life > 0);
+
+    for (const ft of floatTexts) {
+      ft.y -= 30 * dt;
+      ft.life -= dt;
+    }
+    floatTexts = floatTexts.filter(ft => ft.life > 0);
   }
 
   function checkWin() {
     if (player.x >= LEVEL_WIDTH - 100 && !player.dead) {
-      gameState = 'win'; score += timeLeft * 10;
+      gameState = 'win';
+      score += timeLeft * 10;
       if (timeTimer) clearInterval(timeTimer);
-      updateHUD(); winMsg.textContent = `Score final : ${score} points ! 🏆`;
+      playAudioFX('win');
+      updateHUD();
+      winMsg.textContent = `Score final : ${score} points ! 🏆`;
       winScreen.classList.add('active');
     }
   }
@@ -565,6 +933,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
     skyGrad.addColorStop(0, '#5c94fc'); skyGrad.addColorStop(0.7, '#8cb4ff'); skyGrad.addColorStop(1, '#b8d4ff');
     ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, VIEWPORT_W, H);
+
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     for (let i = 0; i < 6; i++) {
       const cx = (i*700+100 - cameraX*0.3) % (VIEWPORT_W+200) - 100, cy = 40 + (i%3)*50;
@@ -627,6 +996,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
   }
 
+  function drawPowerUps() {
+    for (const item of powerUps) {
+      if (!item.active) continue;
+      const ix = item.x - cameraX;
+      ctx.font = '26px sans-serif';
+      ctx.fillText(item.type === 'mushroom' ? '🍄' : '⭐', ix, item.y + 26);
+    }
+  }
+
+  function drawFireballs() {
+    for (const fb of fireballs) {
+      if (!fb.active) continue;
+      const fx = fb.x - cameraX;
+      ctx.fillStyle = '#ff8c00';
+      ctx.beginPath(); ctx.arc(fx + 6, fb.y + 6, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath(); ctx.arc(fx + 6, fb.y + 6, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
   function drawCoins() {
     for (const coin of coinsList) {
       if (coin.collected) continue;
@@ -650,17 +1039,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (g.frame === 1) { ctx.fillRect(gx+8, g.y+g.h-8, 12, 8); ctx.fillRect(gx+g.w-20, g.y+g.h-8, 12, 8); }
       ctx.fillStyle = '#f0f0f0'; ctx.fillRect(gx+6, g.y+8, 8, 8); ctx.fillRect(gx+g.w-14, g.y+8, 8, 8);
       ctx.fillStyle = '#000'; ctx.fillRect(gx+8, g.y+8, 4, 4); ctx.fillRect(gx+g.w-12, g.y+8, 4, 4);
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(gx+4, g.y+6); ctx.lineTo(gx+12, g.y+4); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(gx+g.w-4, g.y+6); ctx.lineTo(gx+g.w-12, g.y+4); ctx.stroke();
     }
   }
 
   function drawPlayer() {
     if (player.dead && player.y > H + 50) return;
     const px = player.x - cameraX;
-    ctx.save(); ctx.translate(px + player.w/2, player.y + player.h/2);
+    ctx.save();
+    ctx.translate(px + player.w/2, player.y + player.h/2);
+
+    if (player.isStar) {
+      const hue = (Date.now() * 0.5) % 360;
+      ctx.filter = `hue-rotate(${hue}deg) brightness(1.3)`;
+    }
+
     if (player.dead) ctx.rotate(player.vy * 0.05);
+
+    const scaleY = player.isBig ? 1.35 : 1;
+    ctx.scale(1, scaleY);
+
     ctx.fillStyle = COLORS.marioRed; ctx.fillRect(-12, -18, 24, 8);
     ctx.fillStyle = COLORS.marioSkin; ctx.fillRect(-10, -10, 20, 14);
     ctx.fillStyle = '#000'; const eyeX = player.facing > 0 ? 4 : -8; ctx.fillRect(eyeX, -8, 4, 4);
@@ -698,15 +1095,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const px = p.x - cameraX; ctx.fillRect(px-2, p.y-2, 4, 4);
     }
     ctx.globalAlpha = 1;
+
+    for (const ft of floatTexts) {
+      ctx.font = 'bold 16px "Fira Code", monospace';
+      ctx.fillStyle = ft.color;
+      ctx.shadowBlur = 8; ctx.shadowColor = ft.color;
+      const fx = ft.x - cameraX;
+      ctx.fillText(ft.text, fx, ft.y);
+      ctx.shadowBlur = 0;
+    }
   }
 
   function update(dt: number) {
     if (gameState !== 'playing') return;
-    updatePlayer(dt); updateCoins(); updateGoombas(dt); updateParticles(dt); checkWin();
+    if (screenShakeTimer > 0) screenShakeTimer -= dt;
+    updatePlayer(dt); updatePowerUps(dt); updateFireballs(dt); updateCoins(); updateGoombas(dt); updateParticles(dt); checkWin();
   }
+
   function draw() {
-    drawBackground(); drawTiles(); drawCoins(); drawGoombas(); drawFlag(); drawPlayer(); drawParticles();
+    ctx.save();
+    if (screenShakeTimer > 0) {
+      const dx = (Math.random() - 0.5) * 8;
+      const dy = (Math.random() - 0.5) * 8;
+      ctx.translate(dx, dy);
+    }
+    drawBackground(); drawTiles(); drawPowerUps(); drawFireballs(); drawCoins(); drawGoombas(); drawFlag(); drawPlayer(); drawParticles();
+    ctx.restore();
   }
+
   function gameLoop(timestamp: number) {
     if (!lastTime) lastTime = timestamp;
     const dt = Math.min((timestamp - lastTime)/1000, 0.05);
@@ -723,7 +1139,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   document.getElementById('btnLeft')?.addEventListener('touchend', () => keys['ArrowLeft'] = false);
   document.getElementById('btnRight')?.addEventListener('touchstart', () => keys['ArrowRight'] = true);
   document.getElementById('btnRight')?.addEventListener('touchend', () => keys['ArrowRight'] = false);
-  document.getElementById('btnJump')?.addEventListener('touchstart', (e) => { e.preventDefault(); if (player.onGround) player.vy = JUMP_FORCE; });
+  document.getElementById('btnJump')?.addEventListener('touchstart', (e) => { e.preventDefault(); if (player.onGround) { player.vy = JUMP_FORCE; playAudioFX('jump'); } });
+  document.getElementById('btnFire')?.addEventListener('touchstart', (e) => { e.preventDefault(); shootFireball(); });
 
   buildLevel();
   updateHUD();
