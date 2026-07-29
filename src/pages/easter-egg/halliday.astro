@@ -3,16 +3,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="L'ŒUF D'OR DE HALLIDAY | Mathieu Soussignan" description="Vous avez découvert l'Easter Egg Ultime.">
-  <!-- Cinématique RPO - Overlay d'intro -->
+  <!-- Cinématique Hollywoodienne RPO - Overlay d'intro -->
   <div class="rp-overlay" id="rpOverlay">
+    <div class="rp-letterbox top"></div>
+    <div class="rp-letterbox bottom"></div>
     <canvas id="rpCanvas"></canvas>
+    
+    <!-- Optical Lens Flare Cursor Light -->
+    <div class="rp-lens-flare" id="rpLensFlare"></div>
+
     <div class="rp-content" id="rpContent">
+      <div class="rp-act-badge" id="rpActBadge">AN OASIS HERITAGE PRODUCTION</div>
+      
+      <!-- Act 2: Key Fusion Container -->
+      <div class="rp-keys-fusion hidden" id="rpKeysFusion">
+        <div class="rp-key-orb k-copper" id="rpKCopper">🥉</div>
+        <div class="rp-key-orb k-jade" id="rpKJade">🥈</div>
+        <div class="rp-key-orb k-crystal" id="rpKCrystal">🥇</div>
+        <div class="rp-fusion-core" id="rpFusionCore"></div>
+      </div>
+
       <div class="rp-subtitle" id="rpSubtitle"></div>
       <div class="rp-quote" id="rpQuote"></div>
       <div class="rp-quote-author" id="rpQuoteAuthor"></div>
     </div>
+
     <div class="rp-skip-container" id="rpSkipContainer">
-      <button class="rp-skip-btn" id="rpSkipBtn">SKIP >></button>
+      <button class="rp-skip-btn" id="rpSkipBtn">SKIP INTRO >></button>
       <div class="rp-progress-bar">
         <div class="rp-progress-fill" id="rpProgressFill"></div>
       </div>
@@ -82,14 +99,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     --dark-bg: #0a0e17;
   }
 
-  /* ===== CINÉMATIQUE RPO ===== */
+  /* ===== CINÉMATIQUE HOLLYWOODIENNE RPO ===== */
   .rp-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #000;
+    background: #020306;
     z-index: 99999;
     display: flex;
     flex-direction: column;
@@ -102,6 +119,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .rp-overlay.fade-out {
     opacity: 0;
     pointer-events: none;
+  }
+
+  /* Hollywood Anamorphic Letterbox Bars */
+  .rp-letterbox {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 7vh;
+    background: #000000;
+    z-index: 10;
+    box-shadow: 0 0 20px rgba(0,0,0,0.9);
+  }
+  .rp-letterbox.top { top: 0; border-bottom: 1px solid rgba(255,215,0,0.15); }
+  .rp-letterbox.bottom { bottom: 0; border-top: 1px solid rgba(255,215,0,0.15); }
+
+  /* Optical Lens Flare Glow */
+  .rp-lens-flare {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,242,254,0.15) 0%, rgba(255,215,0,0.08) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    transition: left 0.1s ease-out, top 0.1s ease-out;
+    mix-blend-mode: screen;
   }
 
   #rpCanvas {
@@ -119,16 +163,89 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     text-align: center;
     max-width: 900px;
     padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .rp-act-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+    padding: 0.4rem 1.2rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px #ffd700;
+    animation: actBadgeGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes actBadgeGlow {
+    from { box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+    to { box-shadow: 0 0 35px rgba(255, 215, 0, 0.6), 0 0 15px #00f2fe; }
+  }
+
+  /* Act 2: Key Fusion Graphic */
+  .rp-keys-fusion {
+    position: relative;
+    width: 260px;
+    height: 180px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .rp-keys-fusion.hidden { display: none; }
+
+  .rp-key-orb {
+    position: absolute;
+    font-size: 3rem;
+    filter: drop-shadow(0 0 20px #ffd700);
+    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .rp-key-orb.k-copper { top: 0; left: 20px; animation: orbFloat1 2s ease-in-out infinite alternate; }
+  .rp-key-orb.k-jade { top: 0; right: 20px; animation: orbFloat2 2.2s ease-in-out infinite alternate; }
+  .rp-key-orb.k-crystal { bottom: 0; animation: orbFloat3 1.8s ease-in-out infinite alternate; }
+
+  @keyframes orbFloat1 { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+  @keyframes orbFloat2 { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  @keyframes orbFloat3 { from { transform: translateY(0); } to { transform: translateY(8px); } }
+
+  .rp-key-orb.fused {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(1.8) !important;
+    filter: drop-shadow(0 0 60px #ffd700) drop-shadow(0 0 100px #00f2fe);
+  }
+
+  .rp-fusion-core {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd700 0%, #00f2fe 50%, transparent 80%);
+    opacity: 0;
+    transform: scale(0.2);
+    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .rp-fusion-core.active {
+    opacity: 1;
+    transform: scale(2.5);
+    box-shadow: 0 0 100px #ffd700, 0 0 150px #00f2fe;
   }
 
   .rp-subtitle {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
     color: var(--gold);
     text-shadow: 0 0 10px var(--gold), 0 0 20px rgba(255, 215, 0, 0.5);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     min-height: 1.5rem;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     text-transform: uppercase;
     opacity: 0;
     transition: opacity 0.8s ease;
@@ -140,11 +257,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .rp-quote {
     font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 2rem;
+    font-size: 1.85rem;
     color: #fff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    line-height: 1.5;
-    min-height: 3rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    line-height: 1.6;
+    min-height: 3.5rem;
     margin-bottom: 1.5rem;
     font-style: italic;
     opacity: 0;
@@ -541,108 +658,116 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script>
   // ============================================================
-  // CINÉMATIQUE READY PLAYER ONE
+  // 🎬 HOLLYWOOD BLOCKBUSTER CINEMATIC — READY PLAYER ONE
   // ============================================================
   const rpOverlay = document.getElementById('rpOverlay');
   const rpCanvas = document.getElementById('rpCanvas') as HTMLCanvasElement;
-  const rpCtx = rpCanvas.getContext('2d');
+  const rpCtx = rpCanvas?.getContext('2d');
   const rpSubtitle = document.getElementById('rpSubtitle');
   const rpQuote = document.getElementById('rpQuote');
   const rpQuoteAuthor = document.getElementById('rpQuoteAuthor');
   const rpSkipBtn = document.getElementById('rpSkipBtn');
   const rpProgressFill = document.getElementById('rpProgressFill');
   const sanctuaryContainer = document.getElementById('sanctuaryContainer');
-
-  const rpOverlayEl = rpOverlay!;
-  const rpCanvasEl = rpCanvas!;
-  const rpCtxEl = rpCtx!;
-  const rpSubtitleEl = rpSubtitle!;
-  const rpQuoteEl = rpQuote!;
-  const rpQuoteAuthorEl = rpQuoteAuthor!;
-  const rpSkipBtnEl = rpSkipBtn!;
-  const rpProgressFillEl = rpProgressFill!;
-  const sanctuaryContainerEl = sanctuaryContainer!;
+  const rpActBadge = document.getElementById('rpActBadge');
+  const rpKeysFusion = document.getElementById('rpKeysFusion');
+  const rpKCopper = document.getElementById('rpKCopper');
+  const rpKJade = document.getElementById('rpKJade');
+  const rpKCrystal = document.getElementById('rpKCrystal');
+  const rpFusionCore = document.getElementById('rpFusionCore');
+  const rpLensFlare = document.getElementById('rpLensFlare');
 
   if (!rpOverlay || !rpCanvas || !rpCtx || !rpSubtitle || !rpQuote || !rpQuoteAuthor || !rpSkipBtn || !rpProgressFill || !sanctuaryContainer) {
-    // Fallback: if elements not found, show sanctuary directly
     if (sanctuaryContainer) sanctuaryContainer.style.display = 'block';
     if (rpOverlay) rpOverlay.style.display = 'none';
   } else {
     // ---- Resize canvas ----
     function resizeCanvas() {
-      rpCanvasEl.width = window.innerWidth;
-      rpCanvasEl.height = window.innerHeight;
+      rpCanvas!.width = window.innerWidth;
+      rpCanvas!.height = window.innerHeight;
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // ---- Interactive Optical Lens Flare ----
+    window.addEventListener('mousemove', (e) => {
+      if (rpLensFlare) {
+        rpLensFlare.style.left = `${e.clientX}px`;
+        rpLensFlare.style.top = `${e.clientY}px`;
+      }
+    });
+
+    // ---- HOLLYWOOD WEB AUDIO SOUND DESIGN ----
+    function playSubBassBoom() {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(80, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.5);
+        g.gain.setValueAtTime(0.4, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + 1.8);
+      } catch(_e) {}
+    }
+
+    function playKeyLockChime(freq: number) {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(freq, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.3);
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + 0.6);
+      } catch(_e) {}
+    }
+
+    function playFinaleCrescendo() {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(100, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1600, ctx.currentTime + 1.5);
+        g.gain.setValueAtTime(0.1, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 1.2);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.6);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + 1.6);
+      } catch(_e) {}
+    }
+
     // ---- State ----
     let cinematicActive = true;
     let startTime = Date.now();
-    const CINEMATIC_DURATION = 14000; // 14 seconds total
+    const CINEMATIC_DURATION = 15000; // 15 seconds total
 
-    // ---- Subtitles & Quotes sequence ----
-    interface CinematicStep {
-      subtitle: string;
-      quote: string;
-      author: string;
-      startAt: number; // ms from start
-      duration: number; // quote typing duration ms
-    }
-
-    const steps: CinematicStep[] = [
-      {
-        subtitle: "/// SYSTEME DE RECOMPENSE OASIS — PROTOCOLE HALLIDAY //",
-        quote: '"La réalité est un triste désert. Mais ici, dans l\'OASIS, tu peux être qui tu veux."',
-        author: "— James Halliday, Ready Player One",
-        startAt: 500,
-        duration: 4000
-      },
-      {
-        subtitle: "/// QUÊTE PRINCIPALE : L'ŒUF DE PÂQUES //",
-        quote: '"C\'est le plus grand jeu de chasse au trésor jamais créé. Une quête qui définira toute une génération."',
-        author: "— Wade Watts / Parzival, Ready Player One",
-        startAt: 5000,
-        duration: 4000
-      },
-      {
-        subtitle: "/// FÉLICITATIONS, GUNTER //",
-        quote: '"Merci d\'avoir joué à mon jeu. Tu as prouvé ta passion, ta curiosité... et ton génie."',
-        author: "— James Halliday, L'Œuf d'Or",
-        startAt: 10000,
-        duration: 3000
-      }
-    ];
-
-    // ---- Background Particles (Matrix rain + portal glyphs) ----
+    // ---- Background Particles (Space Dust + Portal Glyphs) ----
     interface RpParticle {
-      x: number;
-      y: number;
-      speed: number;
-      char: string;
-      size: number;
-      opacity: number;
-      isGlyph: boolean;
-      glow: number;
+      x: number; y: number; speed: number; char: string; size: number; opacity: number; isGlyph: boolean; glow: number;
     }
-
     const particles: RpParticle[] = [];
-    const glyphChars = '☯⚡✦✧❖★☆✦✧⭒⭑⚜🔮🌀🔑🗝️⚙️';
-    const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/{}[]|&^%$#@!';
+    const glyphChars = '🔑🗝️💎⭐🏆⚡✨';
+    const matrixChars = 'OASIS101010101HALLIDAY010101';
 
     function initParticles() {
       particles.length = 0;
-      for (let i = 0; i < 120; i++) {
-        const isGlyph = i < 40;
+      for (let i = 0; i < 100; i++) {
+        const isGlyph = i < 30;
         particles.push({
-          x: Math.random() * rpCanvasEl.width,
-          y: Math.random() * rpCanvasEl.height,
-          speed: 20 + Math.random() * 60,
-          char: isGlyph
-            ? glyphChars[Math.floor(Math.random() * glyphChars.length)]
-            : matrixChars[Math.floor(Math.random() * matrixChars.length)],
-          size: isGlyph ? (10 + Math.random() * 20) : (8 + Math.random() * 12),
-          opacity: 0.1 + Math.random() * 0.5,
+          x: Math.random() * rpCanvas!.width,
+          y: Math.random() * rpCanvas!.height,
+          speed: 20 + Math.random() * 50,
+          char: isGlyph ? glyphChars[Math.floor(Math.random() * glyphChars.length)] : matrixChars[Math.floor(Math.random() * matrixChars.length)],
+          size: isGlyph ? (12 + Math.random() * 18) : (8 + Math.random() * 10),
+          opacity: 0.15 + Math.random() * 0.5,
           isGlyph,
           glow: 5 + Math.random() * 20
         });
@@ -650,83 +775,40 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     function drawParticles(time: number) {
-      if (!rpCtxEl) return;
-      rpCtxEl.clearRect(0, 0, rpCanvasEl.width, rpCanvasEl.height);
+      if (!rpCtx) return;
+      rpCtx.clearRect(0, 0, rpCanvas!.width, rpCanvas!.height);
 
-      // Dark gradient background
-      const grad = rpCtxEl.createRadialGradient(
-        rpCanvasEl.width / 2, rpCanvasEl.height / 2, 0,
-        rpCanvasEl.width / 2, rpCanvasEl.height / 2, rpCanvasEl.width * 0.7
+      const grad = rpCtx.createRadialGradient(
+        rpCanvas!.width / 2, rpCanvas!.height / 2, 0,
+        rpCanvas!.width / 2, rpCanvas!.height / 2, rpCanvas!.width * 0.8
       );
-      grad.addColorStop(0, '#0a0e17');
-      grad.addColorStop(0.5, '#05070a');
+      grad.addColorStop(0, '#0a0d18');
+      grad.addColorStop(0.5, '#04060b');
       grad.addColorStop(1, '#000000');
-      rpCtxEl.fillStyle = grad;
-      rpCtxEl.fillRect(0, 0, rpCanvasEl.width, rpCanvasEl.height);
+      rpCtx.fillStyle = grad;
+      rpCtx.fillRect(0, 0, rpCanvas!.width, rpCanvas!.height);
 
-      // Vignette
-      const vignette = rpCtxEl.createRadialGradient(
-        rpCanvasEl.width / 2, rpCanvasEl.height / 2, rpCanvasEl.height * 0.2,
-        rpCanvasEl.width / 2, rpCanvasEl.height / 2, rpCanvasEl.height * 0.8
-      );
-      vignette.addColorStop(0, 'rgba(0,0,0,0)');
-      vignette.addColorStop(1, 'rgba(0,0,0,0.6)');
-      rpCtxEl.fillStyle = vignette;
-      rpCtxEl.fillRect(0, 0, rpCanvasEl.width, rpCanvasEl.height);
-
-      // Draw particles
       particles.forEach(p => {
         p.y += p.speed * (1 / 60);
-        if (p.y > rpCanvasEl.height) {
+        if (p.y > rpCanvas!.height) {
           p.y = -20;
-          p.x = Math.random() * rpCanvasEl.width;
-          p.char = p.isGlyph
-            ? glyphChars[Math.floor(Math.random() * glyphChars.length)]
-            : matrixChars[Math.floor(Math.random() * matrixChars.length)];
+          p.x = Math.random() * rpCanvas!.width;
         }
-
-        // Sinusoidal horizontal drift
         p.x += Math.sin(time * 0.001 + p.y * 0.01) * 0.5;
 
-        rpCtxEl.font = `${p.size}px "Courier New", monospace`;
-        rpCtxEl.shadowBlur = p.glow;
-        rpCtxEl.shadowColor = p.isGlyph ? '#ffd700' : '#00f2fe';
-        rpCtxEl.fillStyle = p.isGlyph
-          ? `rgba(255, 215, 0, ${p.opacity * 0.6})`
-          : `rgba(0, 242, 254, ${p.opacity * 0.3})`;
-        rpCtxEl.fillText(p.char, p.x, p.y);
-        rpCtxEl.shadowBlur = 0;
+        rpCtx.font = `${p.size}px monospace`;
+        rpCtx.shadowBlur = p.glow;
+        rpCtx.shadowColor = p.isGlyph ? '#ffd700' : '#00f2fe';
+        rpCtx.fillStyle = p.isGlyph ? `rgba(255, 215, 0, ${p.opacity})` : `rgba(0, 242, 254, ${p.opacity * 0.4})`;
+        rpCtx.fillText(p.char, p.x, p.y);
+        rpCtx.shadowBlur = 0;
       });
-
-      // Central portal ring glow
-      const cx = rpCanvasEl.width / 2;
-      const cy = rpCanvasEl.height / 2;
-      const pulseRadius = 100 + Math.sin(time * 0.002) * 30;
-
-      rpCtxEl.beginPath();
-      rpCtxEl.arc(cx, cy, pulseRadius, 0, Math.PI * 2);
-      rpCtxEl.strokeStyle = `rgba(255, 215, 0, ${0.1 + Math.sin(time * 0.003) * 0.05})`;
-      rpCtxEl.lineWidth = 2;
-      rpCtxEl.shadowBlur = 40;
-      rpCtxEl.shadowColor = '#ffd700';
-      rpCtxEl.stroke();
-      rpCtxEl.shadowBlur = 0;
-
-      // Inner ring
-      rpCtxEl.beginPath();
-      rpCtxEl.arc(cx, cy, pulseRadius * 0.5, 0, Math.PI * 2);
-      rpCtxEl.strokeStyle = `rgba(0, 242, 254, ${0.08 + Math.sin(time * 0.004) * 0.04})`;
-      rpCtxEl.lineWidth = 1;
-      rpCtxEl.shadowBlur = 30;
-      rpCtxEl.shadowColor = '#00f2fe';
-      rpCtxEl.stroke();
-      rpCtxEl.shadowBlur = 0;
     }
 
     initParticles();
 
     // ---- Typewriter effect for quotes ----
-    function typeQuote(text: string, element: HTMLElement, speed: number = 30): Promise<void> {
+    function typeQuote(text: string, element: HTMLElement, speed: number = 25): Promise<void> {
       return new Promise((resolve) => {
         element.innerHTML = '';
         element.classList.add('visible');
@@ -737,7 +819,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             span.className = 'char';
             span.textContent = text.charAt(i);
             element.appendChild(span);
-            // Trigger reveal with small delay per character
             requestAnimationFrame(() => span.classList.add('revealed'));
             i++;
             setTimeout(type, speed);
@@ -750,135 +831,129 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     function clearQuote() {
-      rpQuoteEl.innerHTML = '';
-      rpQuoteEl.classList.remove('visible');
-      rpQuoteAuthorEl.classList.remove('visible');
-      rpQuoteAuthorEl.textContent = '';
+      rpQuote!.innerHTML = '';
+      rpQuote!.classList.remove('visible');
+      rpQuoteAuthor!.classList.remove('visible');
+      rpQuoteAuthor!.textContent = '';
     }
 
-    // ---- Show subtitle ----
     function showSubtitle(text: string) {
-      rpSubtitleEl.textContent = text;
-      rpSubtitleEl.classList.add('visible');
+      rpSubtitle!.textContent = text;
+      rpSubtitle!.classList.add('visible');
     }
 
     function hideSubtitle() {
-      rpSubtitleEl.classList.remove('visible');
+      rpSubtitle!.classList.remove('visible');
     }
 
-    // ---- Cinematic sequence ----
+    // ---- HOLLYWOOD MULTI-ACT SEQUENCE ----
     let animFrameId: number;
 
     async function runCinematicSequence() {
-      for (let i = 0; i < steps.length; i++) {
-        if (!cinematicActive) return;
-        const step = steps[i];
+      playSubBassBoom();
 
-        // Wait until step start time
-        const waitTime = step.startAt - (Date.now() - startTime);
-        if (waitTime > 0) {
-          await new Promise(r => setTimeout(r, waitTime));
-        }
-        if (!cinematicActive) return;
+      // ACT 1: LOGO & SYSTEM INITIALIZATION
+      if (rpActBadge) rpActBadge.textContent = 'AN OASIS HERITAGE PRODUCTION';
+      showSubtitle('/// INITIALISATION DU PROTOCOLE HALLIDAY //');
+      await new Promise(r => setTimeout(r, 600));
+      if (!cinematicActive) return;
 
-        // Show subtitle
-        showSubtitle(step.subtitle);
+      await typeQuote('"La réalité est un triste désert. Mais ici, dans l\'OASIS, tu peux réaliser l\'impossible."', rpQuote!, 22);
+      if (!cinematicActive) return;
 
-        // Wait a tiny bit before quote
-        await new Promise(r => setTimeout(r, 300));
-        if (!cinematicActive) return;
+      rpQuoteAuthor!.textContent = '— James Halliday, Ready Player One';
+      rpQuoteAuthor!.classList.add('visible');
+      await new Promise(r => setTimeout(r, 2200));
+      if (!cinematicActive) return;
 
-        // Type the quote
-        await typeQuote(step.quote, rpQuoteEl, 25);
-        if (!cinematicActive) return;
+      // ACT 2: FUSION DES 3 CLÉS DE HALLIDAY
+      clearQuote();
+      hideSubtitle();
+      if (rpActBadge) rpActBadge.textContent = 'ACTE II — L\'ASSEMBLAGE DES 3 CLÉS';
+      showSubtitle('/// FUSION DES CLÉS DE CUIVRE, JADE & CRISTAL //');
+      
+      if (rpKeysFusion) rpKeysFusion.classList.remove('hidden');
+      await new Promise(r => setTimeout(r, 400));
+      playKeyLockChime(440); // Copper key lock
+      await new Promise(r => setTimeout(r, 500));
+      playKeyLockChime(554); // Jade key lock
+      await new Promise(r => setTimeout(r, 500));
+      playKeyLockChime(659); // Crystal key lock
 
-        // Show author after a short pause
-        await new Promise(r => setTimeout(r, 400));
-        if (!cinematicActive) return;
+      await new Promise(r => setTimeout(r, 600));
+      if (!cinematicActive) return;
 
-        rpQuoteAuthorEl.textContent = step.author;
-        rpQuoteAuthorEl.classList.add('visible');
+      // Keys converge into central fusion core
+      if (rpKCopper) rpKCopper.classList.add('fused');
+      if (rpKJade) rpKJade.classList.add('fused');
+      if (rpKCrystal) rpKCrystal.classList.add('fused');
+      if (rpFusionCore) rpFusionCore.classList.add('active');
+      playSubBassBoom();
 
-        // Wait remaining duration of this step
-        const elapsedInStep = Date.now() - startTime - step.startAt;
-        const remaining = Math.max(0, step.duration - elapsedInStep);
-        if (remaining > 0) {
-          await new Promise(r => setTimeout(r, remaining));
-        }
-        if (!cinematicActive) return;
+      await new Promise(r => setTimeout(r, 2200));
+      if (!cinematicActive) return;
 
-        // Hide for next step (except last)
-        if (i < steps.length - 1) {
-          clearQuote();
-          hideSubtitle();
-          await new Promise(r => setTimeout(r, 500));
-        }
-      }
+      // Hide Fusion graphic for Act 3
+      if (rpKeysFusion) rpKeysFusion.classList.add('hidden');
 
-      // Cinematic complete, transition to sanctuary
-      if (cinematicActive) {
-        transitionToSanctuary();
-      }
+      // ACT 3: THE HALLIDAY PROPHESY & REWARD
+      if (rpActBadge) rpActBadge.textContent = 'ACTE III — LE SANCTUAIRE ULTIME';
+      showSubtitle('/// HÉRITAGE EXCLUSIF — LE TRÉSOR EST À TOI //');
+      
+      await typeQuote('"Merci d\'avoir joué à mon jeu. Tu as prouvé ta passion, ta curiosité et ton génie de dev."', rpQuote!, 22);
+      if (!cinematicActive) return;
+
+      rpQuoteAuthor!.textContent = '— James Halliday, L\'Œuf d\'Or';
+      rpQuoteAuthor!.classList.add('visible');
+
+      await new Promise(r => setTimeout(r, 2500));
+      if (!cinematicActive) return;
+
+      // ACT 4: FINALE EXPLOSION REVEAL
+      playFinaleCrescendo();
+      transitionToSanctuary();
     }
 
     function transitionToSanctuary() {
       cinematicActive = false;
-      rpOverlayEl.classList.add('fade-out');
-      sanctuaryContainerEl.style.display = 'block';
-      // Small delay to let position render
-      requestAnimationFrame(() => {
-        window.scrollTo(0, 0);
-      });
+      rpOverlay!.classList.add('fade-out');
+      sanctuaryContainer!.style.display = 'block';
+      requestAnimationFrame(() => window.scrollTo(0, 0));
       setTimeout(() => {
-        rpOverlayEl.style.display = 'none';
+        rpOverlay!.style.display = 'none';
         if (animFrameId) cancelAnimationFrame(animFrameId);
-      }, 1500);
+      }, 1400);
     }
 
-    // ---- Progress bar ----
     function updateProgress() {
       if (!cinematicActive) return;
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / CINEMATIC_DURATION, 1);
-      rpProgressFillEl.style.width = `${progress * 100}%`;
-      if (progress < 1) {
-        requestAnimationFrame(updateProgress);
-      }
+      rpProgressFill!.style.width = `${progress * 100}%`;
+      if (progress < 1) requestAnimationFrame(updateProgress);
     }
 
-    // ---- Skip handler ----
-    function skipCinematic() {
+    rpSkipBtn!.addEventListener('click', () => {
       if (!cinematicActive) return;
       cinematicActive = false;
       if (animFrameId) cancelAnimationFrame(animFrameId);
       transitionToSanctuary();
+    });
+
+    function renderLoop(time: number) {
+      if (cinematicActive) {
+        drawParticles(time);
+        animFrameId = requestAnimationFrame(renderLoop);
+      }
     }
 
-    rpSkipBtnEl.addEventListener('click', skipCinematic);
-
-    // ---- Start ----
     function startCinematic() {
       startTime = Date.now();
-
-      // Start particle animation
-      function animate() {
-        if (!cinematicActive) {
-          if (animFrameId) cancelAnimationFrame(animFrameId);
-          return;
-        }
-        drawParticles(Date.now());
-        animFrameId = requestAnimationFrame(animate);
-      }
-      animate();
-
-      // Start progress bar
+      renderLoop(0);
       updateProgress();
-
-      // Start sequence
       runCinematicSequence();
     }
 
-    // Start after a small delay to ensure everything is loaded
     setTimeout(startCinematic, 200);
   }
 

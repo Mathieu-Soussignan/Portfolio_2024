@@ -138,66 +138,81 @@ const projects = (await getCollection("work"))
         }
 
           // =============================================
-          // 🐇 EASTER EGG #5 — White Rabbit (Follow the White Rabbit)
+          // 🐇 EASTER EGG #5 — Holographic White Rabbit & Matrix Breach
           // =============================================
           (() => {
-            // The White Rabbit from Matrix — appears randomly, must be clicked!
             const rabbit = document.createElement('div');
             rabbit.id = 'white-rabbit';
-            rabbit.innerHTML = '🐇';
+            rabbit.innerHTML = `
+              <div class="rabbit-body">🐇</div>
+              <div class="rabbit-aura"></div>
+              <div class="rabbit-label">SUIS-MOI...</div>
+            `;
             rabbit.style.cssText = `
               position: fixed;
               z-index: 99999;
-              font-size: 2rem;
               cursor: pointer;
               pointer-events: all;
               opacity: 0;
-              transform: scale(0.5) rotate(0deg);
-              transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                          left 3s ease-in-out,
-                          top 3s ease-in-out;
-              filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+              transform: scale(0.4) rotate(0deg);
+              transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                          transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                          left 2.5s ease-in-out,
+                          top 2.5s ease-in-out;
               user-select: none;
             `;
             document.body.appendChild(rabbit);
 
             let rabbitClicked = false;
             let rabbitInterval: ReturnType<typeof setInterval> | null = null;
-            let rabbitPhase = 0;
 
-            // Rabbit spawn positions (viewport %)
             const positions = [
-              { left: '15%', top: '20%' },
-              { left: '70%', top: '35%' },
-              { left: '30%', top: '55%' },
-              { left: '80%', top: '15%' },
-              { left: '10%', top: '70%' },
-              { left: '60%', top: '60%' },
-              { left: '40%', top: '80%' },
-              { left: '85%', top: '50%' },
-              { left: '5%', top: '40%' },
-              { left: '50%', top: '10%' },
+              { left: '12%', top: '22%' },
+              { left: '75%', top: '30%' },
+              { left: '25%', top: '65%' },
+              { left: '82%', top: '18%' },
+              { left: '15%', top: '75%' },
+              { left: '65%', top: '60%' },
+              { left: '45%', top: '85%' },
             ];
+
+            // Particle Trail (0s and 1s)
+            function spawnBinaryParticle(x: number, y: number) {
+              if (Math.random() > 0.4) return;
+              const p = document.createElement('span');
+              p.className = 'rabbit-binary-particle';
+              p.textContent = Math.random() > 0.5 ? '1' : '0';
+              p.style.cssText = `
+                position: fixed;
+                left: ${x + (Math.random() * 30 - 15)}px;
+                top: ${y + (Math.random() * 30 - 15)}px;
+                z-index: 99998;
+                font-family: 'Fira Code', monospace;
+                font-size: 0.8rem;
+                font-weight: 800;
+                color: #00ff66;
+                text-shadow: 0 0 8px #00ff66;
+                pointer-events: none;
+                animation: rabbitParticleFade 1.2s ease-out forwards;
+              `;
+              document.body.appendChild(p);
+              setTimeout(() => p.remove(), 1200);
+            }
 
             function showRabbit(index: number) {
               if (rabbitClicked) return;
               const pos = positions[index % positions.length];
-              
-              // Random rotation for playful effect
-              const rot = -20 + Math.random() * 40;
+              const rot = -15 + Math.random() * 30;
               rabbit.style.left = pos.left;
               rabbit.style.top = pos.top;
               rabbit.style.transform = `scale(1) rotate(${rot}deg)`;
               rabbit.style.opacity = '1';
 
-              // Subtle text hint (Matrix style)
-              if (rabbitPhase === 0) {
-                showToast('🐇 Un lapin blanc ?', 2000);
-              } else if (rabbitPhase === 2) {
-                showToast('🐇 Tu as vu ? Il se cache...', 2000);
+              // Particle trail burst
+              const rect = rabbit.getBoundingClientRect();
+              for (let i = 0; i < 4; i++) {
+                spawnBinaryParticle(rect.left + 20, rect.top + 20);
               }
-              rabbitPhase++;
             }
 
             function hideRabbit() {
@@ -206,129 +221,125 @@ const projects = (await getCollection("work"))
               rabbit.style.transform = 'scale(0.3) rotate(0deg)';
             }
 
-            // Click handler
+            // FULL MATRIX BREACH TRANSITION ON CLICK
             rabbit.addEventListener('click', (e) => {
               e.stopPropagation();
               if (rabbitClicked) return;
               rabbitClicked = true;
 
-              // Flash white
-              const flash = document.createElement('div');
-              flash.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#ffffff;opacity:0;transition:opacity 0.2s ease;pointer-events:none;';
-              document.body.appendChild(flash);
-              requestAnimationFrame(() => { flash.style.opacity = '0.8'; });
-              setTimeout(() => {
-                flash.style.opacity = '0';
-                setTimeout(() => flash.remove(), 300);
-              }, 200);
+              if (rabbitInterval) clearInterval(rabbitInterval);
 
-              // Rabbit grows and glows
-              rabbit.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-              rabbit.style.transform = 'scale(3)';
-              rabbit.style.filter = 'drop-shadow(0 0 50px rgba(255, 255, 255, 1))';
+              // 1. Cyber Glitch Sound
+              try {
+                const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sawtooth';
+                o.frequency.setValueAtTime(200, ctx.currentTime);
+                o.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.4);
+                o.frequency.setValueAtTime(300, ctx.currentTime + 0.5);
+                o.frequency.linearRampToValueAtTime(1800, ctx.currentTime + 1.0);
+                g.gain.setValueAtTime(0.15, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + 1.2);
+              } catch(_err) {}
+
+              // 2. Rabbit Explosion Animation
+              rabbit.style.transform = 'scale(4) rotate(360deg)';
               rabbit.style.opacity = '0';
+              rabbit.style.filter = 'drop-shadow(0 0 80px #00ff66)';
 
-              // Show toast
-              showToast('🐇 "Suis le lapin blanc..." — Matrix', 4000);
-              showToast('🔮 Redirection vers l\'OASIS...', 2000);
+              // 3. Matrix Breach Full-Screen Overlay & Digital Rain Canvas
+              const breach = document.createElement('div');
+              breach.id = 'matrix-breach-overlay';
+              breach.innerHTML = `
+                <canvas id="matrix-rain-canvas"></canvas>
+                <div class="mb-content">
+                  <div class="mb-terminal">
+                    <div class="mb-line mb-l1">> WAKE UP, NEO...</div>
+                    <div class="mb-line mb-l2">> THE MATRIX HAS YOU.</div>
+                    <div class="mb-line mb-l3">> FOLLOW THE WHITE RABBIT.</div>
+                    <div class="mb-status">🐇 TÉLÉPORTATION DANS LA MATRICE EN COURS...</div>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(breach);
+              requestAnimationFrame(() => breach.classList.add('mb-active'));
 
+              // Start Canvas Katakana Rain
+              const canvas = document.getElementById('matrix-rain-canvas') as HTMLCanvasElement;
+              if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                const cctx = canvas.getContext('2d')!;
+                const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+                const fontSize = 16;
+                const columns = Math.floor(canvas.width / fontSize);
+                const drops: number[] = Array(columns).fill(1);
+
+                function drawRain() {
+                  cctx.fillStyle = 'rgba(5, 7, 12, 0.15)';
+                  cctx.fillRect(0, 0, canvas.width, canvas.height);
+                  cctx.fillStyle = '#00ff66';
+                  cctx.font = `${fontSize}px monospace`;
+
+                  for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    cctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                      drops[i] = 0;
+                    }
+                    drops[i]++;
+                  }
+                }
+                const rainInterval = setInterval(drawRain, 33);
+                setTimeout(() => clearInterval(rainInterval), 2500);
+              }
+
+              // Redirect after 2.4s of epic Matrix Breach
               setTimeout(() => {
-                window.location.href = '/easter-egg/oasis/';
-              }, 2000);
+                window.location.href = '/easter-egg/hack/';
+              }, 2400);
             });
 
             // Start rabbit sequence
             function startRabbitSequence() {
               if (rabbitClicked) return;
-              
-              // First appearance after 4s
               setTimeout(() => {
                 if (rabbitClicked) return;
                 showRabbit(0);
-                
-                // Hide after 2s
                 setTimeout(() => {
                   hideRabbit();
-                  
-                  // Second appearance after 3s pause
                   setTimeout(() => {
                     if (rabbitClicked) return;
                     showRabbit(1);
-                    
                     setTimeout(() => {
                       hideRabbit();
-                      
-                      // Third appearance after 2s pause
-                      setTimeout(() => {
-                        if (rabbitClicked) return;
-                        showRabbit(2);
-                        
-                        setTimeout(() => {
-                          hideRabbit();
-                          
-                          // Then random appearances every 8-15s
-                          if (!rabbitClicked) {
-                            rabbitInterval = setInterval(() => {
-                              if (rabbitClicked) {
-                                if (rabbitInterval) clearInterval(rabbitInterval);
-                                return;
-                              }
-                              const idx = Math.floor(Math.random() * positions.length);
-                              showRabbit(idx);
-                              setTimeout(() => {
-                                hideRabbit();
-                              }, 1500 + Math.random() * 1000);
-                            }, 8000 + Math.random() * 7000);
+                      if (!rabbitClicked) {
+                        rabbitInterval = setInterval(() => {
+                          if (rabbitClicked) {
+                            if (rabbitInterval) clearInterval(rabbitInterval);
+                            return;
                           }
-                        }, 2000);
-                      }, 1000);
-                    }, 4000);
+                          const idx = Math.floor(Math.random() * positions.length);
+                          showRabbit(idx);
+                          setTimeout(() => {
+                            hideRabbit();
+                          }, 2000);
+                        }, 9000);
+                      }
+                    }, 2500);
                   }, 3000);
-                }, 2000);
+                }, 2500);
               }, 4000);
             }
 
-            // Toast helper
-            function showToast(msg: string, duration: number = 1500) {
-              const existing = document.querySelector('.rabbit-toast');
-              if (existing) existing.remove();
-              
-              const toast = document.createElement('div');
-              toast.className = 'rabbit-toast';
-              toast.textContent = msg;
-              toast.style.cssText = `
-                position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-                z-index: 100000;
-                background: rgba(0, 0, 0, 0.85);
-                color: #ffffff;
-                font-family: 'Fira Code', monospace;
-                font-size: 0.85rem;
-                padding: 0.5rem 1.2rem;
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                opacity: 0;
-                transition: opacity 0.3s ease, transform 0.3s ease;
-                pointer-events: none;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-              `;
-              document.body.appendChild(toast);
-              requestAnimationFrame(() => {
-                toast.style.opacity = '1';
-                toast.style.transform = 'translateX(-50%) translateY(-10px)';
-              });
-              setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(10px)';
-                setTimeout(() => toast.remove(), 300);
-              }, duration);
+            if (document.readyState === 'complete') {
+              startRabbitSequence();
+            } else {
+              window.addEventListener('load', startRabbitSequence);
             }
-
-            // Also make the existing window.showToast work with rabbit
-            (window as any).showToastRabbit = showToast;
-
-            // Start sequence after page load
-            setTimeout(startRabbitSequence, 2000);
           })();
 
           // =============================================
@@ -1113,5 +1124,123 @@ const projects = (await getCollection("work"))
   @keyframes holoParticleFloat {
     0% { transform: translateY(0) scale(1); opacity: 0.3; }
     100% { transform: translateY(-30px) scale(1.5); opacity: 0.8; }
+  }
+
+  /* ========================================
+     🐇 Holographic White Rabbit & Matrix Breach CSS
+     ======================================== */
+  :global(#white-rabbit) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+  :global(.rabbit-body) {
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 15px #00ff66) drop-shadow(0 0 30px #00f2fe);
+    animation: rabbitPulse 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes rabbitPulse {
+    from { transform: scale(1) translateY(0); filter: drop-shadow(0 0 15px #00ff66) drop-shadow(0 0 30px #00f2fe); }
+    to { transform: scale(1.15) translateY(-5px); filter: drop-shadow(0 0 25px #00ff66) drop-shadow(0 0 50px #00f2fe); }
+  }
+  :global(.rabbit-aura) {
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    border: 2px dashed #00ff66;
+    animation: rabbitSpinAura 4s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes rabbitSpinAura {
+    0% { transform: rotate(0deg); opacity: 0.4; }
+    50% { opacity: 0.8; }
+    100% { transform: rotate(360deg); opacity: 0.4; }
+  }
+  :global(.rabbit-label) {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #00ff66;
+    background: rgba(10, 14, 23, 0.9);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #00ff66;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+    letter-spacing: 0.1em;
+    animation: rabbitBlinkText 0.8s infinite alternate;
+  }
+  @keyframes rabbitBlinkText {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+  }
+  @keyframes rabbitParticleFade {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-25px) scale(0.4); }
+  }
+
+  /* Matrix Breach Full-Screen Overlay */
+  :global(#matrix-breach-overlay) {
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    background: #05070c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: all;
+    transition: opacity 0.4s ease;
+    overflow: hidden;
+  }
+  :global(#matrix-breach-overlay.mb-active) {
+    opacity: 1;
+  }
+  :global(#matrix-rain-canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  :global(.mb-content) {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 550px;
+  }
+  :global(.mb-terminal) {
+    background: rgba(10, 14, 23, 0.92);
+    border: 2px solid #00ff66;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 0 50px rgba(0, 255, 102, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.8);
+    font-family: 'Fira Code', monospace;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: left;
+  }
+  :global(.mb-line) {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #00ff66;
+    text-shadow: 0 0 10px #00ff66;
+    opacity: 0;
+    animation: mbLineFade 0.3s forwards;
+  }
+  :global(.mb-l1) { animation-delay: 0.2s; }
+  :global(.mb-l2) { animation-delay: 0.7s; color: #fff; text-shadow: 0 0 10px #fff; }
+  :global(.mb-l3) { animation-delay: 1.2s; color: #00f2fe; text-shadow: 0 0 10px #00f2fe; }
+  @keyframes mbLineFade { to { opacity: 1; } }
+
+  :global(.mb-status) {
+    font-size: 0.8rem;
+    color: #ffd700;
+    margin-top: 0.5rem;
+    animation: mbPulseStatus 0.8s infinite alternate;
+  }
+  @keyframes mbPulseStatus {
+    from { opacity: 0.6; }
+    to { opacity: 1; text-shadow: 0 0 10px #ffd700; }
   }
 </style>
