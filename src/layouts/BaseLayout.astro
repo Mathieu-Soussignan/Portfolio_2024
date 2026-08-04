@@ -75,10 +75,19 @@ const { title, description } = Astro.props;
 				lastScrollY = currentScrollY;
 			}, { passive: true });
 
-			// Apple-Style Bidirectional Scroll Reveal Observer
+			// ============================================================
+			// God Tier S++ Scroll Reveal — Bidirectional, Zero-Gap
+			// Strategy:
+			//   1. At init: elements already in viewport → IMMEDIATELY revealed
+			//   2. Elements below fold → start hidden, animate in on scroll
+			//   3. Elements scrolled past the TOP → reset for re-animation
+			// This eliminates the "ghost gap" caused by elements that are
+			// `opacity:0` but already visible, before the observer fires.
+			// ============================================================
 			const initAppleScrollReveal = () => {
 				const selectors = [
-					'section',
+					// Only target specific content blocks — NOT structural sections
+					// (section selector breaks ::before pseudo-elements, causing white gaps)
 					'.glass-card',
 					'.project-item',
 					'.timeline-item',
@@ -87,43 +96,56 @@ const { title, description } = Astro.props;
 					'.featured-card',
 					'.project-body-content',
 					'.contact-cta-card',
-					'main > header'
+					'main > header',
+					'.terminal-section-header',
+					'.terminal-wrapper'
 				];
 
 				const elements = document.querySelectorAll(selectors.join(', '));
+				const vh = window.innerHeight;
 
 				elements.forEach((el) => {
-					// Don't hide elements inside the hero header on initial paint
+					// Never hide the hero elements
 					if (el.closest('.god-hero') && (el.classList.contains('hero-content') || el.classList.contains('status-badge'))) {
 						return;
 					}
+
+					const rect = el.getBoundingClientRect();
+					const alreadyVisible = rect.top < vh && rect.bottom > 0;
+
 					if (!el.classList.contains('apple-scroll-reveal')) {
 						el.classList.add('apple-scroll-reveal');
 					}
+
+					// CRITICAL: if element is already in viewport on load,
+					// reveal it instantly — no flash, no gap.
+					if (alreadyVisible) {
+						el.classList.add('apple-in-view');
+					}
 				});
 
-				// God Tier S++ Bidirectional Scroll Reveal
-				// Elements animate in from below when scrolling down,
-				// re-animate from above when scrolling back up.
-				// Critically: only remove in-view when element is FULLY
-				// outside the viewport (large negative margin prevents gap bugs).
 				const observer = new IntersectionObserver(
 					(entries) => {
 						entries.forEach((entry) => {
 							if (entry.isIntersecting) {
+								// Element entering viewport → animate in
 								entry.target.classList.add('apple-in-view');
 							} else {
-								// Only hide element when it has FULLY left viewport
-								// (not just barely exited by a few pixels)
-								entry.target.classList.remove('apple-in-view');
+								// Element leaving viewport — only hide it if it
+								// exited from the TOP (scrolled past, scroll-up reset)
+								// or if it's below fold (never been seen yet).
+								// We keep elements visible if they're in the lower margin.
+								const rect = entry.target.getBoundingClientRect();
+								// Only reset if fully above the viewport (user scrolled UP past it)
+								// or fully below (not yet reached)
+								if (rect.bottom < 0 || rect.top > window.innerHeight) {
+									entry.target.classList.remove('apple-in-view');
+								}
 							}
 						});
 					},
 					{
 						threshold: 0,
-						// Large positive rootMargin: element is considered "in view"
-						// as soon as ANY pixel enters the viewport area.
-						// The bottom margin is 0px — no artificial early-trigger.
 						rootMargin: '0px 0px 0px 0px'
 					}
 				);
