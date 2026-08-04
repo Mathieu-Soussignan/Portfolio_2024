@@ -282,17 +282,19 @@ const iconLinks: {
     font-size: var(--icon-size);
   }
 
-  .social {
+  .social,
+  .social:visited {
     display: flex;
     padding: var(--icon-padding);
     text-decoration: none;
-    color: var(--accent-dark);
+    color: var(--gray-200);
     transition: color var(--theme-transition);
   }
 
   .social:hover,
-  .social:focus {
-    color: var(--accent-text-over);
+  .social:focus,
+  .social:active {
+    color: var(--accent-regular);
   }
 
   .theme-toggle {

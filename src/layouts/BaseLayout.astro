@@ -107,15 +107,13 @@ const { title, description } = Astro.props;
 						entries.forEach((entry) => {
 							if (entry.isIntersecting) {
 								entry.target.classList.add('apple-in-view');
-							} else {
-								// When element exits viewport, remove class so scrolling BACK UP re-animates smoothly!
-								entry.target.classList.remove('apple-in-view');
+								observer.unobserve(entry.target);
 							}
 						});
 					},
 					{
-						threshold: 0.08,
-						rootMargin: '10px 0px -40px 0px'
+						threshold: 0.05,
+						rootMargin: '20px 0px -20px 0px'
 					}
 				);
 

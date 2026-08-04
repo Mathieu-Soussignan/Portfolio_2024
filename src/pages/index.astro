@@ -590,9 +590,21 @@ const projects = (await getCollection("work"))
   .hero-tagline-box {
     padding: 1.25rem 1.5rem;
     border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.88);
+    border-left: 4px solid var(--accent-regular) !important;
+    border-top: 1px solid rgba(107, 33, 168, 0.15);
+    border-right: 1px solid rgba(107, 33, 168, 0.15);
+    border-bottom: 1px solid rgba(107, 33, 168, 0.15);
+    max-width: 52ch;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  }
+
+  :root.theme-dark .hero-tagline-box {
     background: rgba(15, 23, 42, 0.6) !important;
     border-left: 4px solid #00f2fe !important;
-    max-width: 52ch;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
 
@@ -604,13 +616,17 @@ const projects = (await getCollection("work"))
   }
 
   .highlight-text {
-    color: #ffffff;
+    color: var(--gray-0);
     font-weight: 700;
   }
 
   .gradient-accent-text {
+    color: var(--accent-regular);
+    font-weight: 700;
+  }
+
+  :root.theme-dark .gradient-accent-text {
     color: #00f2fe;
-    font-weight: 600;
   }
 
   /* Cyber Roles Chips */
@@ -628,24 +644,34 @@ const projects = (await getCollection("work"))
     border-radius: 9999px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(197, 97, 246, 0.35) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: var(--gray-0);
+    background: rgba(107, 33, 168, 0.08) !important;
+    border: 1px solid rgba(107, 33, 168, 0.25) !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: default;
   }
 
+  :root.theme-dark .cyber-chip {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(197, 97, 246, 0.35) !important;
+  }
+
   .cyber-chip:hover {
     background: rgba(197, 97, 246, 0.2) !important;
-    border-color: #00f2fe !important;
+    border-color: var(--accent-regular) !important;
     transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 25px rgba(118, 17, 166, 0.4);
+    box-shadow: 0 8px 25px rgba(118, 17, 166, 0.2);
   }
 
   .cyber-chip.active-chip {
     border-color: rgba(39, 201, 63, 0.6) !important;
     background: rgba(39, 201, 63, 0.12) !important;
+    color: var(--gray-0);
+  }
+
+  :root.theme-dark .cyber-chip.active-chip {
     color: #ffffff;
   }
 
@@ -664,19 +690,19 @@ const projects = (await getCollection("work"))
     gap: 0.75rem;
     padding: 0.9rem 2rem;
     border-radius: 9999px;
-    background: linear-gradient(135deg, #7611a6 0%, #c561f6 50%, #00f2fe 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #7611a6 0%, #9333ea 50%, #6b21a8 100%);
+    color: #ffffff !important;
     font-weight: 700;
     font-size: var(--text-md);
     text-decoration: none;
-    box-shadow: 0 10px 30px rgba(118, 17, 166, 0.6);
+    box-shadow: 0 10px 30px rgba(118, 17, 166, 0.4);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .primary-hero-cta:hover {
     transform: translateY(-4px) scale(1.03);
-    box-shadow: 0 15px 40px rgba(0, 242, 254, 0.5);
-    color: #ffffff;
+    box-shadow: 0 15px 40px rgba(147, 51, 234, 0.5);
+    color: #ffffff !important;
   }
 
   .secondary-hero-cta {
@@ -685,20 +711,26 @@ const projects = (await getCollection("work"))
     gap: 0.75rem;
     padding: 0.9rem 1.8rem;
     border-radius: 9999px;
-    color: #ffffff;
+    color: var(--gray-0) !important;
     font-weight: 600;
     font-size: var(--text-md);
     text-decoration: none;
-    background: rgba(15, 23, 42, 0.7) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(107, 33, 168, 0.25) !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  :root.theme-dark .secondary-hero-cta {
+    color: #ffffff !important;
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  }
+
   .secondary-hero-cta:hover {
-    background: rgba(197, 97, 246, 0.25) !important;
-    border-color: #00f2fe !important;
+    background: rgba(197, 97, 246, 0.2) !important;
+    border-color: var(--accent-regular) !important;
     transform: translateY(-4px);
-    color: #ffffff;
   }
 
   /* Liquid Shimmer Text Animation */
