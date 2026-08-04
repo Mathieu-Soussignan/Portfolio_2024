@@ -6,14 +6,29 @@ interface Props {
 }
 
 const { data, slug } = Astro.props.project;
+
+const isProd = data.tags.some(t => ['SaaS', 'Vercel', 'Production'].includes(t)) || slug === 'creatorcomptability' || slug === 'finmetrics';
+const isIA = data.tags.some(t => ['IA', 'Machine Learning', 'Mistral AI', 'LLM'].includes(t));
 ---
 
 <a class="card glass-card project-card" href={`/work/${slug}`} data-tags={data.tags.join(',')} data-title={data.title.toLowerCase()}>
-	<span class="title-badge">{data.title}</span>
+	<div class="card-header-bar">
+		<span class="title-badge">{data.title}</span>
+		{isProd && <span class="status-badge prod-badge"><span class="pulse-dot-green"></span> LIVE</span>}
+		{!isProd && isIA && <span class="status-badge ia-badge">🤖 IA</span>}
+	</div>
 	
 	<div class="hover-overlay">
+		<div class="overlay-tags">
+			{data.tags.slice(0, 3).map(tag => (
+				<span class="mini-tag">{tag}</span>
+			))}
+		</div>
 		<p class="project-desc-short">{data.description}</p>
-		<span class="explore-cta">Voir le projet ➔</span>
+		<span class="explore-cta">
+			Détails & Architecture
+			<span class="arrow-icon">➔</span>
+		</span>
 	</div>
 
 	<div class="tags-preview">
@@ -22,6 +37,7 @@ const { data, slug } = Astro.props.project;
 		))}
 	</div>
 	<img src={data.img} alt={data.img_alt || ''} loading="lazy" decoding="async" />
+	<div class="card-ambient-glow"></div>
 </a>
 
 <style>
@@ -30,19 +46,80 @@ const { data, slug } = Astro.props.project;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		height: 14rem;
-		border-radius: 1.25rem;
+		height: 15rem;
+		border-radius: 1.5rem;
 		overflow: hidden;
 		text-decoration: none;
 		font-family: var(--font-brand);
 		transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: rgba(15, 23, 42, 0.7);
 	}
 
 	.card:hover {
 		transform: translateY(-8px) scale(1.02);
-		border-color: rgba(197, 97, 246, 0.5);
-		box-shadow: 0 20px 40px -10px rgba(118, 17, 166, 0.4);
+		border-color: rgba(197, 97, 246, 0.6);
+		box-shadow: 0 20px 45px -10px rgba(118, 17, 166, 0.5), 0 0 25px rgba(0, 242, 254, 0.25);
+	}
+
+	.card-header-bar {
+		z-index: 2;
+		margin: 0.75rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.title-badge {
+		padding: 0.45rem 1.1rem;
+		background: rgba(10, 14, 23, 0.85);
+		backdrop-filter: blur(12px);
+		color: #ffffff;
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		border-radius: 0.85rem;
+		font-size: var(--text-base);
+		font-weight: 700;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+		letter-spacing: -0.01em;
+	}
+
+	.status-badge {
+		font-size: 0.68rem;
+		font-weight: 800;
+		padding: 0.3rem 0.7rem;
+		border-radius: 9999px;
+		letter-spacing: 0.05em;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		backdrop-filter: blur(8px);
+	}
+
+	.prod-badge {
+		background: rgba(0, 255, 102, 0.15);
+		border: 1px solid rgba(0, 255, 102, 0.4);
+		color: #00ff66;
+	}
+
+	.ia-badge {
+		background: rgba(0, 242, 254, 0.15);
+		border: 1px solid rgba(0, 242, 254, 0.4);
+		color: #00f2fe;
+	}
+
+	.pulse-dot-green {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #00ff66;
+		box-shadow: 0 0 8px #00ff66;
+		animation: pulseGreen 1.8s infinite;
+	}
+
+	@keyframes pulseGreen {
+		0%, 100% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.4); opacity: 0.5; }
 	}
 
 	.card:hover .hover-overlay {
@@ -54,22 +131,28 @@ const { data, slug } = Astro.props.project;
 		position: absolute;
 		inset: 0;
 		z-index: 3;
-		background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(10, 14, 23, 0.95) 100%);
+		background: linear-gradient(180deg, rgba(10, 14, 23, 0.4) 0%, rgba(10, 14, 23, 0.96) 100%);
 		padding: 1.5rem;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
 		gap: 0.75rem;
 		opacity: 0;
-		transform: translateY(10px);
+		transform: translateY(12px);
 		transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 		pointer-events: none;
 	}
 
+	.overlay-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+
 	.project-desc-short {
 		color: #e2e8f0;
-		font-size: 0.85rem;
-		line-height: 1.5;
+		font-size: 0.88rem;
+		line-height: 1.55;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
@@ -80,29 +163,23 @@ const { data, slug } = Astro.props.project;
 	.explore-cta {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.4rem;
+		gap: 0.5rem;
 		color: #00f2fe;
 		font-weight: 700;
 		font-size: var(--text-sm);
+		margin-top: 0.2rem;
+	}
+
+	.arrow-icon {
+		transition: transform 0.25s ease;
+	}
+
+	.card:hover .arrow-icon {
+		transform: translateX(4px);
 	}
 
 	.card:hover img {
 		transform: scale(1.08);
-	}
-
-	.title-badge {
-		z-index: 2;
-		margin: 0.75rem;
-		align-self: flex-start;
-		padding: 0.4rem 1rem;
-		background: rgba(15, 23, 42, 0.85);
-		backdrop-filter: blur(8px);
-		color: #ffffff;
-		border: 1px solid rgba(255, 255, 255, 0.15);
-		border-radius: 0.75rem;
-		font-size: var(--text-base);
-		font-weight: 600;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 	}
 
 	.tags-preview {
@@ -115,12 +192,13 @@ const { data, slug } = Astro.props.project;
 
 	.mini-tag {
 		font-size: 0.7rem;
-		padding: 0.2rem 0.6rem;
+		padding: 0.25rem 0.65rem;
 		border-radius: 999px;
 		background: rgba(118, 17, 166, 0.75);
+		border: 1px solid rgba(197, 97, 246, 0.3);
 		color: #ffffff;
-		backdrop-filter: blur(4px);
-		font-weight: 500;
+		backdrop-filter: blur(6px);
+		font-weight: 600;
 	}
 
 	img {
@@ -131,7 +209,20 @@ const { data, slug } = Astro.props.project;
 		object-fit: cover;
 		z-index: 1;
 		transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-		filter: brightness(0.85);
+		filter: brightness(0.82);
+	}
+
+	.card-ambient-glow {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		background: radial-gradient(circle at 50% 0%, rgba(197, 97, 246, 0.15), transparent 70%);
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+
+	.card:hover .card-ambient-glow {
+		opacity: 1;
 	}
 
 	@media (min-width: 50em) {
@@ -142,7 +233,7 @@ const { data, slug } = Astro.props.project;
 
 		.title-badge {
 			font-size: var(--text-lg);
-			padding: 0.5rem 1.25rem;
+			padding: 0.55rem 1.3rem;
 		}
 	}
 </style>

@@ -15,33 +15,51 @@ const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") 
 ---
 
 <BaseLayout
-  title="Mes projets | Mathieu Soussignan"
-  description="Découvrez l'ensemble des réalisations de Mathieu Soussignan en Data Engineering, IA et Web FullStack."
+  title="Mes projets & Réalisations | Mathieu Soussignan"
+  description="Découvrez l'ensemble des projets et réalisations de Mathieu Soussignan en Data Engineering, Intelligence Artificielle et SaaS FullStack."
 >
   <div class="stack gap-15 lg:gap-30">
     <main class="wrapper stack gap-12 lg:gap-20">
       
-      <!-- HERO HEADER WORK -->
+      <!-- HERO HEADER WORK S++ -->
       <section class="work-hero-section">
         <div class="status-tag">
-          <span class="pulse-dot"></span> GALERIE DES RÉALISATIONS
+          <span class="pulse-dot"></span> GALERIE DES RÉALISATIONS & DÉMONSTRATEURS TECH
         </div>
         <h1 class="work-title">
           Mes Projets & <br />
-          <span class="gradient-text">Réalisations Tech</span>
+          <span class="gradient-text">Ingénierie Data / IA & SaaS</span>
         </h1>
         <p class="work-lead">
-          De l'intelligence artificielle appliquée à la Data jusqu'aux applications SaaS FullStack modernes. Découvrez ci-dessous mes projets récents.
+          De l'intelligence artificielle appliquée à la Data jusqu'aux suites SaaS B2B modernes. Explorez l'ensemble de mes architectures, applications en production et projets open-source.
         </p>
+
+        <!-- STATS BAR HERO -->
+        <div class="work-stats-bar glass-card">
+          <div class="stat-card-item">
+            <span class="stat-num">{allProjects.length}+</span>
+            <span class="stat-lbl">Projets & Démos</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-lbl">Prod & Open-Source</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card-item">
+            <span class="stat-num">FastAPI & Next.js</span>
+            <span class="stat-lbl">Architecture Stack</span>
+          </div>
+        </div>
       </section>
 
-      <!-- FEATURED FLAGSHIP PROJECT SPOTLIGHT CARD -->
+      <!-- FEATURED FLAGSHIP PROJECTS SPOTLIGHT (CreatorComptability V2) -->
       {featuredProject && (
         <section class="featured-section">
           <div class="featured-card glass-card">
             <div class="featured-content">
               <div class="featured-badge">
-                🔥 PROJET PHARE & EN PRODUCTION
+                🔥 PROJET PHARE & SAAS EN PRODUCTION
               </div>
               <h2 class="featured-title">{featuredProject.data.title}</h2>
               <p class="featured-desc">{featuredProject.data.description}</p>
@@ -54,11 +72,11 @@ const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") 
 
               <div class="featured-actions">
                 <a href="https://creator-comptability-v2-livid.vercel.app/" target="_blank" rel="noopener noreferrer" class="featured-cta">
-                  Tester le SaaS en Prod
+                  🚀 Tester le SaaS en Prod
                   <Icon icon="arrow-right" size="1.2em" />
                 </a>
                 <a href={`/work/${featuredProject.slug}/`} class="featured-secondary-cta glass-card">
-                  Détails & Architecture
+                  💻 Détails & Architecture
                 </a>
               </div>
             </div>
@@ -94,7 +112,7 @@ const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") 
           <button class="filter-btn" data-filter="IA">🤖 Data & IA</button>
           <button class="filter-btn" data-filter="SaaS">⚡ SaaS & FullStack</button>
           <button class="filter-btn" data-filter="Python">🐍 Python / FastAPI</button>
-          <button class="filter-btn" data-filter="React">💻 React</button>
+          <button class="filter-btn" data-filter="React">💻 React / Next.js</button>
         </div>
       </section>
 
@@ -218,6 +236,46 @@ const featuredProject = allProjects.find(p => p.slug === "creatorcomptability") 
     font-size: var(--text-lg);
     color: var(--gray-300);
     line-height: 1.6;
+  }
+
+  .work-stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(197, 97, 246, 0.25) !important;
+    margin-top: 0.5rem;
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .stat-card-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .stat-num {
+    font-size: var(--text-lg);
+    font-weight: 800;
+    color: #00f2fe;
+    line-height: 1.2;
+  }
+
+  .stat-lbl {
+    font-size: 0.72rem;
+    color: var(--gray-300);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.15);
   }
 
   /* FEATURED CARD */

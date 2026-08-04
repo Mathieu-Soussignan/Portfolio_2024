@@ -41,4 +41,4 @@ tags:
 
 ## Auteur
 
-**Mathieu Soussignan** — Créateur & Développeur Lead (Data & IA)
+**Mathieu Soussignan** — Créateur & Développeur (Data & IA)
