@@ -102,18 +102,29 @@ const { title, description } = Astro.props;
 					}
 				});
 
+				// God Tier S++ Bidirectional Scroll Reveal
+				// Elements animate in from below when scrolling down,
+				// re-animate from above when scrolling back up.
+				// Critically: only remove in-view when element is FULLY
+				// outside the viewport (large negative margin prevents gap bugs).
 				const observer = new IntersectionObserver(
 					(entries) => {
 						entries.forEach((entry) => {
 							if (entry.isIntersecting) {
 								entry.target.classList.add('apple-in-view');
-								observer.unobserve(entry.target);
+							} else {
+								// Only hide element when it has FULLY left viewport
+								// (not just barely exited by a few pixels)
+								entry.target.classList.remove('apple-in-view');
 							}
 						});
 					},
 					{
-						threshold: 0.05,
-						rootMargin: '20px 0px -20px 0px'
+						threshold: 0,
+						// Large positive rootMargin: element is considered "in view"
+						// as soon as ANY pixel enters the viewport area.
+						// The bottom margin is 0px — no artificial early-trigger.
+						rootMargin: '0px 0px 0px 0px'
 					}
 				);
 

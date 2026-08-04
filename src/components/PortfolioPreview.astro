@@ -52,8 +52,16 @@ const isIA = data.tags.some(t => ['IA', 'Machine Learning', 'Mistral AI', 'LLM']
 		text-decoration: none;
 		font-family: var(--font-brand);
 		transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		/* Light mode: clean slate with subtle purple tint */
+		border: 1px solid rgba(107, 33, 168, 0.2);
+		background: rgba(248, 250, 252, 0.95);
+		box-shadow: 0 4px 20px rgba(107, 33, 168, 0.07);
+	}
+
+	:root.theme-dark .card {
 		border: 1px solid rgba(255, 255, 255, 0.12);
 		background: rgba(15, 23, 42, 0.7);
+		box-shadow: none;
 	}
 
 	.card:hover {
@@ -104,12 +112,24 @@ const isIA = data.tags.some(t => ['IA', 'Machine Learning', 'Mistral AI', 'LLM']
 	}
 
 	.prod-badge {
+		background: rgba(0, 255, 102, 0.12);
+		border: 1px solid rgba(0, 200, 80, 0.4);
+		color: #15803d;
+	}
+
+	:root.theme-dark .prod-badge {
 		background: rgba(0, 255, 102, 0.15);
 		border: 1px solid rgba(0, 255, 102, 0.4);
 		color: #00ff66;
 	}
 
 	.ia-badge {
+		background: rgba(0, 150, 200, 0.12);
+		border: 1px solid rgba(0, 150, 200, 0.35);
+		color: #0369a1;
+	}
+
+	:root.theme-dark .ia-badge {
 		background: rgba(0, 242, 254, 0.15);
 		border: 1px solid rgba(0, 242, 254, 0.4);
 		color: #00f2fe;

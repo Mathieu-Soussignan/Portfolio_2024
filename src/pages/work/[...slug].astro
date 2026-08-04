@@ -287,21 +287,31 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 	.project-body-content :global(pre) {
 		padding: 1.25rem;
 		border-radius: 1rem;
-		background: rgba(10, 14, 23, 0.9) !important;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(15, 23, 42, 0.06) !important;
+		border: 1px solid rgba(107, 33, 168, 0.15);
 		margin: 1.5rem 0;
 		overflow-x: auto;
 		font-family: 'Fira Code', Consolas, monospace;
 		font-size: 0.9rem;
 	}
 
+	:root.theme-dark .project-body-content :global(pre) {
+		background: rgba(10, 14, 23, 0.9) !important;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
 	.project-body-content :global(code) {
 		font-family: 'Fira Code', Consolas, monospace;
-		background: rgba(255, 255, 255, 0.08);
+		background: rgba(107, 33, 168, 0.1);
 		padding: 0.2rem 0.4rem;
 		border-radius: 4px;
-		color: #00f2fe;
+		color: var(--accent-regular);
 		font-size: 0.9em;
+	}
+
+	:root.theme-dark .project-body-content :global(code) {
+		background: rgba(255, 255, 255, 0.08);
+		color: #00f2fe;
 	}
 
 	.project-body-content :global(table) {
@@ -311,37 +321,63 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 		margin: 1.5rem 0;
 		border-radius: 1rem;
 		overflow: hidden;
+		border: 1px solid rgba(107, 33, 168, 0.2);
+	}
+
+	:root.theme-dark .project-body-content :global(table) {
 		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.project-body-content :global(th) {
-		background: rgba(118, 17, 166, 0.3);
-		color: #ffffff;
+		background: rgba(147, 51, 234, 0.15);
+		color: var(--gray-0);
 		padding: 0.75rem 1rem;
 		text-align: left;
 		font-weight: 700;
 	}
 
+	:root.theme-dark .project-body-content :global(th) {
+		background: rgba(118, 17, 166, 0.3);
+		color: #ffffff;
+	}
+
 	.project-body-content :global(td) {
 		padding: 0.75rem 1rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.06);
+		border-top: 1px solid rgba(107, 33, 168, 0.1);
 		color: var(--gray-200);
 	}
 
+	:root.theme-dark .project-body-content :global(td) {
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+	}
+
 	.project-body-content :global(a) {
-		color: #00f2fe;
+		color: var(--accent-regular);
 		text-decoration: underline;
 		font-weight: 600;
 		transition: color 0.2s ease;
 	}
 
+	:root.theme-dark .project-body-content :global(a) {
+		color: #00f2fe;
+	}
+
 	.project-body-content :global(a:hover) {
+		color: var(--accent-light);
+	}
+
+	:root.theme-dark .project-body-content :global(a:hover) {
 		color: #c561f6;
 	}
 
 	.project-body-content :global(img) {
 		border-radius: 1rem;
 		margin: 1.5rem 0;
+		border: 1px solid rgba(107, 33, 168, 0.15);
+		box-shadow: 0 10px 30px rgba(107, 33, 168, 0.1);
+	}
+
+	:root.theme-dark .project-body-content :global(img) {
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 	}
@@ -362,16 +398,29 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 		flex-direction: row;
 		align-items: center;
 		gap: 1rem;
-		background: rgba(15, 23, 42, 0.8) !important;
-		border: 1px solid rgba(197, 97, 246, 0.3) !important;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+		/* Light mode: clean white card */
+		background: rgba(255, 255, 255, 0.9) !important;
+		border: 1px solid rgba(107, 33, 168, 0.3) !important;
+		box-shadow: 0 10px 30px rgba(107, 33, 168, 0.08);
 		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
+	:root.theme-dark .nav-card {
+		background: rgba(15, 23, 42, 0.8) !important;
+		border: 1px solid rgba(197, 97, 246, 0.3) !important;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+	}
+
 	.nav-card:hover {
+		border-color: rgba(107, 33, 168, 0.7) !important;
+		background: rgba(147, 51, 234, 0.1) !important;
+		transform: translateY(-4px);
+		box-shadow: 0 15px 35px rgba(107, 33, 168, 0.2);
+	}
+
+	:root.theme-dark .nav-card:hover {
 		border-color: rgba(197, 97, 246, 0.7) !important;
 		background: rgba(118, 17, 166, 0.25) !important;
-		transform: translateY(-4px);
 		box-shadow: 0 15px 35px rgba(118, 17, 166, 0.4);
 	}
 

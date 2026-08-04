@@ -237,7 +237,16 @@ const softSkills = [
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    background: rgba(15, 23, 42, 0.6) !important;
+    /* Light mode: soft white cards with subtle purple border */
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(147, 51, 234, 0.2);
+    box-shadow: 0 2px 12px rgba(107, 33, 168, 0.08), 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  :global(.theme-dark) .stat-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(197, 97, 246, 0.25);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   }
 
   .stat-number {
@@ -265,8 +274,15 @@ const softSkills = [
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background: rgba(15, 23, 42, 0.75) !important;
-    border: 1px solid rgba(197, 97, 246, 0.3) !important;
+    /* Light mode: clean white with purple glow */
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    box-shadow: 0 25px 60px rgba(107, 33, 168, 0.12), 0 4px 20px rgba(107, 33, 168, 0.08);
+  }
+
+  :global(.theme-dark) .profile-card {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(197, 97, 246, 0.3);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.25);
   }
 
@@ -302,11 +318,18 @@ const softSkills = [
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #ffffff;
-    background: rgba(15, 23, 42, 0.9) !important;
-    border: 1px solid rgba(197, 97, 246, 0.4) !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    color: var(--gray-0);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(147, 51, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(107, 33, 168, 0.15);
     z-index: 3;
+  }
+
+  :global(.theme-dark) .photo-badge {
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(197, 97, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   }
 
   .badge-1 {
@@ -326,8 +349,12 @@ const softSkills = [
     font-size: 0.85rem;
     color: var(--gray-200);
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(107, 33, 168, 0.06);
     border-radius: 0.75rem;
+  }
+
+  :global(.theme-dark) .photo-footer {
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .dot-active {
@@ -409,6 +436,10 @@ const softSkills = [
     align-items: center;
     justify-content: center;
     border: 1px solid;
+    background: rgba(147, 51, 234, 0.08);
+  }
+
+  :global(.theme-dark) .cat-icon-wrapper {
     background: rgba(255, 255, 255, 0.04);
   }
 
@@ -428,13 +459,24 @@ const softSkills = [
     font-weight: 500;
     padding: 0.4rem 0.9rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(147, 51, 234, 0.08);
+    border: 1px solid rgba(147, 51, 234, 0.2);
     color: var(--gray-100);
     transition: all 0.2s ease;
   }
 
+  :global(.theme-dark) .skill-pill-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
   .skill-pill-item:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: rgba(147, 51, 234, 0.5);
+    color: var(--gray-0);
+  }
+
+  :global(.theme-dark) .skill-pill-item:hover {
     background: rgba(197, 97, 246, 0.2);
     border-color: rgba(197, 97, 246, 0.5);
     color: #ffffff;
