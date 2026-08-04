@@ -88,16 +88,16 @@
 	--gray-999-basis: 225, 31%, 5%;
 	--gray-999: #090b11;
 
-	--accent-light: #1c0056;
+	--accent-light: #c561f6;
 	--accent-regular: #7611a6;
-	--accent-dark: #c561f6;
+	--accent-dark: #1c0056;
 	--accent-overlay: hsla(280, 89%, 67%, 0.33);
 	--accent-subtle-overlay: hsla(281, 81%, 36%, 0.33);
-	--accent-text-over: var(--gray-0);
+	--accent-text-over: #ffffff;
 
-	--link-color: var(--accent-dark);
+	--link-color: var(--accent-light);
 
-	--gradient-stop-1: #4c11c6;
+	--gradient-stop-1: #c561f6;
 	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 81%);
 	--gradient-accent-orange: linear-gradient(
 		150deg,
@@ -107,12 +107,9 @@
 	);
 	--gradient-stroke: linear-gradient(180deg, var(--gray-600), var(--gray-800));
 
-	--shadow-sm: 0px 6px 3px rgba(255, 255, 255, 0.01), 0px 4px 2px rgba(255, 255, 255, 0.01),
-		0px 2px 2px rgba(255, 255, 255, 0.02), 0px 0px 1px rgba(255, 255, 255, 0.03);
-	--shadow-md: 0px 28px 11px rgba(255, 255, 255, 0.01), 0px 16px 10px rgba(255, 255, 255, 0.03),
-		0px 7px 7px rgba(255, 255, 255, 0.05), 0px 2px 4px rgba(255, 255, 255, 0.06);
-	--shadow-lg: 0px 62px 25px rgba(255, 255, 255, 0.01), 0px 35px 21px rgba(255, 255, 255, 0.05),
-		0px 16px 16px rgba(255, 255, 255, 0.1), 0px 4px 9px rgba(255, 255, 255, 0.12);
+	--shadow-sm: 0px 6px 3px rgba(0, 0, 0, 0.2), 0px 4px 2px rgba(0, 0, 0, 0.2);
+	--shadow-md: 0px 28px 11px rgba(0, 0, 0, 0.3), 0px 16px 10px rgba(0, 0, 0, 0.3);
+	--shadow-lg: 0px 62px 25px rgba(0, 0, 0, 0.4), 0px 35px 21px rgba(0, 0, 0, 0.4);
 }
 
 html,

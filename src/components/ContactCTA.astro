@@ -72,10 +72,16 @@ import Icon from "./Icon.astro";
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(107, 33, 168, 0.2) !important;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  :root.theme-dark .contact-cta-card {
     background: rgba(15, 23, 42, 0.8) !important;
     border: 1px solid rgba(197, 97, 246, 0.4) !important;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.25);
-    overflow: hidden;
   }
 
   .cta-content {
@@ -118,7 +124,7 @@ import Icon from "./Icon.astro";
 
   .cta-desc {
     font-size: var(--text-base);
-    color: var(--gray-300);
+    color: var(--gray-200);
     line-height: 1.6;
   }
 
@@ -128,9 +134,9 @@ import Icon from "./Icon.astro";
     gap: 0.75rem;
     padding: 0.6rem 1.25rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #00f2fe;
+    background: rgba(107, 33, 168, 0.08) !important;
+    border: 1px solid rgba(107, 33, 168, 0.25) !important;
+    color: var(--accent-regular);
     font-size: var(--text-sm);
     font-weight: 600;
     cursor: pointer;
@@ -138,15 +144,21 @@ import Icon from "./Icon.astro";
     transition: all 0.25s ease;
   }
 
+  :root.theme-dark .cta-email-box {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #00f2fe;
+  }
+
   .cta-email-box:hover {
-    background: rgba(0, 242, 254, 0.15) !important;
-    border-color: #00f2fe !important;
+    background: rgba(197, 97, 246, 0.2) !important;
+    border-color: var(--accent-regular) !important;
     transform: translateY(-2px);
   }
 
   .copy-hint {
     font-size: 0.75rem;
-    color: var(--gray-400);
+    color: var(--gray-300);
     margin-left: 0.5rem;
   }
 
@@ -169,15 +181,22 @@ import Icon from "./Icon.astro";
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     border-radius: 9999px;
-    color: var(--gray-100);
+    color: var(--gray-0);
     text-decoration: none;
     font-size: var(--text-sm);
     font-weight: 600;
+    background: rgba(107, 33, 168, 0.08) !important;
+    border: 1px solid rgba(107, 33, 168, 0.2) !important;
     transition: all 0.25s ease;
   }
 
+  :root.theme-dark .social-pill {
+    color: var(--gray-100);
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+
   .social-pill:hover {
-    color: #ffffff;
     background: rgba(197, 97, 246, 0.25) !important;
     border-color: rgba(197, 97, 246, 0.6) !important;
     transform: translateY(-2px);

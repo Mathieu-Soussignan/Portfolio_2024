@@ -186,6 +186,15 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 		font-size: var(--text-lg);
 		line-height: 1.6;
 		color: var(--gray-100);
+		background: rgba(255, 255, 255, 0.9) !important;
+		border-left: 4px solid var(--accent-regular) !important;
+		border-top: 1px solid rgba(107, 33, 168, 0.15);
+		border-right: 1px solid rgba(107, 33, 168, 0.15);
+		border-bottom: 1px solid rgba(107, 33, 168, 0.15);
+	}
+
+	:root.theme-dark .project-lead-box {
+		background: rgba(15, 23, 42, 0.6) !important;
 		border-left: 4px solid var(--accent-light) !important;
 	}
 
@@ -199,6 +208,11 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 		width: 100%;
 		border-radius: 1.5rem;
 		overflow: hidden;
+		border: 1px solid rgba(107, 33, 168, 0.2) !important;
+		box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+	}
+
+	:root.theme-dark .cover-card {
 		border: 1px solid rgba(197, 97, 246, 0.3) !important;
 		box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(118, 17, 166, 0.2);
 	}
@@ -214,10 +228,16 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 	.project-body-content {
 		padding: 2rem;
 		border-radius: 1.5rem;
-		background: rgba(15, 23, 42, 0.65) !important;
+		background: rgba(255, 255, 255, 0.9) !important;
+		border: 1px solid rgba(107, 33, 168, 0.15) !important;
 		font-size: var(--text-md);
 		line-height: 1.7;
 		color: var(--gray-200);
+	}
+
+	:root.theme-dark .project-body-content {
+		background: rgba(15, 23, 42, 0.65) !important;
+		border: 1px solid rgba(255, 255, 255, 0.08) !important;
 	}
 
 	.project-body-content :global(h2) {
@@ -226,14 +246,18 @@ const nextProject = currentIndex < allWork.length - 1 ? allWork[currentIndex + 1
 		margin-top: 2.5rem;
 		margin-bottom: 1rem;
 		padding-left: 0.8rem;
-		border-left: 4px solid var(--accent-light);
+		border-left: 4px solid var(--accent-regular);
 	}
 
 	.project-body-content :global(h3) {
 		font-size: var(--text-xl);
-		color: #00f2fe;
+		color: var(--accent-regular);
 		margin-top: 2rem;
 		margin-bottom: 0.8rem;
+	}
+
+	:root.theme-dark .project-body-content :global(h3) {
+		color: #00f2fe;
 	}
 
 	.project-body-content :global(p) {

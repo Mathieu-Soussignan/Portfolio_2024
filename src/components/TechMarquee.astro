@@ -36,10 +36,17 @@ const techStack = [
     overflow: hidden;
     padding: 2.5rem 0;
     margin: 3rem 0;
-    background: rgba(15, 23, 42, 0.4);
-    border-y: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.85);
+    border-top: 1px solid rgba(107, 33, 168, 0.15);
+    border-bottom: 1px solid rgba(107, 33, 168, 0.15);
     mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  :root.theme-dark .marquee-section {
+    background: rgba(15, 23, 42, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .marquee-track {
@@ -65,8 +72,15 @@ const techStack = [
     border-radius: 9999px;
     white-space: nowrap;
     cursor: default;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(107, 33, 168, 0.2);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  :root.theme-dark .tech-badge {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
   }
 
   .tech-badge:hover {
@@ -89,8 +103,8 @@ const techStack = [
 
   .tech-cat {
     font-size: 0.75rem;
-    color: var(--gray-400);
-    opacity: 0.8;
+    color: var(--gray-200);
+    opacity: 0.85;
   }
 
   @keyframes scrollMarquee {
