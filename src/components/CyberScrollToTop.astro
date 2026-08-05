@@ -1,22 +1,24 @@
 ---
-// CyberScrollToTop.astro — God Tier S++ Hyperspace Scroll to Top Widget
+// CyberScrollToTop.astro — Sleek Hyperspace Scroll to Top Widget (No Emojis)
 ---
 
-<div id="cyber-scroll-top-root" class="cyber-scroll-top-wrapper" aria-label="Remonter en haut">
+<div id="cyber-scroll-top-root" class="cyber-scroll-top-wrapper" aria-label="Remonter en haut de la page">
   <button id="cyber-scroll-top-btn" class="cyber-scroll-top-btn" title="Remonter en haut (Shift + Flèche Haut)">
     <svg class="progress-ring" width="56" height="56" viewBox="0 0 56 56">
       <circle class="progress-ring-bg" cx="28" cy="28" r="23" />
       <circle id="scroll-progress-circle" class="progress-ring-fill" cx="28" cy="28" r="23" />
     </svg>
     <div class="btn-inner">
-      <span class="rocket-icon">🚀</span>
+      <svg class="arrow-up-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
       <span id="scroll-percent-text" class="scroll-percent-text">0%</span>
     </div>
     <div class="thruster-glow"></div>
   </button>
   <div class="scroll-tooltip">
-    <span class="tooltip-badge">WARP DRIVE</span>
-    <span class="tooltip-sub">Shift + 🪟 / Click</span>
+    <span class="tooltip-badge">REMONTER EN HAUT</span>
+    <span class="tooltip-sub">Shift + Flèche Haut</span>
   </div>
 </div>
 
@@ -50,7 +52,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(147, 51, 234, 0.3);
     box-shadow: 0 10px 30px rgba(107, 33, 168, 0.2), 0 0 15px rgba(147, 51, 234, 0.15);
     cursor: pointer;
@@ -64,13 +66,13 @@
   }
 
   :global(.theme-dark) .cyber-scroll-top-btn {
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.88);
     border: 1px solid rgba(197, 97, 246, 0.4);
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(197, 97, 246, 0.3);
   }
 
   .cyber-scroll-top-btn:hover {
-    transform: scale(1.12) translateY(-3px);
+    transform: scale(1.1) translateY(-3px);
     border-color: rgba(197, 97, 246, 0.8);
     box-shadow: 0 15px 40px rgba(197, 97, 246, 0.4), 0 0 35px rgba(0, 242, 254, 0.4);
   }
@@ -115,36 +117,32 @@
     justify-content: center;
     z-index: 2;
     transition: transform 0.3s ease;
+    gap: 1px;
   }
 
-  .rocket-icon {
-    font-size: 1.25rem;
-    line-height: 1;
+  .arrow-up-icon {
+    color: var(--accent-regular);
     transition: transform 0.3s ease;
-    filter: drop-shadow(0 2px 5px rgba(107, 33, 168, 0.3));
   }
 
-  .cyber-scroll-top-btn:hover .rocket-icon {
-    transform: translateY(-4px) scale(1.2);
-    animation: rocketHover 0.8s ease-in-out infinite alternate;
+  :global(.theme-dark) .arrow-up-icon {
+    color: #00f2fe;
   }
 
-  @keyframes rocketHover {
-    0% { transform: translateY(-4px) scale(1.2); }
-    100% { transform: translateY(-8px) scale(1.25); }
+  .cyber-scroll-top-btn:hover .arrow-up-icon {
+    transform: translateY(-3px);
   }
 
   .scroll-percent-text {
     font-size: 0.65rem;
     font-weight: 800;
     font-family: var(--font-brand);
-    color: var(--accent-regular);
+    color: var(--gray-0);
     line-height: 1;
-    margin-top: 1px;
   }
 
   :global(.theme-dark) .scroll-percent-text {
-    color: #00f2fe;
+    color: #ffffff;
   }
 
   /* Thruster Glow */
@@ -227,14 +225,14 @@
   }
 
   /* Launching state class */
-  .cyber-scroll-top-btn.launching .rocket-icon {
-    animation: rocketLaunch 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards !important;
+  .cyber-scroll-top-btn.launching .arrow-up-icon {
+    animation: arrowLaunch 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards !important;
   }
 
-  @keyframes rocketLaunch {
+  @keyframes arrowLaunch {
     0% { transform: translateY(0) scale(1); }
-    30% { transform: translateY(10px) scale(0.8); }
-    100% { transform: translateY(-120px) scale(1.8); opacity: 0; }
+    30% { transform: translateY(6px) scale(0.8); }
+    100% { transform: translateY(-80px) scale(1.6); opacity: 0; }
   }
 </style>
 
@@ -250,7 +248,7 @@
 </svg>
 
 <script>
-  (() => {
+  const initCyberScrollTop = () => {
     const rootEl = document.getElementById('cyber-scroll-top-root');
     const btn = document.getElementById('cyber-scroll-top-btn');
     const circle = document.getElementById('scroll-progress-circle') as SVGGeometryElement | null;
@@ -260,7 +258,6 @@
     if (!rootEl || !btn || !circle || !canvas) return;
 
     const ctx = canvas.getContext('2d');
-
     const RADIUS = 23;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -281,18 +278,20 @@
       const percent = Math.round(progress * 100);
       if (percentText) percentText.textContent = `${percent}%`;
 
-      // Show button if scrolled down past 280px
-      if (scrollTop > 280) {
+      // Show button if scrolled down past 220px
+      if (scrollTop > 220) {
         rootEl.classList.add('visible');
       } else {
         rootEl.classList.remove('visible');
       }
     };
 
+    // Remove existing scroll listener before adding to avoid duplicates
+    window.removeEventListener('scroll', updateProgress);
     window.addEventListener('scroll', updateProgress, { passive: true });
     updateProgress();
 
-    // 2. Audio Synthesizer (Sci-Fi Warp Drive Sound)
+    // 2. Audio Synthesizer (Sci-Fi Warp Sound)
     const playWarpSound = () => {
       try {
         const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -304,12 +303,11 @@
 
         osc.type = 'sawtooth';
         
-        // Pitch sweep upwards (hyperspace acceleration)
         osc.frequency.setValueAtTime(120, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.65);
 
         gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+        gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
 
         osc.connect(gain);
@@ -317,9 +315,7 @@
 
         osc.start();
         osc.stop(audioCtx.currentTime + 0.7);
-      } catch (e) {
-        // Audio context non bloquant
-      }
+      } catch (e) {}
     };
 
     // 3. Hyperspace Particle Warp Animation
@@ -331,6 +327,7 @@
       canvas.height = window.innerHeight;
     };
 
+    window.removeEventListener('resize', initCanvasSize);
     window.addEventListener('resize', initCanvasSize);
     initCanvasSize();
 
@@ -344,7 +341,6 @@
       const centerX = width / 2;
       const centerY = height / 2;
 
-      // Spawn 150 warp stars
       stars = [];
       const colors = ['#00f2fe', '#c561f6', '#ffffff', '#39ff14', '#ffd700'];
       for (let i = 0; i < 160; i++) {
@@ -361,7 +357,7 @@
       }
 
       let startTime = performance.now();
-      const DURATION = 750; // ms
+      const DURATION = 750;
 
       const render = (now: number) => {
         const elapsed = now - startTime;
@@ -370,7 +366,6 @@
         ctx.fillStyle = 'rgba(10, 14, 23, 0.3)';
         ctx.fillRect(0, 0, width, height);
 
-        // Draw stretched warp lines flying down/outward
         stars.forEach((star) => {
           star.y += star.speed * (1 + progress * 2);
           if (star.y > height / 2) star.y = -height / 2;
@@ -406,10 +401,9 @@
       triggerHyperspaceEffect();
 
       if ((window as any).showToast) {
-        (window as any).showToast('🚀 WARP DRIVE ACTIF — REMONTÉE EN HAUT !');
+        (window as any).showToast('REMONTÉE EN HAUT DE LA PAGE');
       }
 
-      // Smooth custom scroll
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -420,16 +414,29 @@
       }, 850);
     };
 
-    btn.addEventListener('click', executeScrollToTop);
+    // Replace event listener cleanly
+    btn.onclick = executeScrollToTop;
 
     // Keyboard shortcut: Shift + Up Arrow or Home key
-    window.addEventListener('keydown', (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.shiftKey && e.key === 'ArrowUp') || e.key === 'Home') {
         if (window.scrollY > 200) {
           e.preventDefault();
           executeScrollToTop();
         }
       }
-    });
-  })();
+    };
+
+    window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+  };
+
+  // Run on initial DOM ready and on every ViewTransitions page navigation
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCyberScrollTop);
+  } else {
+    initCyberScrollTop();
+  }
+
+  document.addEventListener('astro:page-load', initCyberScrollTop);
 </script>
