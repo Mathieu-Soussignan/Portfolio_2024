@@ -1,7 +1,7 @@
 ---
 title: FinMetrics
 publishDate: 2026-08-04 00:00:00
-img: /assets/finmetrics-thumbnail.jpg
+img: /assets/finmetrics-thumbnail.jpg?v=2
 img_alt: Aperçu de la suite financière et simulateurs B2B FinMetrics
 description: |
   Suite d'outils financiers et simulateurs B2B (Valuation SaaS, LMNP, comparateur bancaire) conçue pour les freelances et entrepreneurs. Intègre un pipeline automatisé d'acquisition de leads et de qualification de contenu par IA.
