@@ -163,12 +163,6 @@ const { title, description } = Astro.props;
 				initAppleScrollReveal();
 			}
 
-			// Astro View Transitions: re-run initialization on every client-side page load
-			document.addEventListener('astro:page-load', () => {
-				document.documentElement.classList.add('loaded');
-				initAppleScrollReveal();
-			});
-
 			// =============================================
 			// 🥚 EASTER EGG #2 — Séquence clavier secrète
 			// =============================================

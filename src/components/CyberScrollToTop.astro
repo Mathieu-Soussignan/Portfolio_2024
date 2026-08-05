@@ -431,12 +431,10 @@
     window.addEventListener('keydown', handleKeyDown);
   };
 
-  // Run on initial DOM ready and on every ViewTransitions page navigation
+  // Run on initial DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initCyberScrollTop);
   } else {
     initCyberScrollTop();
   }
-
-  document.addEventListener('astro:page-load', initCyberScrollTop);
 </script>

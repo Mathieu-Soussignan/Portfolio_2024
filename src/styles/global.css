@@ -392,39 +392,20 @@ li.apple-scroll-reveal:nth-child(4),
 .grid > *:nth-child(4) { transition-delay: 0.16s; }
 
 /* ==========================================================================
-   God Tier S++ Cyber Portal Page View Transitions
+   Smooth Native Page Entrance Animation
    ========================================================================== */
-::view-transition-old(root) {
-	animation: 320ms cubic-bezier(0.4, 0, 1, 1) both cyberPageOut;
+body {
+	animation: nativePageEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
-::view-transition-new(root) {
-	animation: 420ms cubic-bezier(0, 0, 0.2, 1) both cyberPageIn;
-}
-
-@keyframes cyberPageOut {
-	0% {
+@keyframes nativePageEntrance {
+	from {
+		opacity: 0.88;
+		transform: translateY(4px);
+	}
+	to {
 		opacity: 1;
-		transform: scale(1) translateY(0);
-		filter: blur(0px);
-	}
-	100% {
-		opacity: 0;
-		transform: scale(0.97) translateY(-12px);
-		filter: blur(6px);
-	}
-}
-
-@keyframes cyberPageIn {
-	0% {
-		opacity: 0;
-		transform: scale(1.02) translateY(18px);
-		filter: blur(8px);
-	}
-	100% {
-		opacity: 1;
-		transform: scale(1) translateY(0);
-		filter: blur(0px);
+		transform: translateY(0);
 	}
 }
 
