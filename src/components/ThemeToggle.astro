@@ -74,26 +74,42 @@ import Icon from './Icon.astro';
 
 			const button = this.querySelector('button')!;
 
+			const getThemePreference = () => {
+				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+					return localStorage.getItem('theme');
+				}
+				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			};
+
+			const isDark = () => {
+				return document.documentElement.classList.contains('theme-dark') || getThemePreference() === 'dark';
+			};
+
 			/** Set the theme to dark/light mode. */
 			const setTheme = (dark: boolean) => {
 				document.documentElement.classList[dark ? 'add' : 'remove']('theme-dark');
 				button.setAttribute('aria-pressed', String(dark));
+				if (typeof localStorage !== 'undefined') {
+					localStorage.setItem('theme', dark ? 'dark' : 'light');
+				}
 			};
 
 			// Toggle the theme when a user clicks the button.
-			button.addEventListener('click', () => setTheme(!this.isDark()));
+			button.addEventListener('click', () => {
+				const currentDark = document.documentElement.classList.contains('theme-dark');
+				setTheme(!currentDark);
+			});
 
-			// Initialize button state to reflect current theme.
-			setTheme(this.isDark());
+			// Initialize button state to reflect current theme without overwriting localStorage unexpectedly
+			const initialDark = isDark();
+			document.documentElement.classList[initialDark ? 'add' : 'remove']('theme-dark');
+			button.setAttribute('aria-pressed', String(initialDark));
 
 			// Sync button state after ViewTransitions page swap
 			document.addEventListener('astro:after-swap', () => {
-				button.setAttribute('aria-pressed', String(this.isDark()));
+				const dark = document.documentElement.classList.contains('theme-dark') || getThemePreference() === 'dark';
+				button.setAttribute('aria-pressed', String(dark));
 			});
-		}
-
-		isDark() {
-			return document.documentElement.classList.contains('theme-dark');
 		}
 	}
 	customElements.define('theme-toggle', ThemeToggle);
