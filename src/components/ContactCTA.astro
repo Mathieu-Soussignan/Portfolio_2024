@@ -21,7 +21,7 @@ import Icon from "./Icon.astro";
     <div class="cta-email-box glass-card" id="copy-email-btn" title="Cliquer pour copier l'e-mail">
       <Icon icon="paper-plane-tilt" size="1.2em" />
       <span class="email-text">contact@mathieu-soussignan.com</span>
-      <span class="copy-hint">Copier 📋</span>
+      <span class="copy-hint">Copier</span>
     </div>
   </div>
 
@@ -56,7 +56,7 @@ import Icon from "./Icon.astro";
   copyEmailBtn?.addEventListener('click', () => {
     navigator.clipboard.writeText("contact@mathieu-soussignan.com");
     if ((window as any).showToast) {
-      (window as any).showToast("E-mail copié dans le presse-papier ! 📋");
+      (window as any).showToast("E-mail copié dans le presse-papier !");
     }
   });
 </script>
