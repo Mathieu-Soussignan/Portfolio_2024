@@ -85,6 +85,11 @@ import Icon from './Icon.astro';
 
 			// Initialize button state to reflect current theme.
 			setTheme(this.isDark());
+
+			// Sync button state after ViewTransitions page swap
+			document.addEventListener('astro:after-swap', () => {
+				button.setAttribute('aria-pressed', String(this.isDark()));
+			});
 		}
 
 		isDark() {
