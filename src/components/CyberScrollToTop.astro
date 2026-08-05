@@ -1,0 +1,435 @@
+---
+// CyberScrollToTop.astro — God Tier S++ Hyperspace Scroll to Top Widget
+---
+
+<div id="cyber-scroll-top-root" class="cyber-scroll-top-wrapper" aria-label="Remonter en haut">
+  <button id="cyber-scroll-top-btn" class="cyber-scroll-top-btn" title="Remonter en haut (Shift + Flèche Haut)">
+    <svg class="progress-ring" width="56" height="56" viewBox="0 0 56 56">
+      <circle class="progress-ring-bg" cx="28" cy="28" r="23" />
+      <circle id="scroll-progress-circle" class="progress-ring-fill" cx="28" cy="28" r="23" />
+    </svg>
+    <div class="btn-inner">
+      <span class="rocket-icon">🚀</span>
+      <span id="scroll-percent-text" class="scroll-percent-text">0%</span>
+    </div>
+    <div class="thruster-glow"></div>
+  </button>
+  <div class="scroll-tooltip">
+    <span class="tooltip-badge">WARP DRIVE</span>
+    <span class="tooltip-sub">Shift + 🪟 / Click</span>
+  </div>
+</div>
+
+<!-- Canvas overlay for full-screen Hyperspace Warp Speed Particle Effect -->
+<canvas id="hyperspace-canvas" class="hyperspace-canvas"></canvas>
+
+<style>
+  .cyber-scroll-top-wrapper {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9990;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px) scale(0.8);
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cyber-scroll-top-wrapper.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+
+  .cyber-scroll-top-btn {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    box-shadow: 0 10px 30px rgba(107, 33, 168, 0.2), 0 0 15px rgba(147, 51, 234, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    backdrop-filter: blur(12px);
+    padding: 0;
+  }
+
+  :global(.theme-dark) .cyber-scroll-top-btn {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(197, 97, 246, 0.4);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(197, 97, 246, 0.3);
+  }
+
+  .cyber-scroll-top-btn:hover {
+    transform: scale(1.12) translateY(-3px);
+    border-color: rgba(197, 97, 246, 0.8);
+    box-shadow: 0 15px 40px rgba(197, 97, 246, 0.4), 0 0 35px rgba(0, 242, 254, 0.4);
+  }
+
+  .cyber-scroll-top-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* SVG Progress Ring */
+  .progress-ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+
+  .progress-ring-bg {
+    fill: transparent;
+    stroke: rgba(107, 33, 168, 0.12);
+    stroke-width: 3.5;
+  }
+
+  :global(.theme-dark) .progress-ring-bg {
+    stroke: rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-ring-fill {
+    fill: transparent;
+    stroke: url(#progressGradient);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 144.51; /* 2 * PI * 23 */
+    stroke-dashoffset: 144.51;
+    transition: stroke-dashoffset 0.1s ease;
+  }
+
+  /* Inner button content */
+  .btn-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: transform 0.3s ease;
+  }
+
+  .rocket-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 2px 5px rgba(107, 33, 168, 0.3));
+  }
+
+  .cyber-scroll-top-btn:hover .rocket-icon {
+    transform: translateY(-4px) scale(1.2);
+    animation: rocketHover 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes rocketHover {
+    0% { transform: translateY(-4px) scale(1.2); }
+    100% { transform: translateY(-8px) scale(1.25); }
+  }
+
+  .scroll-percent-text {
+    font-size: 0.65rem;
+    font-weight: 800;
+    font-family: var(--font-brand);
+    color: var(--accent-regular);
+    line-height: 1;
+    margin-top: 1px;
+  }
+
+  :global(.theme-dark) .scroll-percent-text {
+    color: #00f2fe;
+  }
+
+  /* Thruster Glow */
+  .thruster-glow {
+    position: absolute;
+    bottom: -6px;
+    width: 24px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00f2fe 0%, #c561f6 50%, transparent 100%);
+    opacity: 0;
+    filter: blur(4px);
+    transition: opacity 0.3s ease;
+  }
+
+  .cyber-scroll-top-btn:hover .thruster-glow {
+    opacity: 0.9;
+    animation: thrusterPulse 0.4s infinite alternate;
+  }
+
+  @keyframes thrusterPulse {
+    0% { opacity: 0.7; transform: scaleX(0.9); }
+    100% { opacity: 1; transform: scaleX(1.3); }
+  }
+
+  /* Tooltip */
+  .scroll-tooltip {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(197, 97, 246, 0.4);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+  }
+
+  .cyber-scroll-top-wrapper:hover .scroll-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .tooltip-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    font-family: var(--font-brand);
+    color: #00f2fe;
+    letter-spacing: 0.08em;
+  }
+
+  .tooltip-sub {
+    font-size: 0.65rem;
+    color: var(--gray-300);
+    font-weight: 500;
+  }
+
+  /* Canvas Overlay */
+  .hyperspace-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .hyperspace-canvas.active {
+    opacity: 1;
+  }
+
+  /* Launching state class */
+  .cyber-scroll-top-btn.launching .rocket-icon {
+    animation: rocketLaunch 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards !important;
+  }
+
+  @keyframes rocketLaunch {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(10px) scale(0.8); }
+    100% { transform: translateY(-120px) scale(1.8); opacity: 0; }
+  }
+</style>
+
+<!-- SVG Gradient Definition -->
+<svg style="width:0;height:0;position:absolute;" aria-hidden="true">
+  <defs>
+    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c561f6" />
+      <stop offset="50%" stop-color="#9333ea" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<script>
+  (() => {
+    const rootEl = document.getElementById('cyber-scroll-top-root');
+    const btn = document.getElementById('cyber-scroll-top-btn');
+    const circle = document.getElementById('scroll-progress-circle') as SVGGeometryElement | null;
+    const percentText = document.getElementById('scroll-percent-text');
+    const canvas = document.getElementById('hyperspace-canvas') as HTMLCanvasElement | null;
+
+    if (!rootEl || !btn || !circle || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    const RADIUS = 23;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    // Set SVG Dasharray
+    circle.style.strokeDasharray = `${CIRCUMFERENCE}`;
+
+    // 1. Scroll Position & Progress Tracker
+    const updateProgress = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      if (docHeight <= 0) return;
+
+      const progress = Math.min(1, Math.max(0, scrollTop / docHeight));
+      const dashoffset = CIRCUMFERENCE * (1 - progress);
+      circle.style.strokeDashoffset = `${dashoffset}`;
+
+      const percent = Math.round(progress * 100);
+      if (percentText) percentText.textContent = `${percent}%`;
+
+      // Show button if scrolled down past 280px
+      if (scrollTop > 280) {
+        rootEl.classList.add('visible');
+      } else {
+        rootEl.classList.remove('visible');
+      }
+    };
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+
+    // 2. Audio Synthesizer (Sci-Fi Warp Drive Sound)
+    const playWarpSound = () => {
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioCtx) return;
+
+        const audioCtx = new AudioCtx();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        
+        // Pitch sweep upwards (hyperspace acceleration)
+        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.65);
+
+        gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.7);
+      } catch (e) {
+        // Audio context non bloquant
+      }
+    };
+
+    // 3. Hyperspace Particle Warp Animation
+    let isWarping = false;
+    let stars: Array<{ x: number; y: number; z: number; length: number; speed: number; color: string }> = [];
+
+    const initCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', initCanvasSize);
+    initCanvasSize();
+
+    const triggerHyperspaceEffect = () => {
+      if (isWarping || !ctx) return;
+      isWarping = true;
+      canvas.classList.add('active');
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Spawn 150 warp stars
+      stars = [];
+      const colors = ['#00f2fe', '#c561f6', '#ffffff', '#39ff14', '#ffd700'];
+      for (let i = 0; i < 160; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (width / 2);
+        stars.push({
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist,
+          z: Math.random() * width,
+          length: Math.random() * 20 + 10,
+          speed: Math.random() * 25 + 15,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      let startTime = performance.now();
+      const DURATION = 750; // ms
+
+      const render = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / DURATION);
+
+        ctx.fillStyle = 'rgba(10, 14, 23, 0.3)';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw stretched warp lines flying down/outward
+        stars.forEach((star) => {
+          star.y += star.speed * (1 + progress * 2);
+          if (star.y > height / 2) star.y = -height / 2;
+
+          const screenX = centerX + star.x;
+          const screenY = centerY + star.y;
+          const tailY = screenY - star.length * (1 + progress * 4);
+
+          ctx.beginPath();
+          ctx.strokeStyle = star.color;
+          ctx.lineWidth = Math.min(4, 1 + progress * 3);
+          ctx.moveTo(screenX, screenY);
+          ctx.lineTo(screenX, tailY);
+          ctx.stroke();
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, width, height);
+          canvas.classList.remove('active');
+          isWarping = false;
+        }
+      };
+
+      requestAnimationFrame(render);
+    };
+
+    // 4. Smooth Hyperspace Scroll to Top Trigger
+    const executeScrollToTop = () => {
+      btn.classList.add('launching');
+      playWarpSound();
+      triggerHyperspaceEffect();
+
+      if ((window as any).showToast) {
+        (window as any).showToast('🚀 WARP DRIVE ACTIF — REMONTÉE EN HAUT !');
+      }
+
+      // Smooth custom scroll
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
+      setTimeout(() => {
+        btn.classList.remove('launching');
+      }, 850);
+    };
+
+    btn.addEventListener('click', executeScrollToTop);
+
+    // Keyboard shortcut: Shift + Up Arrow or Home key
+    window.addEventListener('keydown', (e) => {
+      if ((e.shiftKey && e.key === 'ArrowUp') || e.key === 'Home') {
+        if (window.scrollY > 200) {
+          e.preventDefault();
+          executeScrollToTop();
+        }
+      }
+    });
+  })();
+</script>
