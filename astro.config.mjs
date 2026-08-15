@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel/serverless';
 
 // https://astro.build/config
 //
@@ -8,5 +8,5 @@ import node from '@astrojs/node';
 // This is required so the Mistral API key lives server-side only.
 export default defineConfig({
   output: 'hybrid',
-  adapter: node({ mode: 'standalone' }),
+  adapter: vercel(),
 });
