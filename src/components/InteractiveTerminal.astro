@@ -1,5 +1,11 @@
 ---
+import { getCollection } from "astro:content";
 import Icon from "./Icon.astro";
+import { buildPortfolioKnowledge } from "../lib/copilot/knowledge";
+
+// Reuse the existing `work` content collection as the source of truth for the
+// copilot knowledge base — nothing is duplicated.
+const knowledge = buildPortfolioKnowledge(await getCollection("work"));
 ---
 
 <div class="terminal-container glass-card">
@@ -25,6 +31,7 @@ import Icon from "./Icon.astro";
     </div>
 
     <div id="terminal-history"></div>
+    <div class="sr-only" id="copilot-live" aria-live="polite"></div>
 
     <form class="terminal-input-row" id="terminal-form">
       <span class="prompt">mathieu@keyrus:~$</span>
@@ -40,6 +47,7 @@ import Icon from "./Icon.astro";
   </div>
 
       <div class="terminal-quick-actions">
+        <button type="button" class="quick-cmd" data-cmd="ask">ask</button>
         <button type="button" class="quick-cmd" data-cmd="whoami">whoami</button>
         <button type="button" class="quick-cmd" data-cmd="skills">skills</button>
         <button type="button" class="quick-cmd" data-cmd="projects">projects</button>
@@ -50,12 +58,23 @@ import Icon from "./Icon.astro";
       </div>
 </div>
 
+<script type="application/json" id="copilot-knowledge" set:html={JSON.stringify(knowledge).replace(/</g, "\\u003c")}></script>
+
 <script>
+  import { createCopilotEngine } from "../lib/copilot/engine";
+  import { renderCopilotAnswer, renderCopilotSuggestions } from "../lib/copilot/render";
+  import type { PortfolioKnowledge } from "../lib/copilot/types";
+
   const form = document.getElementById("terminal-form") as HTMLFormElement;
   const input = document.getElementById("terminal-input") as HTMLInputElement;
   const history = document.getElementById("terminal-history") as HTMLElement;
   const body = document.getElementById("terminal-body") as HTMLElement;
   const quickBtns = document.querySelectorAll(".quick-cmd");
+  const copilotLive = document.getElementById("copilot-live") as HTMLElement | null;
+
+  const kbElement = document.getElementById("copilot-knowledge");
+  const kb = (kbElement ? JSON.parse(kbElement.textContent || "{}") : {}) as PortfolioKnowledge;
+  const copilot = createCopilotEngine(kb);
 
   const commands: Record<string, string> = {
     whoami: `
@@ -97,6 +116,7 @@ import Icon from "./Icon.astro";
     help: `
       <div class="cmd-output">
         <p><strong>Commandes disponibles :</strong></p>
+        <p>• <span class="cmd">ask</span> ➔ Poser une question au Copilot IA du portfolio</p>
         <p>• <span class="cmd">whoami</span> ➔ Mon profil et rôle actuel chez Keyrus</p>
         <p>• <span class="cmd">skills</span> ➔ Mes compétences techniques Data, IA & Web</p>
         <p>• <span class="cmd">projects</span> ➔ Mes projets récents et applications SaaS</p>
@@ -356,6 +376,19 @@ import Icon from "./Icon.astro";
     if (cleanCmd === "clear") {
       history.innerHTML = "";
       input.value = "";
+      setCopilotMode(false);
+      return;
+    }
+
+    // AI Portfolio Copilot — `ask` / `ai` command.
+    const copilotCmd = parseCopilotCommand(cmd);
+    if (copilotCmd.invoke) {
+      input.value = "";
+      if (copilotCmd.question) {
+        runCopilot(copilotCmd.question);
+      } else {
+        openCopilotPrompt();
+      }
       return;
     }
 
@@ -405,9 +438,148 @@ import Icon from "./Icon.astro";
     body.scrollTop = body.scrollHeight;
   }
 
+  // === AI PORTFOLIO COPILOT ===
+  let copilotMode = false;
+
+  function setCopilotMode(active: boolean) {
+    copilotMode = active;
+    const container = document.querySelector(".terminal-container");
+    container?.classList.toggle("copilot-active", active);
+    input.placeholder = active
+      ? "Posez une question (ex: Quels sont mes projets IA ?)"
+      : "Entrez une commande (ex: whoami, skills, projects)...";
+  }
+
+  function parseCopilotCommand(cmd: string): { invoke: boolean; question: string | null } {
+    const match = cmd.trim().match(/^(ask|ai)(?:\s+([\s\S]*))?$/i);
+    if (!match) return { invoke: false, question: null };
+    let rest = (match[2] ?? "").trim();
+    if (!rest) return { invoke: true, question: null };
+    if ((rest.startsWith('"') && rest.endsWith('"')) || (rest.startsWith("'") && rest.endsWith("'"))) {
+      rest = rest.slice(1, -1).trim();
+    } else {
+      rest = rest.replace(/^["']/, "").trim();
+    }
+    return { invoke: true, question: rest || null };
+  }
+
+  function scrollTerminal() {
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function announceCopilot(message: string) {
+    if (copilotLive) copilotLive.textContent = message;
+  }
+
+  function runCopilot(question: string) {
+    const query = question.trim();
+    if (!query) {
+      openCopilotPrompt();
+      return;
+    }
+    input.value = "";
+
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const promptLine = document.createElement("div");
+    promptLine.className = "history-cmd";
+    const promptSpan = document.createElement("span");
+    promptSpan.className = "prompt";
+    promptSpan.textContent = "mathieu@keyrus:~$";
+    const cmdSpan = document.createElement("span");
+    cmdSpan.className = "cmd-text copilot-cmd";
+    cmdSpan.textContent = "ask";
+    const questionSpan = document.createElement("span");
+    questionSpan.className = "copilot-question";
+    questionSpan.textContent = ` "${query}"`;
+    promptLine.append(promptSpan, document.createTextNode(" "), cmdSpan, questionSpan);
+    row.appendChild(promptLine);
+
+    const thinking = document.createElement("div");
+    thinking.className = "copilot-thinking";
+    thinking.setAttribute("role", "status");
+    thinking.setAttribute("aria-label", "Analyse en cours");
+    row.appendChild(thinking);
+    history.appendChild(row);
+    scrollTerminal();
+
+    const finish = () => {
+      const response = copilot.ask(query);
+      thinking.remove();
+      row.appendChild(renderCopilotAnswer(response));
+      announceCopilot(response.headline);
+      if (response.suggestions.length > 0) {
+        row.appendChild(renderCopilotSuggestions(response.suggestions, (next) => runCopilot(next)));
+      }
+      scrollTerminal();
+    };
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      finish();
+      return;
+    }
+
+    const steps = ["Analyse du profil…", "Analyse des projets…"];
+    const stepEl = document.createElement("p");
+    stepEl.textContent = `◌ ${steps[0]}`;
+    thinking.appendChild(stepEl);
+
+    let stepIndex = 0;
+    const interval = window.setInterval(() => {
+      stepIndex++;
+      if (stepIndex >= steps.length) {
+        window.clearInterval(interval);
+        stepEl.textContent = `✓ ${kb.projects.length} projets analysés`;
+        window.setTimeout(finish, 160);
+      } else {
+        stepEl.textContent = `✓ ${steps[stepIndex - 1]}  →  ◌ ${steps[stepIndex]}`;
+      }
+    }, 240);
+  }
+
+  function openCopilotPrompt() {
+    setCopilotMode(true);
+
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const promptLine = document.createElement("div");
+    promptLine.className = "history-cmd";
+    promptLine.innerHTML = `<span class="prompt">mathieu@keyrus:~$</span> <span class="cmd-text copilot-cmd">ask</span>`;
+    row.appendChild(promptLine);
+
+    const intro = document.createElement("div");
+    intro.className = "copilot-intro";
+    const introText = document.createElement("p");
+    introText.textContent =
+      "AI Portfolio Copilot activé — posez une question sur le profil, les compétences ou les projets de Mathieu. (tapez 'exit' pour quitter)";
+    intro.appendChild(introText);
+    row.appendChild(intro);
+
+    row.appendChild(renderCopilotSuggestions(copilot.suggest(), (q) => runCopilot(q)));
+
+    history.appendChild(row);
+    announceCopilot("Copilot activé. Posez une question sur le portfolio.");
+    input.value = "";
+    input.focus();
+    scrollTerminal();
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    executeCommand(input.value);
+    const value = input.value;
+    if (copilotMode) {
+      const trimmed = value.trim();
+      if (/^(exit|quit|clear|help|skills|projects|contact|whoami|matrix|mario)$/i.test(trimmed)) {
+        setCopilotMode(false);
+        executeCommand(trimmed);
+        return;
+      }
+      runCopilot(value);
+      return;
+    }
+    executeCommand(value);
   });
 
   quickBtns.forEach((btn) => {
@@ -593,6 +765,205 @@ import Icon from "./Icon.astro";
     color: #ffffff;
     border-color: #c561f6;
     transform: translateY(-2px);
+  }
+
+  /* === AI Portfolio Copilot === */
+  :global(.terminal-container.copilot-active .terminal-input-row .prompt) {
+    color: #c561f6;
+  }
+
+  :global(.copilot-cmd) {
+    color: #00f2fe;
+    font-weight: 700;
+  }
+
+  :global(.copilot-question) {
+    color: #e2e8f0;
+    font-style: italic;
+  }
+
+  :global(.copilot-intro) {
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 242, 254, 0.06);
+    border-left: 3px solid #00f2fe;
+    border-radius: 0 6px 6px 0;
+    color: #cbd5e1;
+    font-size: 0.8rem;
+  }
+
+  :global(.copilot-thinking) {
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-style: italic;
+    min-height: 1.5em;
+  }
+
+  :global(.copilot-thinking p) {
+    margin: 0.1rem 0;
+    animation: fadeInLine 0.2s ease;
+  }
+
+  :global(.copilot-answer) {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(197, 97, 246, 0.35);
+    border-left: 3px solid #7611a6;
+    border-radius: 0 8px 8px 0;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  :global(.copilot-headline) {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  :global(.copilot-confidence) {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    width: fit-content;
+  }
+
+  :global(.copilot-confidence-exact_match) {
+    color: #00ff66;
+    background: rgba(0, 255, 102, 0.1);
+    border: 1px solid rgba(0, 255, 102, 0.35);
+  }
+
+  :global(.copilot-confidence-high_confidence) {
+    color: #00f2fe;
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.35);
+  }
+
+  :global(.copilot-confidence-partial_match) {
+    color: #ffbd2e;
+    background: rgba(255, 189, 46, 0.1);
+    border: 1px solid rgba(255, 189, 46, 0.35);
+  }
+
+  :global(.copilot-confidence-no_evidence) {
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+
+  :global(.copilot-bullets) {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  :global(.copilot-bullets li) {
+    margin: 0.15rem 0;
+    color: #cbd5e1;
+  }
+
+  :global(.copilot-projects) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  :global(.copilot-project) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    border-radius: 8px;
+    background: rgba(0, 242, 254, 0.05);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  :global(.copilot-project:hover),
+  :global(.copilot-project:focus-visible) {
+    border-color: #00f2fe;
+    background: rgba(0, 242, 254, 0.12);
+  }
+
+  :global(.copilot-project-title) {
+    color: #00f2fe;
+    font-weight: 700;
+  }
+
+  :global(.copilot-project-reason) {
+    color: #94a3b8;
+    font-size: 0.75rem;
+  }
+
+  :global(.copilot-actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  :global(.copilot-action) {
+    color: #c561f6;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  :global(.copilot-action:hover),
+  :global(.copilot-action:focus-visible) {
+    color: #ffffff;
+    background: rgba(197, 97, 246, 0.25);
+  }
+
+  :global(.copilot-sources) {
+    color: #64748b;
+    font-size: 0.7rem;
+    font-style: italic;
+  }
+
+  :global(.copilot-suggestions) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  :global(.copilot-suggestions-label) {
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-right: 0.25rem;
+  }
+
+  :global(.copilot-suggestion) {
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.72rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  :global(.copilot-suggestion:hover),
+  :global(.copilot-suggestion:focus-visible) {
+    background: rgba(197, 97, 246, 0.2);
+    color: #ffffff;
+    border-color: #c561f6;
   }
 
   @keyframes fadeInLine {

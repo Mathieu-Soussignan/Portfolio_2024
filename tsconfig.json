@@ -1,3 +1,7 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "extends": "astro/tsconfigs/strict",
+  // Tests are run by Node's built-in test runner (type-stripped, no @types/node
+  // needed), so they are excluded from the Astro type-check to avoid pulling
+  // Node globals into the browser/DOM build.
+  "exclude": ["src/lib/copilot/*.test.ts"]
 }

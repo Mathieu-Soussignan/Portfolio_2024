@@ -7,11 +7,12 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "test": "node --test \"src/lib/copilot/*.test.ts\"",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.4.3",
     "@astrojs/check": "^0.5.5",
+    "astro": "^4.4.3",
     "typescript": "^5.3.3"
   }
 }
