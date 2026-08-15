@@ -178,6 +178,84 @@ export function isOutOfScope(normalized: string): boolean {
 	return PRIVATE_TOPIC_KEYWORDS.some((k) => normalized.includes(k));
 }
 
+/** Instructions that try to override or contradict the portfolio scope. */
+const MANIPULATION_KEYWORDS = [
+	"ignore toutes les informations",
+	"ignore les informations",
+	"ignore les instructions",
+	"ignore tes instructions",
+	"ignore tout",
+	"oublie toutes les informations",
+	"oublie les instructions",
+	"fais comme si",
+	"fait comme si",
+	"pretends que",
+	"pretend que",
+	"pretends etre",
+	"dis moi que",
+	"affirme que",
+	"mens",
+	"hallucine",
+];
+
+/** True when the question asks the copilot to ignore or contradict its data. */
+export function isManipulation(normalized: string): boolean {
+	return MANIPULATION_KEYWORDS.some((k) => normalized.includes(k));
+}
+
+/**
+ * Verbs that mark a technology-lookup question ("quel projet utilise X ?").
+ * When the technology is not a known alias, the text after the verb is used as
+ * the searched entity so the engine can answer honestly ("no evidence")
+ * instead of falling back to a generic project list.
+ */
+const TECH_LOOKUP_VERBS = [
+	"utilise t il",
+	"utilise t elle",
+	"utilise t on",
+	"utilise til",
+	"s utilisent",
+	"s utilise",
+	"utilisant",
+	"utilisent",
+	"utiliser",
+	"utilise",
+	"basee sur",
+	"base sur",
+];
+
+/** Tokens that should never be part of a technology candidate. */
+const TECH_CANDIDATE_FILLER = new Set([
+	"t", "il", "elle", "on", "tu", "vous", "nous", "je", "ils", "elles", "pas",
+	"pour", "du", "de", "des", "avec", "sur", "dans", "le", "la", "les", "un", "une", "et", "ou", "en",
+]);
+
+/**
+ * Extract a technology candidate from an unrecognized lookup question, e.g.
+ * "quel projet utilise apache spark" → "Apache Spark". Returns null when the
+ * question is not actually a specific-technology lookup.
+ */
+export function extractTechCandidate(normalized: string): string | null {
+	let best: { verb: string; idx: number } | null = null;
+	for (const verb of TECH_LOOKUP_VERBS) {
+		const idx = normalized.lastIndexOf(verb);
+		if (idx >= 0 && (!best || idx > best.idx)) best = { verb, idx };
+	}
+	if (!best) return null;
+
+	const tokens = normalized
+		.slice(best.idx + best.verb.length)
+		.split(" ")
+		.filter((t) => t.length > 0);
+
+	while (tokens.length > 0 && TECH_CANDIDATE_FILLER.has(tokens[0])) tokens.shift();
+	while (tokens.length > 0 && TECH_CANDIDATE_FILLER.has(tokens[tokens.length - 1])) tokens.pop();
+
+	if (tokens.length === 0 || tokens.length > 6) return null;
+
+	return tokens.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(" ");
+}
+
 function hasAny(haystack: string, needles: string[]): boolean {
 	return needles.some((n) => haystack.includes(n));
 }
@@ -332,6 +410,14 @@ export function detectIntent(question: string, knowledge: PortfolioKnowledge): Q
 	const asksAboutTech = hasAny(normalized, ["utilise", "utilisent", "utiliser", "maitrise", "connait", "quel projet", "quels projets", "avec quel", "base sur", "basé sur"]);
 	if (tech && asksAboutTech) {
 		return { ...base, kind: "technology_lookup" as IntentKind, entity: tech, entityType: "technology", dimension: dimension };
+	}
+	// Unknown technology named explicitly (e.g. "Apache Spark") → treat it as a
+	// technology lookup so the response stays honest instead of listing everything.
+	if (asksAboutTech) {
+		const candidate = extractTechCandidate(normalized);
+		if (candidate) {
+			return { ...base, kind: "technology_lookup" as IntentKind, entity: candidate, entityType: "technology", dimension: dimension };
+		}
 	}
 
 	// 8. Project detail — a project was explicitly named.

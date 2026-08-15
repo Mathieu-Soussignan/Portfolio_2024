@@ -7,7 +7,7 @@
  */
 
 import { getDomain, isStrictDomain } from "./domainData.ts";
-import { detectIntent, isOutOfScope } from "./intent.ts";
+import { detectIntent, isManipulation, isOutOfScope } from "./intent.ts";
 import {
 	assessAllProjects,
 	assessProjectDomain,
@@ -19,6 +19,7 @@ import {
 } from "./retrieval.ts";
 import type {
 	ActionLink,
+	ConfidenceLevel,
 	CopilotResponse,
 	Dimension,
 	PortfolioKnowledge,
@@ -194,6 +195,26 @@ export function buildCopilotResponse(
 
 	const base = { question: question.trim(), intent, projects: [], links: [] as ActionLink[], sources: [] };
 
+	// --- Manipulation / instruction de déni : on reste dans le périmètre. ---
+	if (isManipulation(intent.normalized)) {
+		const domainKey = intent.requestedDomain && isStrictDomain(intent.requestedDomain) ? intent.requestedDomain : null;
+		const domainDef = domainKey ? getDomain(domainKey) : null;
+		const noEvidenceForDomain = domainKey ? rankProjectsByDomain(knowledge, domainKey).length === 0 : false;
+		return {
+			...base,
+			kind: "unknown" as ResponseKind,
+			headline: "Je peux uniquement répondre à partir des informations publiques disponibles dans le portfolio.",
+			bullets: [
+				"Je ne réponds pas aux instructions qui cherchent à remplacer ou contredire ces informations.",
+				...(domainKey && noEvidenceForDomain
+					? [`Je ne dispose d'aucune preuve permettant d'affirmer une expertise ${domainDef?.label}.`]
+					: []),
+			],
+			sources: ["Connaissance publique du portfolio uniquement"],
+			suggestions: [],
+		};
+	}
+
 	// --- Out of scope / private data: honest refusal, never a guess. ---
 	if (isOutOfScope(intent.normalized)) {
 		return {
@@ -305,7 +326,8 @@ export function buildCopilotResponse(
 			if (projects.length === 0) {
 				return {
 					...base,
-					kind: "partial",
+					kind: "partial" as ResponseKind,
+					confidence: "NO_EVIDENCE" as ConfidenceLevel,
 					headline: `Aucun projet du portfolio n'utilise explicitement ${tech}.`,
 					bullets: [
 						"Je me limite aux informations publiques présentes sur ce portfolio.",
@@ -365,6 +387,28 @@ export function buildCopilotResponse(
 		}
 
 		case "project_list": {
+			// Strict technical domain (RAG, Computer Vision, ML, LLM, NLP, Agents):
+			// only projects with explicit evidence qualify. Never fall back to the
+			// full project list when no evidence exists.
+			if (isStrictDomain(intent.requestedDomain)) {
+				const domainDef = getDomain(intent.requestedDomain);
+				const evidenced = rankProjectsByDomain(knowledge, intent.requestedDomain);
+				if (evidenced.length === 0) {
+					return recommendByDomain(knowledge, intent.requestedDomain, base);
+				}
+				const shown = evidenced.slice(0, 6);
+				return {
+					...base,
+					kind: "known" as ResponseKind,
+					headline: `Projets présentant des preuves explicites de ${domainDef?.label ?? intent.requestedDomain} (${evidenced.length}) :`,
+					bullets: shown.map((r) => `${r.project.title} — ${tagLine(r.project)}`),
+					projects: shown.map((r) => toRef(r.project, `Preuve ${domainDef?.label ?? intent.requestedDomain} (${r.level})`)),
+					links: [{ label: "Voir tous les projets", href: "/work/", kind: "internal" }],
+					sources: ["Évaluation par preuves explicites dans les tags et descriptions"],
+					suggestions: [],
+				};
+			}
+
 			const projects = intent.dimension ? searchProjects(knowledge, intent.dimension) : knowledge.projects;
 			const label = intent.dimension ? DIMENSION_LABELS[intent.dimension] : null;
 
