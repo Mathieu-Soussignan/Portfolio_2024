@@ -245,7 +245,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     awaitingPuzzle: boolean;
     puzzleAttempts: number;
     isTyping: boolean;
-    typewriterInterval: ReturnType<typeof setInterval> | null;
+    typewriterInterval: number | null;
     achievements: string[];
   } = {
     hp: 100,
@@ -370,13 +370,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
         block.appendChild(cursor);
         
-        state.typewriterInterval = setInterval((() => {
+        state.typewriterInterval = window.setInterval((() => {
           if (i < text.length) {
             cursor.insertAdjacentText('beforebegin', text.charAt(i));
             i++;
             outputArea.scrollTop = outputArea.scrollHeight;
           } else {
-            if (state.typewriterInterval) clearInterval(state.typewriterInterval);
+            if (state.typewriterInterval) window.clearInterval(state.typewriterInterval);
             block.removeChild(cursor);
             state.isTyping = false;
             cmdInput.disabled = false;
@@ -388,7 +388,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         // Allow click to skip
         const skipHandler = () => {
           if (state.isTyping) {
-            if (state.typewriterInterval) clearInterval(state.typewriterInterval);
+            if (state.typewriterInterval) window.clearInterval(state.typewriterInterval);
             cursor.insertAdjacentText('beforebegin', text.substring(i));
             block.removeChild(cursor);
             state.isTyping = false;

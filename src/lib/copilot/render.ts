@@ -92,6 +92,13 @@ export function renderCopilotAnswer(response: CopilotResponse): HTMLDivElement {
 		root.appendChild(sources);
 	}
 
+	if (response.generatedBy === "mistral") {
+		const generated = document.createElement("p");
+		generated.className = "copilot-generated";
+		generated.textContent = "Generated with Mistral AI";
+		root.appendChild(generated);
+	}
+
 	return root;
 }
 

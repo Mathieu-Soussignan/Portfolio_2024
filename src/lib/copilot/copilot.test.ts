@@ -255,6 +255,43 @@ test("detectIntent extrait l'entité FastAPI", () => {
 	assert.equal(intent.entity, "FastAPI");
 });
 
+// --- Comparaison entre projets (routing) ---
+test("Compare X et Y → intention compare avec les deux slugs", () => {
+	const intent = detectIntent(
+		"Compare CreatorComptability V2 et Prédict Car pour un poste d'AI Engineer et explique lequel tu recommandes.",
+		knowledge
+	);
+	assert.equal(intent.kind, "compare");
+	assert.deepEqual(intent.comparisonProjects, ["creatorcomptability", "predict-cars"]);
+});
+
+test("X ou Y → comparaison entre deux projets identifiés", () => {
+	const intent = detectIntent("CreatorComptability V2 ou Prédict Car : lequel présenter à un CTO ?", knowledge);
+	assert.equal(intent.kind, "compare");
+	assert.equal(intent.comparisonProjects.length, 2);
+	assert.ok(intent.comparisonProjects.includes("creatorcomptability"));
+	assert.ok(intent.comparisonProjects.includes("predict-cars"));
+});
+
+test("X vs Y → comparaison", () => {
+	const intent = detectIntent("CreatorComptability V2 vs Prédict Car", knowledge);
+	assert.equal(intent.kind, "compare");
+	assert.equal(intent.comparisonProjects.length, 2);
+});
+
+test("'ou' seul sans deux projets → pas une comparaison", () => {
+	const intent = detectIntent("Utilises-tu Python ou JavaScript ?", knowledge);
+	assert.notEqual(intent.kind, "compare");
+	assert.equal(intent.comparisonProjects.length, 0);
+});
+
+test("Comparaison avec projet inexistant → aucun projet inventé", () => {
+	const intent = detectIntent("Compare CreatorComptability V2 et Projet Fantôme", knowledge);
+	assert.ok(intent.comparisonProjects.length < 2);
+	assert.ok(!intent.comparisonProjects.includes("projet fantome"));
+	assert.ok(!intent.comparisonProjects.includes("projet-fantome"));
+});
+
 // --- Précision : preuve explicite (aucune extrapolation) ---
 test("Expertise RAG absente → aucune recommandation infondée", () => {
 	const res = engine.ask("Quel projet démontre mon expertise RAG ?");

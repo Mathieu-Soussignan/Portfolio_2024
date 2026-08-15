@@ -61,7 +61,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
 <script type="application/json" id="copilot-knowledge" set:html={JSON.stringify(knowledge).replace(/</g, "\\u003c")}></script>
 
 <script>
-  import { createCopilotEngine } from "../lib/copilot/engine";
+  import { createHybridCopilotEngine } from "../lib/copilot/provider";
   import { renderCopilotAnswer, renderCopilotSuggestions } from "../lib/copilot/render";
   import type { PortfolioKnowledge } from "../lib/copilot/types";
 
@@ -74,7 +74,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
 
   const kbElement = document.getElementById("copilot-knowledge");
   const kb = (kbElement ? JSON.parse(kbElement.textContent || "{}") : {}) as PortfolioKnowledge;
-  const copilot = createCopilotEngine(kb);
+  const copilot = createHybridCopilotEngine(kb);
 
   const commands: Record<string, string> = {
     whoami: `
@@ -504,8 +504,8 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     history.appendChild(row);
     scrollTerminal();
 
-    const finish = () => {
-      const response = copilot.ask(query);
+    const finish = async () => {
+      const response = await copilot.ask(query);
       thinking.remove();
       row.appendChild(renderCopilotAnswer(response));
       announceCopilot(response.headline);
@@ -520,7 +520,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
       return;
     }
 
-    const steps = ["Analyse du profil…", "Analyse des projets…"];
+    const steps = ["Analyse du profil…", "Recherche des projets pertinents…", "Génération de la réponse…"];
     const stepEl = document.createElement("p");
     stepEl.textContent = `◌ ${steps[0]}`;
     thinking.appendChild(stepEl);
@@ -530,7 +530,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
       stepIndex++;
       if (stepIndex >= steps.length) {
         window.clearInterval(interval);
-        stepEl.textContent = `✓ ${kb.projects.length} projets analysés`;
+        stepEl.textContent = `✓ Analyse terminée`;
         window.setTimeout(finish, 160);
       } else {
         stepEl.textContent = `✓ ${steps[stepIndex - 1]}  →  ◌ ${steps[stepIndex]}`;
@@ -928,6 +928,14 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     color: #64748b;
     font-size: 0.7rem;
     font-style: italic;
+  }
+
+  :global(.copilot-generated) {
+    color: #00f2fe;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    opacity: 0.8;
   }
 
   :global(.copilot-suggestions) {

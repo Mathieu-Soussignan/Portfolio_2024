@@ -504,6 +504,31 @@ export function buildCopilotResponse(
 		}
 
 		case "compare": {
+			// Two named projects → contextual comparison (V1 fallback answer).
+			const compared = intent.comparisonProjects
+				.map((slug) => findProjectBySlug(knowledge, slug))
+				.filter((p): p is ProjectRecord => p !== null);
+			if (compared.length >= 2) {
+				const [a, b] = compared;
+				return {
+					...base,
+					kind: "known",
+					headline: `Comparaison : ${a.title} vs ${b.title}.`,
+					bullets: [
+						`${a.title} — ${tagLine(a)}`,
+						`${b.title} — ${tagLine(b)}`,
+						"Le Copilot IA compare ces deux projets à partir de leurs technologies, architectures et objectifs.",
+					],
+					projects: [toRef(a, "Projet comparé"), toRef(b, "Projet comparé")],
+					links: [
+						{ label: `Voir ${a.title}`, href: a.url, kind: "project" },
+						{ label: `Voir ${b.title}`, href: b.url, kind: "project" },
+					],
+					sources: projectListSources(),
+					suggestions: [],
+				};
+			}
+
 			const dataProjects = searchProjects(knowledge, "data");
 			const iaProjects = searchProjects(knowledge, "ai");
 			const dataTitles = dataProjects.map((p) => p.title).join(", ");

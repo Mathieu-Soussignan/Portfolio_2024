@@ -340,6 +340,39 @@ export function extractProjectEntity(normalized: string, knowledge: PortfolioKno
 	return bestScore >= 2 ? bestSlug : null;
 }
 
+/** Markers that suggest a comparison between two named entities. */
+const COMPARISON_MARKERS = ["compar", "vs", "versus", "ou", "lequel", "laquelle", "meilleur", "entre"];
+
+/** True when the question looks like a comparison. */
+export function hasComparisonMarker(normalized: string): boolean {
+	return COMPARISON_MARKERS.some((m) => containsKeyword(normalized, m));
+}
+
+/**
+ * Extract every project explicitly named in a question (by full title or slug),
+ * in order of appearance. Unlike `extractProjectEntity` (best single match),
+ * this is used to detect comparisons between two known projects.
+ */
+export function extractProjectEntities(normalized: string, knowledge: PortfolioKnowledge): string[] {
+	const matches: { slug: string; index: number }[] = [];
+	const seen = new Set<string>();
+
+	for (const project of knowledge.projects) {
+		const title = normalize(project.title);
+		const slug = project.slug.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+		let index = -1;
+		if (title.length >= 3) index = normalized.indexOf(title);
+		if (index === -1 && slug.length >= 3) index = normalized.indexOf(slug);
+		if (index >= 0 && !seen.has(project.slug)) {
+			seen.add(project.slug);
+			matches.push({ slug: project.slug, index });
+		}
+	}
+
+	matches.sort((a, b) => a.index - b.index);
+	return matches.map((m) => m.slug);
+}
+
 export function detectIntent(question: string, knowledge: PortfolioKnowledge): QueryIntent {
 	const raw = question.trim();
 	const normalized = normalize(raw);
@@ -348,7 +381,7 @@ export function detectIntent(question: string, knowledge: PortfolioKnowledge): Q
 	const dimension = detectDimension(normalized);
 	const requestedDomain = detectRequestedDomain(normalized);
 
-	const base = { raw, normalized, requestedDomain };
+	const base = { raw, normalized, requestedDomain, comparisonProjects: [] as string[] };
 
 	// 1. Greeting (short and starting with a greeting word).
 	if (/^(bonjour|bonsoir|salut|hello|hi|coucou|hey)\b/.test(normalized) && normalized.length < 30) {
@@ -363,6 +396,14 @@ export function detectIntent(question: string, knowledge: PortfolioKnowledge): Q
 	// 3. Contact.
 	if (hasAny(normalized, ["contact", "email", "mail", "linkedin", "github", "joindre", "coordonnees", "reseaux"])) {
 		return { ...base, kind: "contact" as IntentKind, entity: null, entityType: null, dimension: null };
+	}
+
+	// Project comparison — two real projects explicitly named ("X vs Y",
+	// "Compare X et Y", "X ou Y", "Lequel entre X et Y", …). Requires at least
+	// two known projects AND a comparison marker — "ou" alone is not enough.
+	const comparisonProjects = extractProjectEntities(normalized, knowledge);
+	if (comparisonProjects.length >= 2 && hasComparisonMarker(normalized)) {
+		return { ...base, kind: "compare" as IntentKind, entity: null, entityType: null, dimension: null, comparisonProjects };
 	}
 
 	// 4. Project recommendation — "which project best demonstrates X?".

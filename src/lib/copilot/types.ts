@@ -109,6 +109,11 @@ export interface QueryIntent {
 	/** Set when the question asks to rank projects along a dimension. */
 	dimension: Dimension | null;
 	/**
+	 * Slugs of the projects explicitly named for comparison (two or more).
+	 * Empty for every other intent.
+	 */
+	comparisonProjects: string[];
+	/**
 	 * Technical domain explicitly named by the question (e.g. "RAG",
 	 * "Computer Vision"). Kept separate from the intent and from `dimension`.
 	 */
@@ -154,14 +159,108 @@ export interface CopilotResponse {
 	evidence?: string[];
 	/** Human-readable transparency notes about where the answer comes from. */
 	sources: string[];
+	/** Which provider produced this answer (transparency indicator). */
+	generatedBy?: CopilotSource;
 	/** Follow-up questions generated from the knowledge base. */
 	suggestions: string[];
 }
 
-/** Public surface of the local response engine (the "Copilot Controller"). */
+/** Which engine produced an answer (local deterministic or Mistral). */
+export type CopilotSource = "local" | "mistral";
+
+/** Public surface of the copilot engine (the "Copilot Controller"). */
 export interface CopilotEngine {
-	/** Answer a natural-language question using only the portfolio knowledge. */
-	ask(question: string): CopilotResponse;
+	/**
+	 * Answer a natural-language question using only the portfolio knowledge.
+	 * The deterministic V1 engine resolves synchronously; the hybrid V2 engine
+	 * may resolve asynchronously (Mistral call).
+	 */
+	ask(question: string): CopilotResponse | Promise<CopilotResponse>;
 	/** Suggest questions, generated from the actual portfolio data. */
 	suggest(): string[];
+}
+
+/** A project reduced to the fields needed to ground an LLM answer. */
+export interface ProjectContextItem {
+	slug: string;
+	title: string;
+	description: string;
+	tags: string[];
+	url: string;
+}
+
+/**
+ * Grounding context passed to a provider: only the information relevant to the
+ * question. This is the *only* data a provider may use to answer — the
+ * knowledge base is the source of truth, never the model's priors.
+ */
+export interface CopilotContext {
+	profile: {
+		name: string;
+		role: string;
+		company: string;
+		location: string;
+		summary: string;
+		training: string[];
+	};
+	skills: string[];
+	experience: { period: string; title: string; company: string; description: string }[];
+	projects: ProjectContextItem[];
+	/** Explicit evidence terms retrieved for the question. */
+	evidence: string[];
+	/** Evidence-based confidence ceiling for the question. */
+	confidence: ConfidenceLevel | null;
+	/** True when the question is outside the portfolio scope. */
+	outOfScope: boolean;
+}
+
+/** Everything a provider needs to answer a question, grounded in the knowledge. */
+export interface CopilotGenerationRequest {
+	question: string;
+	intent: QueryIntent;
+	context: CopilotContext;
+	/** Evidence-based confidence ceiling from the deterministic V1 answer. */
+	baseConfidence: ConfidenceLevel | null;
+}
+
+/**
+ * How a claim relates to the grounding context:
+ *  - "documented"   → restates a fact verbatim from the context;
+ *  - "reformulation"→ natural rephrasing of a context fact (no added meaning);
+ *  - "inference"    → synthesis / comparison / recommendation built from
+ *                     several documented facts. It must not introduce a new
+ *                     fact (technology, project, qualifier, version).
+ */
+export type ClaimKind = "documented" | "reformulation" | "inference";
+
+/** A single factual assertion with pointers to the evidence atoms that support it. */
+export interface EvidenceClaim {
+	text: string;
+	/** IDs of the evidence atoms (see the registry rendered in the prompt). */
+	evidenceIds: string[];
+	kind: ClaimKind;
+}
+
+/** Raw structured output produced by the Mistral provider (pre-validation). */
+export interface MistralGeneration {
+	answer: string;
+	confidence?: ConfidenceLevel | null;
+	/** Project slugs or exact titles referenced by the answer. */
+	referencedProjects?: string[];
+	/** Technologies referenced by the answer. */
+	referencedTechnologies?: string[];
+	/** Per-sentence grounding: each claim cites the evidence it relies on. */
+	claims?: EvidenceClaim[];
+	reasoningSummary?: string;
+	outOfScope?: boolean;
+}
+
+/**
+ * Provider abstraction: swaps the local deterministic engine for a grounded LLM
+ * (or vice-versa) without touching the UI. Both produce a validated
+ * `CopilotResponse`; a provider may throw to signal "use the fallback".
+ */
+export interface CopilotProvider {
+	readonly name: CopilotSource;
+	generate(request: CopilotGenerationRequest): Promise<CopilotResponse>;
 }
