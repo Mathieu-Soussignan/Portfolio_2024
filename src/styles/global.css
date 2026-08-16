@@ -125,6 +125,7 @@ body {
 	font-family: var(--font-body);
 	-webkit-font-smoothing: antialiased;
 	line-height: 1.5;
+	text-wrap: pretty;
 }
 
 *,
@@ -141,6 +142,11 @@ img {
 
 a {
 	color: var(--link-color);
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent-light);
+	outline-offset: 2px;
 }
 
 h1,

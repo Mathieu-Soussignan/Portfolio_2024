@@ -34,7 +34,7 @@ const projects = (await getCollection("work"))
           </div>
 
           <h1 class="hero-title">
-            Hello, je m'appelle <br />
+            <span class="hero-greeting">Hello, je m'appelle</span>
             <span class="gradient-text hero-title-shimmer">Mathieu Soussignan</span>
           </h1>
 
@@ -494,7 +494,10 @@ const projects = (await getCollection("work"))
       <section class="terminal-showcase-section">
         <div class="terminal-section-header">
           <h3>Console & Terminal Interactif</h3>
-          <p>Explorez mon profil et mes compétences en tapant des commandes ou en cliquant sur les raccourcis.</p>
+          <p>
+            Explorez mon profil et mes compétences en tapant des commandes — ou
+            posez une question à l'AI Portfolio Copilot avec <code>ask</code>.
+          </p>
         </div>
         <div class="terminal-wrapper">
           <InteractiveTerminal />
@@ -581,10 +584,20 @@ const projects = (await getCollection("work"))
   }
 
   .hero-title {
-    font-size: var(--text-3xl);
-    line-height: 1.15;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
     color: var(--gray-0);
     font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-greeting {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--gray-300);
+    line-height: 1.25;
   }
 
   .hero-tagline-box {
@@ -613,6 +626,7 @@ const projects = (await getCollection("work"))
     color: var(--gray-200);
     line-height: 1.6;
     margin: 0;
+    text-wrap: balance;
   }
 
   .highlight-text {
@@ -741,6 +755,8 @@ const projects = (await getCollection("work"))
     -webkit-text-fill-color: transparent;
     animation: liquidShimmer 4s linear infinite;
     display: inline-block;
+    font-size: clamp(2.25rem, 10vw, 2.5rem);
+    line-height: 1.05;
   }
 
   @keyframes liquidShimmer {
@@ -927,6 +943,17 @@ const projects = (await getCollection("work"))
     color: var(--gray-400);
     font-size: var(--text-sm);
     margin-top: 0.4rem;
+    text-wrap: pretty;
+  }
+
+  .terminal-section-header code {
+    font-family: "Fira Code", Consolas, Monaco, monospace;
+    font-size: 0.85em;
+    color: #00f2fe;
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
   }
 
   .terminal-wrapper {
@@ -943,8 +970,8 @@ const projects = (await getCollection("work"))
       align-items: center;
     }
 
-    .hero-title {
-      font-size: var(--text-5xl);
+    .hero-title-shimmer {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
     }
   }
 
@@ -993,6 +1020,7 @@ const projects = (await getCollection("work"))
 
   .section-header h3 {
     font-size: var(--text-2xl);
+    text-wrap: balance;
   }
 
   @media (min-width: 50em) {

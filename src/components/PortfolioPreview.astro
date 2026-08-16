@@ -263,4 +263,32 @@ const isIA = data.tags.some(t => ['IA', 'Machine Learning', 'Mistral AI', 'LLM']
 			padding: 0.55rem 1.3rem;
 		}
 	}
+
+	/* Touch devices can't hover, so the description and CTA would otherwise be
+	   invisible. Reveal them as a bottom scrim while keeping the image visible. */
+	@media (hover: none) {
+		.hover-overlay {
+			opacity: 1;
+			transform: none;
+			pointer-events: none;
+			background: linear-gradient(
+				180deg,
+				transparent 0%,
+				rgba(10, 14, 23, 0.35) 35%,
+				rgba(10, 14, 23, 0.96) 100%
+			);
+		}
+
+		.card-header-bar {
+			z-index: 4;
+		}
+
+		.tags-preview {
+			display: none;
+		}
+
+		.project-desc-short {
+			-webkit-line-clamp: 2;
+		}
+	}
 </style>

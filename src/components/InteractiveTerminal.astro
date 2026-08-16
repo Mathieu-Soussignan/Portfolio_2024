@@ -17,7 +17,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     </div>
     <div class="terminal-title">
       <Icon icon="terminal-window" size="1.2em" />
-      mathieu@keyrus: ~ (zsh)
+      <span class="terminal-title-text">mathieu@keyrus: ~ (zsh)</span>
     </div>
     <div class="terminal-status">
       <span class="status-dot"></span> LIVE
@@ -27,7 +27,10 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
   <div class="terminal-body" id="terminal-body">
     <div class="terminal-welcome">
       <p class="welcome-text">Bienvenue sur le terminal de <span class="highlight">Mathieu Soussignan</span> v2.6.0</p>
-      <p class="sub-text">Tapez <span class="cmd-shortcut">'help'</span> ou cliquez sur une commande ci-dessous pour explorer.</p>
+      <p class="sub-text">
+        <span class="copilot-hint">AI Portfolio Copilot</span>
+        Tapez <span class="cmd-shortcut">'ask'</span> puis votre question, ou <span class="cmd-shortcut">'help'</span> pour explorer les commandes.
+      </p>
     </div>
 
     <div id="terminal-history"></div>
@@ -41,7 +44,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
         class="terminal-input"
         autocomplete="off"
         spellcheck="false"
-        placeholder="Entrez une commande (ex: whoami, skills, projects)..."
+        placeholder="Entrez une commande ou une question (ex: help, skills, ou ask...)"
       />
     </form>
   </div>
@@ -614,6 +617,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
   .window-buttons {
     display: flex;
     gap: 0.5rem;
+    flex-shrink: 0;
   }
 
   .btn {
@@ -632,6 +636,15 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     font-size: 0.8rem;
     color: var(--gray-400);
     font-weight: 500;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 0.5rem;
+  }
+
+  .terminal-title-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .terminal-status {
@@ -642,6 +655,7 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     color: #27c93f;
     font-weight: 700;
     letter-spacing: 0.05em;
+    flex-shrink: 0;
   }
 
   .status-dot {
@@ -683,6 +697,21 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     background: rgba(0, 242, 254, 0.1);
     padding: 0.1rem 0.4rem;
     border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .copilot-hint {
+    display: inline-block;
+    color: #00f2fe;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 0.5rem;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 4px;
+    background: rgba(0, 242, 254, 0.08);
   }
 
   .terminal-input-row {
@@ -765,6 +794,18 @@ const knowledge = buildPortfolioKnowledge(await getCollection("work"));
     color: #ffffff;
     border-color: #c561f6;
     transform: translateY(-2px);
+  }
+
+  .quick-cmd[data-cmd="ask"] {
+    color: #00f2fe;
+    border-color: rgba(0, 242, 254, 0.35);
+    background: rgba(0, 242, 254, 0.08);
+  }
+
+  .quick-cmd[data-cmd="ask"]:hover {
+    color: #ffffff;
+    background: rgba(0, 242, 254, 0.2);
+    border-color: #00f2fe;
   }
 
   /* === AI Portfolio Copilot === */
